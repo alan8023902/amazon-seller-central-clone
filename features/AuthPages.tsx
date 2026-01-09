@@ -42,9 +42,7 @@ export const LoginEmail = () => {
   return (
     <AuthLayout showNewUser={newUserSection}>
       <Card>
-        <h1 className="text-[28px] font-normal mb-[14px] leading-[36px] text-[#0F1111]">
-          登录
-        </h1>
+        <h1 className="login-title">登录</h1>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <InputField
@@ -72,8 +70,8 @@ export const LoginEmail = () => {
           。
         </div>
 
-        <div className="mt-[14px]">
-          <Button variant="white" onClick={() => navigate(-1)}>
+        <div className="mt-[12px]">
+          <Button variant="white" onClick={() => navigate(-1)} className="cancel-btn">
             取消
           </Button>
         </div>
