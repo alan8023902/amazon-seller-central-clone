@@ -12,19 +12,19 @@ const AuthLayout: React.FC<{ children: React.ReactNode; showNewUser?: React.Reac
   return (
     <div className="bg-white">
       {/* 顶部 Logo */}
-      <div className="pt-[18px] pb-[18px] flex justify-center">
+      <div className="pt-[15px] pb-[26px] flex justify-center">
         <BrandLogo />
       </div>
 
       {/* 主内容 */}
       <div className="flex flex-col items-center w-full px-4 animate-fade-in">
         {children}
-        {showNewUser ? <div className="mt-[14px] w-full flex justify-center">{showNewUser}</div> : null}
+        {showNewUser ? <div className="mt-[15px] w-full flex justify-center">{showNewUser}</div> : null}
       </div>
 
       {/* Footer 上方横线 */}
-      <div className="mt-[28px]">
-        <div className="h-[1px] bg-[#DDD] w-full" />
+      <div className="mt-[30px]">
+        <div className="h-[2px] bg-[#DDD] w-full" />
       </div>
 
       {/* Footer 链接 */}

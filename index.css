@@ -6,12 +6,13 @@
   :root{
     /* Amazon-like text colors */
     --amz-text: #0F1111;
-    --amz-link: #007185;
+    --amz-link: #1c1e86;
     --amz-link-hover: #C45500;
     --amz-border: #D5D9D9;
     --amz-border-input: #A6A6A6;
-    --amz-focus: #007185;
-    --amz-focus-ring: rgba(0,113,133,0.20);
+  /* Set the blue focus color */
+    --amz-focus: #0066c0; /* Amazon-like blue for the border */
+    --amz-focus-ring: rgba(27, 30, 34, 0.3); /* A blue focus ring with transparency */
     --amz-yellow: #FFD814;
     --amz-yellow-border: #FCD200;
   }
@@ -159,12 +160,12 @@ input:-webkit-autofill:focus {
   /* Match Amazon input focus: grey outline + teal ring */
   .amz-auth .amz-input-focus:focus {
     outline: none !important;
-    border-color: var(--amz-focus) !important;
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.35), 0 0 0 3px var(--amz-focus-ring) !important;
+    border-color: var(--amz-focus) !important; /* Set the blue border color */
+    box-shadow: 0 0 0 3px var(--amz-focus-ring) !important; 
   }
 
   /* Auth form field spacing (keep changes scoped to auth only) */
-  .amz-auth .amz-auth-field { margin-bottom: 12px !important; }
+  .amz-auth .amz-auth-field { margin-bottom: 20px !important; }
   .amz-auth .amz-auth-field > label { margin-bottom: 4px !important; }
 
   /* Links in footer */
@@ -174,7 +175,7 @@ input:-webkit-autofill:focus {
 .amz-auth .login-title {
   font-size: 1.6rem;  /* 符合真实的亚马逊登录页面 */
   font-weight: 600;
-  margin-bottom: 20px;  /* 登录标题与输入框的间距 */
+  margin-bottom: 60px;  /* 登录标题与输入框的间距 */
 }
 
 /* 输入框聚焦时的灰色边框效果 */

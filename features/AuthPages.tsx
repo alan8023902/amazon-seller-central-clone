@@ -42,7 +42,7 @@ export const LoginEmail = () => {
   return (
     <AuthLayout showNewUser={newUserSection}>
       <Card>
-        <h1 className="text-[28px] font-normal mb-[14px] leading-[36px] text-[#0F1111]">
+        <h1 className="text-[20px] font-normal mb-[14px] leading-[36px] text-[#0F1111]">
           登录
         </h1>
 
@@ -60,25 +60,25 @@ export const LoginEmail = () => {
         </form>
 
         {/* 条款行与按钮间距 */}
-        <div className="text-[12px] mt-[10px] text-[#0F1111] leading-[18px]">
-          继续操作即表示您同意亚马逊的{" "}
+        <div className="text-[12px] mt-[14px] text-[#0F1111] leading-[18px]">
+          继续操作即表示您同意亚马逊的
           <a href="#" className="amz-link">
             使用条件
-          </a>{" "}
-          和{" "}
+          </a>
+          和
           <a href="#" className="amz-link">
             隐私声明
           </a>
           。
         </div>
 
-        <div className="mt-[14px]">
+        <div className="mt-[30px]">
           <Button variant="white" onClick={() => navigate(-1)}>
             取消
           </Button>
         </div>
 
-        <div className="mt-[8px] flex items-center gap-[6px] cursor-pointer group w-fit">
+        <div className="mt-[12px] flex items-center gap-[10px] cursor-pointer group w-fit">
           <span className="text-[13px] amz-link group-hover:underline">
             需要帮助?
           </span>
@@ -99,7 +99,7 @@ export const RegisterPage = () => {
           创建帐户
         </h1>
 
-        <div className="space-y-0">
+        <div className="space-y-4">
           <InputField label="您的姓名" placeholder="姓名" autoComplete="name" className="amz-auth-field" />
           <InputField label="邮箱地址" autoComplete="email" className="amz-auth-field" />
           <InputField
@@ -116,22 +116,22 @@ export const RegisterPage = () => {
             className="amz-auth-field"
           />
           <InputField label="再次输入密码" type="password" autoComplete="new-password" className="amz-auth-field" />
-          <Button className="mt-[6px]">创建您的亚马逊账户</Button>
+          <Button className="mt-[50px]">创建您的亚马逊账户</Button>
         </div>
 
-        <div className="text-[12px] mt-[12px] text-[#0F1111] leading-[18px]">
-          创建帐户，即表示您同意遵守 Amazon 的{" "}
+        <div className="text-[12px] mt-[12px] text-[#0F1111] leading-[28px]">
+          创建帐户，即表示您同意遵守 Amazon 的
           <a href="#" className="amz-link">
             使用条件
-          </a>{" "}
-          和{" "}
+          </a>
+          和
           <a href="#" className="amz-link">
             隐私声明
           </a>
           。
         </div>
 
-        <div className="h-[1px] bg-[#E7E9EC] w-full my-[14px]" />
+        <div className="h-[2px] bg-[#E7E9EC] w-full my-[14px]" />
 
         <div className="text-[13px] text-[#0F1111]">
           已拥有帐户？{" "}

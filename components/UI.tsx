@@ -4,31 +4,28 @@ type CN = Array<string | undefined | null | false>;
 const cn = (...args: CN) => args.filter(Boolean).join(" ");
 
 /**
- * Auth 页用：amazon seller central（含橙色 smile）
+ * Auth 页用：修复 1:1 还原 Logo
+ * 指导：amazon 部分加粗，seller central 部分常规，箭头 from a 指向 z
  */
 export const BrandLogo = ({ className = "" }: { className?: string }) => {
   return (
-    <div className={cn("flex items-center justify-center select-none", className)} aria-label="amazon seller central">
-      <div className="relative">
-        <div className="flex items-baseline justify-center gap-[6px]">
-          <span className="text-[16px] font-bold text-black leading-none tracking-tight">amazon</span>
-          <span className="text-[16px] font-semibold text-black leading-none tracking-tight">
-            seller central
-          </span>
-        </div>
-
-        {/* orange smile under "amazon" */}
-        <svg className="absolute left-[12px] top-[18px]" width="58" height="10" viewBox="0 0 58 10" fill="none">
+    <div className={cn("flex flex-col items-center select-none", className)}>
+      <div className="flex items-baseline relative">
+        <span className="text-[18px] font-bold text-black leading-none tracking-tighter" style={{ fontFamily: 'Amazon Ember, Arial, sans-serif' }}>amazon</span>
+        <span className="text-[18px] font-normal text-black leading-none tracking-tight ml-1" style={{ fontFamily: 'Amazon Ember, Arial, sans-serif' }}>seller central</span>
+        
+        {/* 橙色微笑箭头：起点第一个 a，终点 z 的转角 */}
+        <svg className="absolute left-[4px] top-[10px]" width="60" height="20" viewBox="0 0 82 18" fill="none">
           <path
-            d="M2 2.2C12 8.8 44 8.8 56 2.2"
+            d="M2 3.5C12 11.5 38 11.5 52 3.5"
             stroke="#FF9900"
-            strokeWidth="2.2"
+            strokeWidth="2.8"
             strokeLinecap="round"
           />
           <path
-            d="M42.5 1.8L56 2.2L48.5 9"
+            d="M41 3L52 3.5L45 10.5"
             stroke="#FF9900"
-            strokeWidth="2.2"
+            strokeWidth="2.8"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
