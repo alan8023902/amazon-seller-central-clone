@@ -10,25 +10,25 @@ export const BrandLogo = ({ className = "" }: { className?: string }) => {
   return (
     <div className={cn("flex items-center justify-center select-none", className)} aria-label="amazon seller central">
       <div className="relative">
-        <div className="flex items-baseline justify-center gap-[6px]">
-          <span className="text-[16px] font-bold text-black leading-none tracking-tight">amazon</span>
-          <span className="text-[16px] font-semibold text-black leading-none tracking-tight">
+        <div className="flex items-baseline justify-center gap-[4px]">
+          <span className="text-[14px] font-bold text-black leading-none tracking-tight">amazon</span>
+          <span className="text-[14px] font-semibold text-black leading-none tracking-tight">
             seller central
           </span>
         </div>
 
         {/* orange smile under "amazon" */}
-        <svg className="absolute left-[12px] top-[18px]" width="58" height="10" viewBox="0 0 58 10" fill="none">
+        <svg className="absolute left-[10px] top-[16px]" width="54" height="9" viewBox="0 0 58 10" fill="none">
           <path
             d="M2 2.2C12 8.8 44 8.8 56 2.2"
             stroke="#FF9900"
-            strokeWidth="2.2"
+            strokeWidth="2"
             strokeLinecap="round"
           />
           <path
             d="M42.5 1.8L56 2.2L48.5 9"
             stroke="#FF9900"
-            strokeWidth="2.2"
+            strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />

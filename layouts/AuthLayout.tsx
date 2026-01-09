@@ -10,9 +10,9 @@ const AuthLayout: React.FC<{ children: React.ReactNode; showNewUser?: React.Reac
   const isZh = language === "zh-CN";
 
   return (
-    <div className="bg-white">
+    <div className="bg-white amz-auth">
       {/* 顶部 Logo */}
-      <div className="pt-[18px] pb-[18px] flex justify-center">
+      <div className="pt-[18px] pb-[12px] flex justify-center">
         <BrandLogo />
       </div>
 
@@ -29,14 +29,14 @@ const AuthLayout: React.FC<{ children: React.ReactNode; showNewUser?: React.Reac
 
       {/* Footer 链接 */}
       <div className="pt-[22px]">
-        <div className="flex justify-center gap-10 text-[12px] text-[#007185] mb-3 font-medium">
-          <a href="#" className="hover:underline">
+        <div className="footer-links flex justify-center gap-10 text-[12px] mb-3 font-medium">
+          <a href="#" className="amz-link">
             {isZh ? "使用条件" : "Conditions of Use"}
           </a>
-          <a href="#" className="hover:underline">
+          <a href="#" className="amz-link">
             {isZh ? "隐私声明" : "Privacy Notice"}
           </a>
-          <a href="#" className="hover:underline">
+          <a href="#" className="amz-link">
             {isZh ? "帮助" : "Help"}
           </a>
         </div>

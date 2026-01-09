@@ -148,8 +148,8 @@ input:-webkit-autofill:focus {
   .amz-auth {
     font-family: Arial, Helvetica, sans-serif;
     /* Seller Central auth link color (teal) */
-    --amz-link: #007185;
-    --amz-link-hover: #c7511f;
+    --amz-link: #0066c0;
+    --amz-link-hover: #c45500;
     --amz-focus: #007185;
     --amz-focus-ring: rgba(0,113,133,0.20);
   }
@@ -172,9 +172,11 @@ input:-webkit-autofill:focus {
 
 /* 调整"登录"文本的字体大小 */
 .amz-auth .login-title {
-  font-size: 1.6rem;  /* 符合真实的亚马逊登录页面 */
-  font-weight: 600;
-  margin-bottom: 20px;  /* 登录标题与输入框的间距 */
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #0F1111;
 }
 
 /* 输入框聚焦时的灰色边框效果 */
@@ -186,19 +188,14 @@ input:-webkit-autofill:focus {
 
 /* 取消按钮的样式 */
 .amz-auth .cancel-btn {
-  margin-top: 20px;  /* 调整取消按钮与输入框之间的间距 */
-  background-color: transparent;
-  color: #0066c0;  /* 亚马逊蓝色 */
-  border: none;
-  font-size: 0.875rem;
-  cursor: pointer;
+  font-weight: 500;
 }
 
 /* 底部链接的样式 */
 .amz-auth .footer-links {
   margin-top: 30px;
   font-size: 0.875rem;
-  color: #216a21;
+  color: var(--amz-link);
 }
 
 .amz-auth .footer-links a {
