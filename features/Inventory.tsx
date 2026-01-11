@@ -37,8 +37,8 @@ const Inventory: React.FC = () => {
   return (
     <div className="animate-in fade-in slide-in-from-top-2 duration-500">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-bold text-amazon-text uppercase tracking-tight">Manage All Inventory</h1>
-        <div className="flex items-center gap-4 text-xs-amz font-black text-amazon-link uppercase tracking-widest">
+        <h1 className="text-[22px] font-semibold text-amazon-text">Manage All Inventory</h1>
+        <div className="flex items-center gap-4 text-[13px] font-medium text-amazon-link">
            <button className="flex items-center gap-1.5 hover:underline">
              <HelpCircle size={14} /> Documentation
            </button>

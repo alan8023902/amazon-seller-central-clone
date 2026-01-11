@@ -1,4 +1,3 @@
-
 export type LangType = 'zh-CN' | 'en-US';
 
 export const translations: Record<LangType, Record<string, string>> = {
@@ -32,6 +31,8 @@ export const translations: Record<LangType, Record<string, string>> = {
     searchSellerCentral: '搜索卖家平台',
     logout: '退出登录',
     nextGenSelling: '新版卖家中心',
+    selectMarketplace: '选择站点',
+    selectLanguage: '选择语言',
 
     // 登录/注册
     login: '登录',
@@ -139,6 +140,8 @@ export const translations: Record<LangType, Record<string, string>> = {
     searchSellerCentral: 'Search Seller Central',
     logout: 'Logout',
     nextGenSelling: 'Next Gen Selling',
+    selectMarketplace: 'Select marketplace',
+    selectLanguage: 'Select language',
 
     login: 'Sign-In',
     continue: 'Continue',

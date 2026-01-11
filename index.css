@@ -15,6 +15,8 @@
     --amz-focus-ring: rgba(27, 30, 34, 0.3); /* A blue focus ring with transparency */
     --amz-yellow: #FFD814;
     --amz-yellow-border: #FCD200;
+    --amazon-search-input: #0b5a61; /* 浅青绿：接近真实输入框底色 */
+    --amazon-search-btn: #004B55;   /* 按钮更深一点 */
   }
 
   html, body {
@@ -33,12 +35,41 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
+}
 
   body {
     @apply bg-white;
     color: var(--amz-text);
   }
-}
+  
+  /* ✅ 只让 Seller Central 控制台区域灰底 */
+  .amz-console {
+    background: #F1F3F3;
+    min-height: 100vh;
+      /* ✅ 控制台整体更密集（不影响 .amz-auth） */
+    font-size: 13px;
+    line-height: 1.3;
+  }
+  
+  /* ✅ Auth 页保持白底（不改 Login/Register 组件） */
+  .amz-auth {
+    background: #fff;
+    min-height: 100vh;
+  }
+
+  /* ✅ Auth 页面：卡片固定 350，且居中（不改 Login/Register 组件） */
+  .amz-auth .amz-card{
+    width: 350px;
+    max-width: 350px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ✅ 控制台：卡片通栏 */
+  .amz-console .amz-card{
+    width: 100%;
+    max-width: none;
+  }
 
 @layer components {
   .amz-link {
@@ -214,4 +245,11 @@ input:-webkit-autofill:focus {
 /* 底部链接与底部的间距 */
 .amz-auth .footer-links {
   margin-bottom: 30px;
+}
+
+/* ===== Amazon Seller Central header tweaks ===== */
+.amz-console-logo {
+  font-family: "Amazon Ember", "Segoe UI", Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
 }

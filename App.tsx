@@ -24,6 +24,10 @@ import AccountOverviewLayout from './layouts/AccountOverviewLayout';
 import StoreStatus from './features/StoreStatus';
 import BusinessInfo from './features/BusinessInfo';
 import Verification from './features/Verification';
+import PaymentInfo from './features/PaymentInfo';
+import TaxInfo from './features/TaxInfo';
+import MerchantToken from './features/MerchantToken';
+import LegalEntity from './features/LegalEntity';
 
 // Route Guard Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -55,7 +59,10 @@ const Loading = () => (
 );
 
 function App() {
+  const location = useLocation();
+  const isAuth = location.pathname.startsWith("/auth");
   return (
+    <div className={isAuth ? "amz-auth" : "amz-console"}>
     <Suspense fallback={<Loading />}>
       <Routes>
         {/* Auth Routes */}
@@ -84,15 +91,18 @@ function App() {
           <Route path="verification" element={<Verification />} />
           <Route path="dev-data" element={<DevData />} />
           
-          {/* Account Settings Sub-routes according to user requirement /app/settings/account-overview */}
+          {/* Account Settings Sub-routes */}
           <Route path="settings" element={<AccountOverviewLayout />}>
             <Route index element={<Navigate to="store-status" replace />} />
             <Route path="store-status" element={<StoreStatus />} />
             <Route path="business-info" element={<BusinessInfo />} />
-            <Route path="business-info/:sub" element={<Placeholder name="Business Info Management" />} />
-            <Route path="payment-info" element={<Placeholder name="Payment Information" />} />
+            <Route path="business-info/address" element={<Verification />} />
+            <Route path="business-info/token" element={<MerchantToken />} />
+            <Route path="business-info/legal" element={<LegalEntity />} />
+            <Route path="business-info/:sub" element={<Placeholder name="Business Info Detail" />} />
+            <Route path="payment-info" element={<PaymentInfo />} />
             <Route path="shipping-returns" element={<Placeholder name="Shipping and Returns" />} />
-            <Route path="tax-info" element={<Placeholder name="Tax Information" />} />
+            <Route path="tax-info" element={<TaxInfo />} />
             <Route path="account-management" element={<Placeholder name="Account Management" />} />
           </Route>
         </Route>
@@ -102,6 +112,7 @@ function App() {
         <Route path="*" element={<Navigate to="/app/dashboard" replace />} />
       </Routes>
     </Suspense>
+    </div>
   );
 }
 

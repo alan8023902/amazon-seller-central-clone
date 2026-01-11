@@ -1,4 +1,3 @@
-
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -14,21 +13,29 @@ export default {
     extend: {
       colors: {
         amazon: {
-          dark: '#232f3e', 
+          dark: '#232f3e',
           darker: '#131921',
           teal: '#007185',
           lightTeal: '#00a8d6',
           yellow: '#FFD814',
           yellowHover: '#f7df66',
           yellowBorder: '#F7CA00',
-          bg: '#eaeded',
+
+          bg: '#F1F3F3',
           border: '#d5d9d9',
           text: '#0f1111',
           secondaryText: '#565959',
           link: '#007185',
           orange: '#e47911',
           error: '#ba0000',
-          success: '#007600'
+          success: '#007600',
+
+          // ✅ 关键：MainLayout 用到的颜色 token
+          headerTeal: '#002F36',
+          searchInput: '#0B6A70',
+          searchBtn: '#004B55',
+          subHeaderDark: '#002F36',
+          hoverRow: '#205488ff',
         }
       },
       fontSize: {
