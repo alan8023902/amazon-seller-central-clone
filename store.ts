@@ -1,7 +1,8 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { UserSession, DashboardState, Marketplace, Language } from './types';
+import { UserSession, DashboardState, Marketplace, Language, Store } from './types';
+import { salesDashboardData } from './mock/salesDashboard';
 
 interface AppStore {
   session: UserSession;
@@ -9,8 +10,10 @@ interface AppStore {
   setSession: (session: Partial<UserSession>) => void;
   setMarketplace: (m: Marketplace) => void;
   setLanguage: (l: Language) => void;
+  setStore: (s: Store) => void;
   logout: () => void;
   importData: (data: Partial<DashboardState>) => void;
+  updateDashboardByMarketplace: (m: Marketplace) => void;
 }
 
 const initialDashboard: DashboardState = {
@@ -31,7 +34,14 @@ const initialDashboard: DashboardState = {
     { id: '2', name: 'XBJ Wireless Mini Projector with WiFi, 4K Support Outdoor Movie', sku: 'MSE-ERG-BT', asin: 'B0CQHRQNDT', status: 'Active', price: 29.98, units: 168, image: 'https://m.media-amazon.com/images/I/61Nl-HhDsyL._AC_SL1500_.jpg' },
     { id: '3', name: 'Mechanical Gaming Keyboard - RGB Backlit, Blue Switches', sku: 'KBD-GAM-RGB', asin: 'B0CP9WTC5N', status: 'Active', price: 67.98, units: 132, image: 'https://m.media-amazon.com/images/I/71cnd7plSjL._AC_SL1500_.jpg' },
   ],
-  orders: []
+  orders: [],
+  salesSnapshot: {
+    totalOrderItems: 248,
+    unitsOrdered: 192260,
+    orderedProductSales: 18657478.98,
+    avgUnitsOrderItem: 1.14,
+    avgSalesOrderItem: 110.29
+  }
 };
 
 export const useStore = create<AppStore>()(
@@ -42,14 +52,30 @@ export const useStore = create<AppStore>()(
         isLoggedIn: false,
         step: 'email',
         marketplace: 'United States',
-        language: 'zh-CN',
+        // 根据浏览器语言自动检测默认语言
+        language: navigator.language.includes('zh') ? 'zh-CN' : 'en-US',
+        store: 'Store 1',
       },
       dashboard: initialDashboard,
       setSession: (newSession) => set((state) => ({ session: { ...state.session, ...newSession } })),
-      setMarketplace: (m) => set((state) => ({ session: { ...state.session, marketplace: m } })),
+      setMarketplace: (m) => set((state) => {
+        // Update marketplace and refresh dashboard data
+        const mktData = salesDashboardData[m] || salesDashboardData['United States'];
+        return {
+          session: { ...state.session, marketplace: m },
+          dashboard: { ...state.dashboard, ...mktData }
+        };
+      }),
       setLanguage: (l) => set((state) => ({ session: { ...state.session, language: l } })),
-      logout: () => set({ session: { email: '', isLoggedIn: false, step: 'email', marketplace: 'United States', language: 'zh-CN' } }),
+      setStore: (s) => set((state) => ({ session: { ...state.session, store: s } })),
+      logout: () => set({ session: { email: '', isLoggedIn: false, step: 'email', marketplace: 'United States', language: 'en-US', store: 'Store 1' } }),
       importData: (data) => set((state) => ({ dashboard: { ...state.dashboard, ...data } })),
+      updateDashboardByMarketplace: (m) => set((state) => {
+        const mktData = salesDashboardData[m] || salesDashboardData['United States'];
+        return {
+          dashboard: { ...state.dashboard, ...mktData }
+        };
+      }),
     }),
     { name: 'amazon-seller-central-storage' }
   )

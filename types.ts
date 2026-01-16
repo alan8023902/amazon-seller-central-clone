@@ -1,6 +1,7 @@
 
 export type Marketplace = 'United States' | 'Japan' | 'United Kingdom' | 'Germany' | 'Europe';
 export type Language = 'en-US' | 'zh-CN';
+export type Store = 'Store 1' | 'Store 2' | 'Store 3';
 
 export interface UserSession {
   email: string;
@@ -8,6 +9,7 @@ export interface UserSession {
   step: 'email' | 'password' | 'otp' | 'done';
   marketplace: Marketplace;
   language: Language;
+  store: Store;
 }
 
 export interface SalesHistoryPoint {
@@ -45,4 +47,11 @@ export interface DashboardState {
   salesHistory: SalesHistoryPoint[];
   inventory: InventoryItem[];
   orders: OrderItem[];
+  salesSnapshot: {
+    totalOrderItems: number;
+    unitsOrdered: number;
+    orderedProductSales: number;
+    avgUnitsOrderItem: number;
+    avgSalesOrderItem: number;
+  };
 }

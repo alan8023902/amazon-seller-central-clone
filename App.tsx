@@ -3,6 +3,7 @@ import React, { Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useStore } from './store';
 import MainLayout from './layouts/MainLayout';
+import WithSidebarLayout from './layouts/WithSidebarLayout';
 import { LoginEmail, LoginPassword, LoginOTP, RegisterPage } from './features/AuthPages';
 import Dashboard from './features/Dashboard';
 import BusinessReports from './features/BusinessReports';
@@ -20,14 +21,16 @@ import ProductOpportunities from './features/ProductOpportunities';
 import Analytics from './features/Analytics';
 import ManageStores from './features/ManageStores';
 import DevData from './features/DevData';
-import AccountOverviewLayout from './layouts/AccountOverviewLayout';
-import StoreStatus from './features/StoreStatus';
-import BusinessInfo from './features/BusinessInfo';
-import Verification from './features/Verification';
-import PaymentInfo from './features/PaymentInfo';
-import TaxInfo from './features/TaxInfo';
-import MerchantToken from './features/MerchantToken';
-import LegalEntity from './features/LegalEntity';
+import StoreStatus from '@/features/StoreStatus';
+import StoreInfo from '@/features/StoreInfo';
+import BusinessInfo from '@/features/BusinessInfo';
+import Verification from '@/features/Verification';
+import PaymentInfo from '@/features/PaymentInfo';
+import TaxInfo from '@/features/TaxInfo';
+import MerchantToken from '@/features/MerchantToken';
+import LegalEntity from '@/features/LegalEntity';
+import ShippingReturns from '@/features/ShippingReturns';
+import AccountManagement from '@/features/AccountManagement';
 
 // Route Guard Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -73,16 +76,12 @@ function App() {
 
         {/* Protected App Routes */}
         <Route path="/app" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+          {/* Routes without sidebar */}
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="inventory" element={<Inventory />} />
-          <Route path="orders" element={<ManageOrders />} />
-          <Route path="ads" element={<CampaignManager />} />
           <Route path="shipments" element={<Shipments />} />
           <Route path="account-health" element={<AccountHealth />} />
           <Route path="performance-notifications" element={<PerformanceNotifications />} />
           <Route path="add-products" element={<AddProducts />} />
-          <Route path="stores" element={<ManageStores />} />
-          <Route path="business-reports/sales-dashboard" element={<BusinessReports />} />
           <Route path="voc" element={<VoiceOfTheCustomer />} />
           <Route path="analytics" element={<Analytics />} />
           <Route path="product-opportunities" element={<ProductOpportunities />} />
@@ -90,26 +89,60 @@ function App() {
           <Route path="selling-apps" element={<SellingApplications />} />
           <Route path="verification" element={<Verification />} />
           <Route path="dev-data" element={<DevData />} />
+          <Route path="stores" element={<ManageStores />} />
+          
+          {/* Routes with sidebar */}
+          <Route path="business-reports/*" element={<WithSidebarLayout />}>
+            <Route path="sales-dashboard" element={<BusinessReports />} />
+            <Route path="by-date/sales-traffic" element={<Placeholder name="Sales & Traffic" />} />
+            <Route path="by-date/detail-page-sales" element={<Placeholder name="Detail Page Sales & Traffic" />} />
+          </Route>
+          
+          <Route path="inventory/*" element={<WithSidebarLayout />}>
+            <Route index element={<Inventory />} />
+            <Route path="fba" element={<Placeholder name="FBA Inventory" />} />
+          </Route>
+          
+          <Route path="orders/*" element={<WithSidebarLayout />}>
+            <Route index element={<ManageOrders />} />
+            <Route path="returns" element={<Placeholder name="Returns" />} />
+            <Route path="reports" element={<Placeholder name="Order Reports" />} />
+          </Route>
+          
+          <Route path="ads/*" element={<WithSidebarLayout />}>
+            <Route index element={<CampaignManager />} />
+            <Route path="groups" element={<Placeholder name="Ad Groups" />} />
+            <Route path="keywords" element={<Placeholder name="Keywords" />} />
+          </Route>
+          
+          {/* Performance Sub-routes */}
+          <Route path="performance/*" element={<WithSidebarLayout />}>
+            <Route index element={<AccountHealth />} />
+            <Route path="account-health" element={<AccountHealth />} />
+          </Route>
           
           {/* Account Settings Sub-routes */}
-          <Route path="settings" element={<AccountOverviewLayout />}>
+          <Route path="settings/*" element={<WithSidebarLayout />}>
             <Route index element={<Navigate to="store-status" replace />} />
             <Route path="store-status" element={<StoreStatus />} />
+            <Route path="store-info" element={<StoreInfo />} />
             <Route path="business-info" element={<BusinessInfo />} />
             <Route path="business-info/address" element={<Verification />} />
             <Route path="business-info/token" element={<MerchantToken />} />
             <Route path="business-info/legal" element={<LegalEntity />} />
             <Route path="business-info/:sub" element={<Placeholder name="Business Info Detail" />} />
             <Route path="payment-info" element={<PaymentInfo />} />
-            <Route path="shipping-returns" element={<Placeholder name="Shipping and Returns" />} />
+            <Route path="shipping-returns" element={<ShippingReturns />} />
             <Route path="tax-info" element={<TaxInfo />} />
-            <Route path="account-management" element={<Placeholder name="Account Management" />} />
+            <Route path="account-management" element={<AccountManagement />} />
           </Route>
+          
+          {/* Catch-all for unknown /app routes */}
+          <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Route>
 
         {/* Redirects */}
         <Route path="/" element={<Navigate to="/app/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/app/dashboard" replace />} />
       </Routes>
     </Suspense>
     </div>

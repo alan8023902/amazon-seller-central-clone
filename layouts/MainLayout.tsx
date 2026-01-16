@@ -5,6 +5,7 @@ import {
   Bell, // 之后会不用也行，你可以删掉
   Settings,
   ChevronDown,
+  ChevronRight,
   Edit2,
   HelpCircle,
   Check,
@@ -19,7 +20,7 @@ import { useI18n } from "../hooks/useI18n";
 import { cn } from "../utils/cn";
 import { marketplaceConfigs } from "../i18n";
 import { ConsoleLogo } from "../components/UI";
-import { Marketplace, Language } from "../types";
+import { Marketplace, Language, Store } from "../types";
 
 type MenuItem = {
   label: string;
@@ -29,7 +30,7 @@ type MenuItem = {
 };
 
 const MainLayout: React.FC = () => {
-  const { session, logout, setMarketplace, setLanguage } = useStore();
+  const { session, logout, setMarketplace, setLanguage, setStore } = useStore();
   const { t } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
@@ -37,58 +38,61 @@ const MainLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMktOpen, setIsMktOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isStoreOpen, setIsStoreOpen] = useState(false);
 
   const mktRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
+  const settingsRef = useRef<HTMLDivElement>(null);
+  const storeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (mktRef.current && !mktRef.current.contains(event.target as Node)) setIsMktOpen(false);
       if (langRef.current && !langRef.current.contains(event.target as Node)) setIsLangOpen(false);
+      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) setIsSettingsOpen(false);
+      if (storeRef.current && !storeRef.current.contains(event.target as Node)) setIsStoreOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const menuItems: MenuItem[] = [
-    { label: "Dashboard", path: "/app/dashboard" },
-    { label: "Manage All Inventory", path: "/app/inventory" },
-    { label: "Manage Orders", path: "/app/orders" },
-    { label: "Campaign Manager", path: "/app/ads" },
-    { label: "Shipments", path: "/app/shipments" },
-    { label: "Account Health", path: "/app/account-health" },
-    { label: "Performance Notifications", path: "/app/performance-notifications" },
-    { label: "Add Products", path: "/app/add-products" },
-    { label: "Manage Stores", path: "/app/stores" },
+    { label: t('dashboard'), path: "/app/dashboard" },
+    { label: t('manageAllInventory'), path: "/app/inventory" },
+    { label: t('manageOrders'), path: "/app/orders" },
+    { label: t('campaignManager'), path: "/app/ads" },
+    { label: t('shipments'), path: "/app/shipments" },
+    { label: t('accountHealth'), path: "/app/account-health" },
+    { label: t('performanceNotifications'), path: "/app/performance-notifications" },
+    { label: t('addProducts'), path: "/app/add-products" },
+    { label: t('manageStores'), path: "/app/stores" },
     {
-      label: "Business Reports",
+      label: t('businessReports'),
       path: "/app/business-reports/sales-dashboard",
       activePrefix: "/app/business-reports",
     },
-    { label: "Voice of the Customer", path: "/app/voc" },
-    { label: "Analytics", path: "/app/analytics" },
-    { label: "Product Opportunities", path: "/app/product-opportunities" },
+    { label: t('voc'), path: "/app/voc" },
+    { label: t('analytics'), path: "/app/analytics" },
+    { label: t('productOpportunities'), path: "/app/product-opportunities" },
 
     // ✅ 真实里有（先占位，不影响现有功能）
-    { label: "Add Products via Upload", path: "/app/add-products-upload" },
-    { label: "View Selling Applications", path: "/app/selling-applications" },
+    { label: t('addProductsUpload'), path: "/app/add-products-upload" },
+    { label: t('sellingApps'), path: "/app/selling-applications" },
   ];
 
 
   // ========= Layout width rule =========
-  // Dashboard: centered with side gutters
-  // Other pages: full width
-  const isDashboard = location.pathname === "/app/dashboard";
-
+  // All pages use full-width layout except Dashboard
   const forceFullWidthPages = [
     "/app/inventory",
     "/app/orders",
     "/app/business-reports",
+    // Dashboard uses custom width with 200px margins
   ];
 
   const useFullWidth =
-    forceFullWidthPages.some((p) => location.pathname.startsWith(p)) ||
-    !isDashboard;
+    forceFullWidthPages.some((p) => location.pathname.startsWith(p));
 
 
   // ========= Active match =========
@@ -181,85 +185,76 @@ const MainLayout: React.FC = () => {
       )}
 
       {/* HEADER - Amazon Deep Teal */}
-      {/* ✅ 真实更扁：48px 高度；中间搜索不抢宽；logo 稍微缩小 */}
-{/* HEADER - Amazon Deep Teal */}
-      <header className="sticky top-0 bg-amazon-headerTeal h-11 flex items-center px-2 z-[60] text-white shadow-[inset_0_-1px_0_rgba(255,255,255,0.10)]">
+      <header className="sticky top-0 bg-amazon-headerTeal h-[41px] flex items-center px-2 z-[60] text-white shadow-[inset_0_-1px_0_rgba(255,255,255,0.10)]">
         {/* Left */}
         <div className="flex items-center h-full shrink-0">
+          {/* Hamburger button */}
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="p-1 hover:bg-white/10 rounded mr-2 transition-colors"
+            className="w-[32px] h-full flex items-center justify-center hover:bg-white/10 transition-colors"
             aria-label="Open menu"
           >
             <Menu size={16} />
           </button>
 
+          {/* Vertical divider - smaller gap before, larger gap after */}
+          <div className="h-[24px] w-[1px] bg-white/20 ml-0.5 mr-2" />
+
+          {/* Brand logo - consistent gap from divider */}
           <div
-            className="cursor-pointer mr-3 flex items-center leading-none"
+            className="cursor-pointer flex items-center leading-none"
             onClick={() => navigate("/app/dashboard")}
           >
             <ConsoleLogo />
           </div>
 
-          {/* divider | */}
-          <span className="text-white/55 text-[11px] leading-none mx-2 select-none">|</span>
+          {/* Vertical divider - larger gap before, even larger gap after */}
+          <div className="h-[24px] w-[1px] bg-white/20 ml-3 mr-3" />
 
-          {/* Marketplace Switcher */}
-          <div className="relative" ref={mktRef}>
+          {/* Store + Marketplace selector combined - consistent gap from divider */}
+          <div className="relative">
             <div
-              onClick={() => setIsMktOpen(!isMktOpen)}
+              onClick={() => {
+                setIsStoreOpen(!isStoreOpen);
+                setIsMktOpen(false);
+              }}
               className={cn(
-                "h-full flex items-center px-1 cursor-pointer transition-colors",
-                isMktOpen && "bg-white/5"
+                "flex items-center px-2 cursor-pointer transition-colors",
+                isStoreOpen && "bg-white/5"
               )}
+              style={{ height: '24px', backgroundColor: 'rgba(255,255,255,0.95)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '2px' }}
             >
-              <div
-                className={cn(
-                  "h-[20px] flex items-center gap-2 px-2 rounded-[2px]",
-                  "bg-white text-[#0F1111] border border-[rgba(255,255,255,0.65)]",
-                  "shadow-[0_0_0_1px_rgba(0,0,0,0.05)]"
-                )}
-              >
-                <span className="text-[11px] font-bold leading-none uppercase tracking-tight">
-                  EnShZhiXun
-                </span>
-                <span className="text-[11px] leading-none opacity-60">|</span>
-                <span className="text-[11px] font-bold leading-none flex items-center gap-1">
-                  {session.marketplace}
-                  <ChevronDown
-                    size={12}
-                    className={cn("opacity-70 transition-transform", isMktOpen && "rotate-180")}
-                  />
-                </span>
-              </div>
+              <span className="text-[11px] font-bold text-[#0F1111]">TechNestGo</span>
+              <span className="text-[11px] text-[#888C8C] mx-1">|</span>
+              <span className="text-[11px] font-bold text-[#0F1111] flex items-center gap-1">
+                {session.marketplace}
+                <ChevronDown size={12} className="text-[#888C8C]" />
+              </span>
             </div>
 
-            {isMktOpen && (
-              <div className="absolute top-11 left-0 w-64 bg-white shadow-xl border border-gray-200 py-2 rounded-b-sm animate-in fade-in slide-in-from-top-1 z-[100]">
+            {isStoreOpen && (
+              <div className="absolute top-8 left-0 w-64 bg-white shadow-xl border border-gray-200 py-2 rounded-b-sm animate-in fade-in slide-in-from-top-1 z-[100]">
                 <div className="px-4 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b mb-1">
-                  {t("selectMarketplace")}
+                  {t("selectStore")}
                 </div>
-                {Object.keys(marketplaceConfigs).map((mktKey) => (
+                {(['Store 1', 'Store 2', 'Store 3'] as const).map((store) => (
                   <div
-                    key={mktKey}
+                    key={store}
                     onClick={() => {
-                      setMarketplace(mktKey as Marketplace);
-                      setIsMktOpen(false);
+                      setStore(store);
+                      setIsStoreOpen(false);
                     }}
                     className="px-4 py-2.5 hover:bg-gray-100 flex items-center justify-between cursor-pointer group"
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl">{marketplaceConfigs[mktKey].flag}</span>
-                      <span
-                        className={cn(
-                          "text-sm-amz font-medium text-amazon-text",
-                          session.marketplace === mktKey && "font-black text-amazon-teal"
-                        )}
-                      >
-                        {mktKey}
-                      </span>
-                    </div>
-                    {session.marketplace === mktKey && (
+                    <span
+                      className={cn(
+                        "text-sm-amz font-medium text-amazon-text",
+                        session.store === store && "font-black text-amazon-teal"
+                      )}
+                    >
+                      {store}
+                    </span>
+                    {session.store === store && (
                       <Check size={16} className="text-amazon-teal" />
                     )}
                   </div>
@@ -270,76 +265,24 @@ const MainLayout: React.FC = () => {
         </div>
 
         {/* Center - Search */}
-        {/* Center - Search (Amazon-style, denser) */}
         <div className="flex-1 flex justify-center px-2">
-          {/* 真实偏短 */}
-          <div className="w-full max-w-[340px]">
-            <div
-              className="
-                flex w-full
-                h-[31px]
-                rounded-[2px]
-                overflow-hidden
-                border border-[rgba(255,255,255,0.16)]
-              "
+          <div className="w-full max-w-[340px] flex items-center">
+            {/* Input */}
+            <input
+              className="w-full h-[28px] px-3 text-[12px] text-white outline-none placeholder:text-white/80 border border-[rgba(255,255,255,0.16)] rounded-l-[2px]"
+              placeholder="Search"
               style={{ backgroundColor: "rgba(18,120,128,0.42)" }}
-            >
-              {/* Input */}
-              <input
-                className="
-                  w-full h-full
-                  px-3
-                  text-[12px]
-                  text-white
-                  bg-transparent
-                  outline-none
-                  placeholder:text-white/80
-                  leading-[31px]
-                "
-                placeholder="Search"
-              />
+            />
 
-              {/* Button */}
-              <button
-                className="w-[36px] h-full flex items-center justify-center hover:brightness-95"
-                style={{ backgroundColor: "rgba(18,120,128,0.82)" }}
-                aria-label="Search"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M21 21l-4.3-4.3m1.8-5.2a7 7 0 11-14 0 7 7 0 0114 0z"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-
-
-
-        {/* Right */}
-        <div className="flex items-center gap-1 h-full shrink-0">
-          {/* New Seller Central toggle */}
-          <div className="flex items-center gap-2 px-1 py-0">
-            <div className="w-7 h-4 rounded-full bg-white/20 relative">
-              <div className="w-3 h-3 rounded-full bg-white absolute top-0.5 left-0.5" />
-            </div>
-
-            <span className="text-[11px] font-bold text-gray-100 whitespace-nowrap">
-              New Seller Central
-            </span>
-
+            {/* Button - separate but visually connected */}
             <button
-              className="w-6 h-6 rounded-[2px] flex items-center justify-center hover:bg-white/10"
-              aria-label="Add"
-              title="Add"
+              className="w-[36px] h-[28px] flex items-center justify-center border border-l-0 border-[rgba(255,255,255,0.16)] rounded-r-[2px] hover:brightness-95"
+              aria-label="Search"
+              style={{ backgroundColor: "rgba(18,120,128,0.82)" }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path
-                  d="M12 5v14M5 12h14"
+                  d="M21 21l-4.3-4.3m1.8-5.2a7 7 0 11-14 0 7 7 0 0114 0z"
                   stroke="white"
                   strokeWidth="2"
                   strokeLinecap="round"
@@ -347,10 +290,26 @@ const MainLayout: React.FC = () => {
               </svg>
             </button>
           </div>
+        </div>
 
 
-          {/* Star */}
-          <button className="p-2 hover:bg-white/10 rounded transition-colors" title="Favorites" aria-label="Favorites">
+
+        {/* Right */}
+        <div className="flex items-center gap-3 h-full shrink-0">
+          {/* 1. small toggle switch */}
+          <div className="flex items-center gap-1 px-1">
+            <div className="w-7 h-4 rounded-full bg-white/20 relative">
+              <div className="w-3 h-3 rounded-full bg-white absolute top-0.5 left-0.5" />
+            </div>
+          </div>
+
+          {/* 2. text label: "New Seller Central" */}
+          <span className="text-[11px] font-bold text-gray-100 whitespace-nowrap">
+            New Seller Central
+          </span>
+
+          {/* 3. star icon button */}
+          <button className="w-[28px] h-[28px] flex items-center justify-center hover:bg-white/10 rounded transition-colors" title="Favorites" aria-label="Favorites">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path
                 d="M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17.9 6.6 19.7l1-6.1-4.4-4.3 6.1-.9L12 2.8z"
@@ -361,22 +320,66 @@ const MainLayout: React.FC = () => {
             </svg>
           </button>
 
-
-          {/* Mail */}
-          <button className="p-2 hover:bg-white/10 rounded transition-colors" title="Messages">
+          {/* 4. mail icon button */}
+          <button className="w-[28px] h-[28px] flex items-center justify-center hover:bg-white/10 rounded transition-colors" title="Messages" aria-label="Messages">
             <Mail size={16} />
           </button>
 
-          {/* Settings */}
-          <button
-            className="p-2 hover:bg-white/10 rounded transition-colors"
-            onClick={() => navigate("/app/settings")}
-            title="Settings"
-          >
-            <Settings size={16} />
-          </button>
+          {/* 5. gear icon button */}
+          <div className="relative" ref={settingsRef}>
+            <button
+              className="w-[28px] h-[28px] flex items-center justify-center hover:bg-white/10 rounded transition-colors"
+              title="Settings"
+              onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+              aria-label="Settings"
+            >
+              <Settings size={16} />
+            </button>
+            {/* Settings dropdown menu */}
+            {isSettingsOpen && (
+              <div className="absolute right-0 top-11 w-64 bg-white shadow-xl border border-gray-200 py-2 rounded-sm animate-in fade-in slide-in-from-top-1 z-[100]">
+                <div className="px-4 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b mb-1">{t('accountManagement')}</div>
+                <button onClick={() => navigate("/app/settings/store-info")} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between cursor-pointer text-sm-amz font-medium text-amazon-text">
+                  <span>{t('accountOverview')}</span>
+                  <ChevronRight size={14} className="text-gray-400" />
+                </button>
+                <button onClick={() => navigate("/app/settings")} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between cursor-pointer text-sm-amz font-medium text-amazon-text">
+                  <span>Manage Accounts</span>
+                  <ChevronRight size={14} className="text-gray-400" />
+                </button>
+                <button className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm-amz font-medium text-amazon-text cursor-pointer">
+                  Notification Preferences
+                </button>
+                <button className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm-amz font-medium text-amazon-text cursor-pointer">
+                  Login Settings
+                </button>
+                <button onClick={() => navigate("/app/settings/shipping-returns")} className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm-amz font-medium text-amazon-text cursor-pointer">
+                  {t('shippingReturns')}
+                </button>
+                <button className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm-amz font-medium text-amazon-text cursor-pointer">
+                  Gift Options
+                </button>
+                <button onClick={() => navigate("/app/settings/shipping-returns")} className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm-amz font-medium text-amazon-text cursor-pointer">
+                  Shipping Settings
+                </button>
+                <button onClick={() => navigate("/app/settings/tax-info")} className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm-amz font-medium text-amazon-text cursor-pointer">
+                  {t('taxInfo')}
+                </button>
+                <button className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm-amz font-medium text-amazon-text cursor-pointer">
+                  User Permissions
+                </button>
+                <button className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm-amz font-medium text-amazon-text cursor-pointer">
+                  Fulfillment by Amazon
+                </button>
+                <div className="h-px bg-gray-100 my-2" />
+                <button onClick={logout} className="w-full text-left px-4 py-2 hover:bg-red-50 text-sm-amz font-medium text-amazon-error cursor-pointer">
+                  {t('logout')}
+                </button>
+              </div>
+            )}
+          </div>
 
-          {/* Language */}
+          {/* 6. language selector: "EN" with caret */}
           <div className="relative h-full" ref={langRef}>
             <div
               onClick={() => setIsLangOpen(!isLangOpen)}
@@ -385,7 +388,7 @@ const MainLayout: React.FC = () => {
                 isLangOpen && "bg-white/10"
               )}
             >
-              <span className="text-[11px] font-bold uppercase leading-none">{session.language}</span>
+              <span className="text-[11px] font-bold uppercase leading-none">{session.language.split('-')[0]}</span>
               <ChevronDown
                 size={12}
                 className={cn("ml-1 opacity-60 transition-transform", isLangOpen && "rotate-180")}
@@ -398,8 +401,8 @@ const MainLayout: React.FC = () => {
                   {t("selectLanguage")}
                 </div>
                 {[
-                  { code: "EN" as Language, label: "English" },
-                  { code: "ZH" as Language, label: "Chinese (Simplified)" },
+                  { code: "en-US" as Language, label: "English" },
+                  { code: "zh-CN" as Language, label: "Chinese (Simplified)" },
                 ].map((lang) => (
                   <div
                     key={lang.code}
@@ -423,10 +426,11 @@ const MainLayout: React.FC = () => {
             )}
           </div>
 
-          {/* Help (top right, icon only) */}
+          {/* 7. text: "Help" */}
           <button
             className="h-full flex items-center px-2 text-[11px] font-bold text-gray-200 hover:text-white hover:bg-white/10 rounded transition-colors"
             onClick={() => navigate("/app/help")}
+            aria-label="Help"
           >
             Help
           </button>
@@ -436,7 +440,7 @@ const MainLayout: React.FC = () => {
 
 
       {/* SUB-MENU (深色二级菜单) */}
-      <nav className="sticky top-11 bg-amazon-subHeaderDark h-9 flex items-center px-3 shadow-[inset_0_-1px_0_rgba(255,255,255,0.08)] z-50 text-white">
+      <nav className="sticky top-[41px] bg-amazon-subHeaderDark h-9 flex items-center px-3 border-t border-[rgba(0,0,0,0.2)] shadow-[inset_0_-1px_0_rgba(255,255,255,0.08)] z-50 text-white">
         <div className="flex h-full w-full items-center justify-between">
           <div className="flex h-full items-center overflow-x-auto no-scrollbar scroll-smooth">
             {/* ✅ 左侧小图标（靠近真实那种“菜单标识”） */}
@@ -479,8 +483,8 @@ const MainLayout: React.FC = () => {
             </button>
 
 
-            <button className="flex items-center px-3 py-1 text-[11px] font-bold text-gray-300 hover:text-white transition-colors bg-white/5 rounded-[2px] border border-white/10">
-              Edit
+            <button className="flex items-center px-3 py-0 h-[22px] text-[11px] font-bold text-gray-300 hover:text-white transition-colors bg-white/5 rounded-[2px] border border-white/10">
+              {t('edit')}
             </button>
 
 
@@ -490,26 +494,26 @@ const MainLayout: React.FC = () => {
       </nav>
 
 
-      <main
-        className={cn(
-          "px-4 py-3 min-h-[calc(100vh-120px)]",
-          useFullWidth ? "w-full" : "max-w-[1440px] mx-auto"
-        )}
-      >
-
+      {/* Main content will be rendered by child layouts (WithSidebarLayout or direct routes) */}
+      <main className={cn(
+        'flex-1 py-4',
+        location.pathname === '/app/dashboard' 
+          ? 'dashboard-container px-0' // 左右各125px留白，通过max-width和margin实现
+          : 'max-w-full px-5' // 左右各20px留白
+      )}>
         <Outlet />
       </main>
 
       <footer className="mt-20 border-t bg-white py-12 text-center border-gray-200">
         <div className="flex justify-center gap-8 text-[12px] font-bold text-amazon-link mb-4">
           <a href="#" className="hover:underline">
-            Conditions of Use
+            {t('termsCondition')}
           </a>
           <a href="#" className="hover:underline">
-            Privacy Notice
+            {t('privacyNotice')}
           </a>
           <a href="#" className="hover:underline">
-            Help
+            {t('help')}
           </a>
         </div>
         <p className="text-[11px] text-gray-500 font-medium">

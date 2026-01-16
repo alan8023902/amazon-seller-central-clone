@@ -116,18 +116,30 @@ export const ConsoleLogo = ({ className = "" }: { className?: string }) => {
 export const Card = ({
   children,
   className = "",
+  title,
+  headerAction,
 }: {
   children: React.ReactNode;
   className?: string;
+  title?: string;
+  headerAction?: React.ReactNode;
 }) => {
   return (
     <div
       className={cn(
-        "amz-card bg-white border border-[#D5D9D9] rounded-[8px] p-[20px] shadow-none w-full min-w-0",
+        "amz-card bg-white border border-[#D5D9D9] rounded-[8px] shadow-none w-full min-w-0",
         className
       )}
     >
-      {children}
+      {title && (
+        <div className="px-4 py-2 border-b border-[#D5D9D9] flex justify-between items-center bg-[#F7F8FA]">
+          <span className="font-bold text-[13px] text-[#0F1111]">{title}</span>
+          {headerAction}
+        </div>
+      )}
+      <div className={cn("p-[20px_20px_16px_20px]")}>
+        {children}
+      </div>
     </div>
   );
 };

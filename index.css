@@ -6,9 +6,12 @@
   :root{
     /* Amazon-like text colors */
     --amz-text: #0F1111;
+    --amz-ink:#002E35;
+    --amz-border:#D5D9D9;
+    --amz-divider:#E7EAEA;
+    --amz-subtext:#565959;
     --amz-link: #1c1e86;
     --amz-link-hover: #C45500;
-    --amz-border: #D5D9D9;
     --amz-border-input: #A6A6A6;
   /* Set the blue focus color */
     --amz-focus: #0066c0; /* Amazon-like blue for the border */
@@ -80,6 +83,47 @@
   .amz-link:hover {
     color: var(--amz-link-hover);
     text-decoration: underline;
+  }
+
+  /* Dashboard辅助类 */
+  .amz-title {
+    color: var(--amz-ink);
+    font-size: 13px;
+    font-weight: bold;
+  }
+  .amz-ink {
+    color: var(--amz-ink);
+  }
+  .amz-border {
+    border-color: var(--amz-border);
+  }
+  .amz-divider {
+    border-color: var(--amz-divider);
+  }
+  .amz-subtext {
+    color: var(--amz-subtext);
+  }
+  /* Dashboard container specific styles */
+  .dashboard-container {
+    max-width: calc(100% - 250px);
+    margin: 0 auto;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  /* Responsive fallback for small screens */
+  @media (max-width: 1200px) {
+    .dashboard-container {
+      max-width: calc(100% - 125px);
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+  @media (max-width: 768px) {
+    .dashboard-container {
+      max-width: 100%;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
   }
 
   /* Buttons: NO gradients */

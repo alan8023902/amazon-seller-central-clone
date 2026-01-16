@@ -7,19 +7,24 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { useStore } from "../store";
 import { Button, InputField, Card } from "../components/UI";
 import AuthLayout from "../layouts/AuthLayout";
-
-const emailSchema = z.object({
-  email: z.string().min(1, "请输入您的电子邮箱或手机号码"),
-});
+import { useI18n } from "../hooks/useI18n";
 
 export const LoginEmail = () => {
   const navigate = useNavigate();
   const setSession = useStore((state) => state.setSession);
+  const { t } = useI18n();
+
+  // 移到组件内部以便访问 t 函数
+  const emailSchema = z.object({
+    email: z.string().min(1, t("emailRequired")),
+  });
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: {
+      errors,
+    },
   } = useForm({
     resolver: zodResolver(emailSchema),
   });
@@ -32,9 +37,9 @@ export const LoginEmail = () => {
   const newUserSection = (
     <div className="w-[350px]">
       {/* 这里不再加“大分割线”，只保留 divider 文案样式 */}
-      <div className="amz-divider-text">亚马逊新客户？</div>
+      <div className="amz-divider-text">{t("newCustomer")}</div>
       <Button variant="white" onClick={() => navigate("/auth/register")}>
-        创建您的亚马逊账户
+        {t("createAccount")}
       </Button>
     </div>
   );
@@ -43,44 +48,45 @@ export const LoginEmail = () => {
     <AuthLayout showNewUser={newUserSection}>
       <Card>
         <h1 className="text-[20px] font-normal mb-[14px] leading-[36px] text-[#0F1111]">
-          登录
+          {t("login")}
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <InputField
-            label="输入手机号码或邮箱"
+            label={t("emailAddress")}
+            placeholder={t("emailAddress")}
             {...register("email")}
             error={errors.email?.message as string}
             autoComplete="username"
             className="amz-auth-field"
           />
           <Button type="submit" className="mt-[10px]">
-            继续
+            {t("continue")}
           </Button>
         </form>
 
         {/* 条款行与按钮间距 */}
         <div className="text-[12px] mt-[14px] text-[#0F1111] leading-[18px]">
-          继续操作即表示您同意亚马逊的
+          {t('continueAgree')}
           <a href="#" className="amz-link">
-            使用条件
+            {t('termsCondition')}
           </a>
-          和
+          {t('and')}
           <a href="#" className="amz-link">
-            隐私声明
+            {t('privacyNotice')}
           </a>
           。
         </div>
 
         <div className="mt-[30px]">
           <Button variant="white" onClick={() => navigate(-1)}>
-            取消
+            {t("cancel")}
           </Button>
         </div>
 
         <div className="mt-[12px] flex items-center gap-[10px] cursor-pointer group w-fit">
           <span className="text-[13px] amz-link group-hover:underline">
-            需要帮助?
+            {t("needHelp")}
           </span>
           <ChevronDown size={16} className="text-[#565959]" />
         </div>
@@ -91,23 +97,24 @@ export const LoginEmail = () => {
 
 export const RegisterPage = () => {
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   return (
     <AuthLayout>
       <Card>
         <h1 className="text-[28px] font-normal mb-[14px] leading-[36px] text-[#0F1111]">
-          创建帐户
+          {t("registerTitle")}
         </h1>
 
         <div className="space-y-4">
-          <InputField label="您的姓名" placeholder="姓名" autoComplete="name" className="amz-auth-field" />
-          <InputField label="邮箱地址" autoComplete="email" className="amz-auth-field" />
+          <InputField label={t("yourName")} placeholder={t("yourName")} autoComplete="name" className="amz-auth-field" />
+          <InputField label={t("emailAddress")} placeholder={t("emailAddress")} autoComplete="email" className="amz-auth-field" />
           <InputField
-            label="密码"
+            label={t("password")}
             type="password"
-            placeholder="至少 6 个字符"
+            placeholder={t("passwordAtLeast")}
             autoComplete="new-password"
-            helper="密码必须至少为 6 个字符。"
+            helper={t("passwordHelper")}
             helperIcon={
               <div className="w-[16px] h-[16px] bg-[#007185] rounded-full flex items-center justify-center text-white text-[10px] font-bold">
                 i
@@ -115,18 +122,20 @@ export const RegisterPage = () => {
             }
             className="amz-auth-field"
           />
-          <InputField label="再次输入密码" type="password" autoComplete="new-password" className="amz-auth-field" />
-          <Button className="mt-[50px]">创建您的亚马逊账户</Button>
+          <InputField label={t("passwordAgain")} type="password" placeholder={t("passwordAgain")} autoComplete="new-password" className="amz-auth-field" />
+          <Button className="mt-[50px]">
+            {t("createAccount")}
+          </Button>
         </div>
 
         <div className="text-[12px] mt-[12px] text-[#0F1111] leading-[28px]">
-          创建帐户，即表示您同意遵守 Amazon 的
+          {t('createAgree')}
           <a href="#" className="amz-link">
-            使用条件
+            {t('termsCondition')}
           </a>
-          和
+          {t('and')}
           <a href="#" className="amz-link">
-            隐私声明
+            {t('privacyNotice')}
           </a>
           。
         </div>
@@ -134,9 +143,11 @@ export const RegisterPage = () => {
         <div className="h-[2px] bg-[#E7E9EC] w-full my-[14px]" />
 
         <div className="text-[13px] text-[#0F1111]">
-          已拥有帐户？{" "}
+          {t("alreadyHaveAccount")} {
+            " "
+          }
           <a onClick={() => navigate("/auth/login-email")} className="amz-link font-bold">
-            登录 <ChevronRight size={14} className="inline ml-[-2px]" />
+            {t("login")} <ChevronRight size={14} className="inline ml-[-2px]" />
           </a>
         </div>
       </Card>
@@ -147,24 +158,25 @@ export const RegisterPage = () => {
 export const LoginPassword = () => {
   const navigate = useNavigate();
   const session = useStore((state) => state.session);
+  const { t } = useI18n();
 
   return (
     <AuthLayout>
       <Card>
-        <h1 className="text-[24px] font-medium mb-[12px] text-[#0F1111]">登录</h1>
+        <h1 className="text-[24px] font-medium mb-[12px] text-[#0F1111]">{t("login")}</h1>
 
         <div className="text-[13px] mb-[10px] flex items-center">
           <span className="text-[#0F1111] font-bold">{session.email}</span>
           <button onClick={() => navigate("/auth/login-email")} className="amz-link text-[12px] ml-[8px]">
-            更改
+            {t('change')}
           </button>
         </div>
 
         <div className="mb-[10px]">
           <div className="flex justify-between mb-[4px]">
-            <label className="text-[13px] font-bold text-[#0F1111]">密码</label>
+            <label className="text-[13px] font-bold text-[#0F1111]">{t("password")}</label>
             <a href="#" className="amz-link text-[12px]">
-              忘记密码
+              {t("forgotPassword")}
             </a>
           </div>
           <input
@@ -172,24 +184,25 @@ export const LoginPassword = () => {
             className="amz-input-base amz-input-focus"
             defaultValue="admin123"
             autoComplete="current-password"
+            placeholder={t("password")}
           />
         </div>
 
         <Button onClick={() => navigate("/auth/login-otp")} className="mt-[6px]">
-          登录
+          {t("login")}
         </Button>
 
         <div className="mt-[12px]">
           <label className="flex items-center gap-[8px] text-[13px] cursor-pointer">
             <input type="checkbox" className="w-[14px] h-[14px] border-[#A6A6A6] rounded-[2px]" />
-            <span>保持登录状态</span>
+            <span>{t("rememberMe")}</span>
           </label>
         </div>
 
         <div className="h-[1px] bg-[#E7E9EC] w-full my-[14px]" />
 
         <Button variant="white" onClick={() => navigate("/auth/register")}>
-          立即注册
+          {t("createAccount")}
         </Button>
       </Card>
     </AuthLayout>
@@ -199,21 +212,23 @@ export const LoginPassword = () => {
 export const LoginOTP = () => {
   const navigate = useNavigate();
   const setSession = useStore((state) => state.setSession);
+  const { t } = useI18n();
 
   return (
     <AuthLayout>
       <Card>
-        <h1 className="text-[24px] font-medium mb-[8px] text-[#0F1111]">两步验证</h1>
-        <p className="text-[13px] mb-[10px] text-[#0F1111] leading-[18px]">
-          为了提高安全性，请输入验证码。
-        </p>
+        <h1 className="text-[24px] font-medium mb-[12px] text-[#0F1111]">{t("login")}</h1>
 
-        <InputField label="输入验证码：" />
+        <div className="text-[13px] mb-[10px] text-[#0F1111] leading-[18px]">
+          {t("otpDesc")}
+        </div>
+
+        <InputField label={t('enterVerificationCode')} placeholder={t('enterVerificationCode')} />
 
         <div className="flex items-center gap-[8px] mb-[12px]">
           <input type="checkbox" id="no-otp" className="w-[14px] h-[14px]" />
           <label htmlFor="no-otp" className="text-[13px]">
-            此浏览器无需验证码
+            {t("noOtp")}
           </label>
         </div>
 
@@ -223,12 +238,12 @@ export const LoginOTP = () => {
             navigate("/app/dashboard");
           }}
         >
-          登录
+          {t("login")}
         </Button>
 
         <div className="mt-[14px] border-t border-[#E7E9EC] pt-[10px]">
           <a href="#" className="amz-link text-[13px]">
-            是否未收到验证码？
+            {t("notReceivedOtp")}
           </a>
         </div>
       </Card>

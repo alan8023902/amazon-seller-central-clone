@@ -14,9 +14,18 @@ export const useI18n = () => {
   const rawLanguage = useStore((state: any) => state?.session?.language);
   const language = normalizeLang(rawLanguage);
 
-  const t = (key: keyof (typeof translations)["zh-CN"] | string) => {
+  const t = (key: keyof (typeof translations)["zh-CN"] | string, params?: Record<string, any>) => {
     // translations[language] 一定存在（normalizeLang 兜底）
-    return (translations[language] as any)?.[key] ?? key;
+    let translation = (translations[language] as any)?.[key] ?? key;
+    
+    // 替换参数
+    if (params && typeof translation === 'string') {
+      Object.entries(params).forEach(([param, value]) => {
+        translation = translation.replace(new RegExp(`\\{${param}\\}`, 'g'), String(value));
+      });
+    }
+    
+    return translation;
   };
 
   return { t, language };

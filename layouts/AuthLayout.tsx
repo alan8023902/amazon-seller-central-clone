@@ -6,8 +6,7 @@ const AuthLayout: React.FC<{ children: React.ReactNode; showNewUser?: React.Reac
   children,
   showNewUser,
 }) => {
-  const { language } = useI18n();
-  const isZh = language === "zh-CN";
+  const { t } = useI18n();
 
   return (
     <div className="bg-white">
@@ -31,18 +30,18 @@ const AuthLayout: React.FC<{ children: React.ReactNode; showNewUser?: React.Reac
       <div className="pt-[22px]">
         <div className="flex justify-center gap-10 text-[12px] text-[#007185] mb-3 font-medium">
           <a href="#" className="hover:underline">
-            {isZh ? "使用条件" : "Conditions of Use"}
+            {t('termsCondition')}
           </a>
           <a href="#" className="hover:underline">
-            {isZh ? "隐私声明" : "Privacy Notice"}
+            {t('privacyNotice')}
           </a>
           <a href="#" className="hover:underline">
-            {isZh ? "帮助" : "Help"}
+            {t('help')}
           </a>
         </div>
 
         <div className="text-center text-[12px] text-[#565959]">
-          © 1996-2025, Amazon.com, Inc. {isZh ? "或其附属公司" : "or its affiliates"}
+          © 1996-2025, Amazon.com, Inc. or its affiliates
         </div>
       </div>
 
