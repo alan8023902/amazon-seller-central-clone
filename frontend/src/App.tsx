@@ -21,16 +21,16 @@ import ProductOpportunities from './features/ProductOpportunities';
 import Analytics from './features/Analytics';
 import ManageStores from './features/ManageStores';
 import DevData from './features/DevData';
-import StoreStatus from '@/features/StoreStatus';
-import StoreInfo from '@/features/StoreInfo';
-import BusinessInfo from '@/features/BusinessInfo';
-import Verification from '@/features/Verification';
-import PaymentInfo from '@/features/PaymentInfo';
-import TaxInfo from '@/features/TaxInfo';
-import MerchantToken from '@/features/MerchantToken';
-import LegalEntity from '@/features/LegalEntity';
-import ShippingReturns from '@/features/ShippingReturns';
-import AccountManagement from '@/features/AccountManagement';
+import StoreStatus from './features/StoreStatus';
+import StoreInfo from './features/StoreInfo';
+import BusinessInfo from './features/BusinessInfo';
+import Verification from './features/Verification';
+import PaymentInfo from './features/PaymentInfo';
+import TaxInfo from './features/TaxInfo';
+import MerchantToken from './features/MerchantToken';
+import LegalEntity from './features/LegalEntity';
+import ShippingReturns from './features/ShippingReturns';
+import AccountManagement from './features/AccountManagement';
 
 // Route Guard Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {

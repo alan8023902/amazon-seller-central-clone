@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import Sidebar from '../src/components/Sidebar';
-import { getSidebarByPath } from '../src/nav/sidebar.config.tsx';
+import Sidebar from '../components/Sidebar';
+import { getSidebarByPath } from '../nav/sidebar.config';
 import { cn } from '../utils/cn';
 
 const WithSidebarLayout: React.FC = () => {
