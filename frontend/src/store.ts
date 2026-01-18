@@ -66,7 +66,10 @@ export const useStore = create<AppStore>()(
           dashboard: { ...state.dashboard, ...mktData }
         };
       }),
-      setLanguage: (l) => set((state) => ({ session: { ...state.session, language: l } })),
+      setLanguage: (l) => set((state) => {
+        console.log('Language changed to:', l);
+        return { session: { ...state.session, language: l } };
+      }),
       setStore: (s) => set((state) => ({ session: { ...state.session, store: s } })),
       logout: () => set({ session: { email: '', isLoggedIn: false, step: 'email', marketplace: 'United States', language: 'en-US', store: 'Store 1' } }),
       importData: (data) => set((state) => ({ dashboard: { ...state.dashboard, ...data } })),

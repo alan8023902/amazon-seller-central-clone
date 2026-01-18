@@ -8,7 +8,6 @@ import {
   Modal, 
   Form, 
   InputNumber, 
-  Upload, 
   message,
   Popconfirm,
   Typography,
@@ -18,8 +17,7 @@ import {
   PlusOutlined, 
   SearchOutlined, 
   EditOutlined, 
-  DeleteOutlined,
-  UploadOutlined 
+  DeleteOutlined
 } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { productApi } from '../services/api';
@@ -323,7 +321,7 @@ const ProductManagement: React.FC = () => {
               min={0}
               step={0.01}
               style={{ width: '100%' }}
-              addonBefore="$"
+              prefix="$"
             />
           </Form.Item>
 

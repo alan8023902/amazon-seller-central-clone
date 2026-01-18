@@ -14,17 +14,76 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Helper function to generate ID
+const generateId = () => Date.now().toString();
+
+// Helper function to generate OTP code
+const generateOTP = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
 // Initialize mock data with seed data
 let mockData = {
   stores: [...seedData.stores],
   products: [...seedData.products],
   globalSnapshot: { ...seedData.globalSnapshot },
   salesSnapshot: { ...seedData.salesSnapshot },
-  dailySales: seedData.generateDailySales('1')
+  dailySales: seedData.generateDailySales('1'),
+  users: [
+    {
+      id: '1',
+      username: 'demo@example.com',
+      password: 'demo123',
+      email: 'demo@example.com',
+      phone: '',
+      otpCode: generateOTP(),
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    {
+      id: '2',
+      username: 'test@example.com',
+      password: 'test123',
+      email: 'test@example.com',
+      phone: '',
+      otpCode: generateOTP(),
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    {
+      id: '3',
+      username: '+8613800138000',
+      password: 'phone123',
+      email: '',
+      phone: '+8613800138000',
+      otpCode: generateOTP(),
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+  ]
 };
 
-// Helper function to generate ID
-const generateId = () => Date.now().toString();
+// Root endpoint - API information
+app.get('/', (req, res) => {
+  res.json({
+    name: 'Amazon Seller Central Backend API',
+    version: '1.0.0',
+    status: 'running',
+    endpoints: {
+      health: '/api/health',
+      store: '/api/store',
+      products: '/api/products',
+      sales: '/api/sales/*',
+      dashboard: '/api/dashboard/*'
+    },
+    documentation: 'API服务器正在运行。请访问具体的API端点。',
+    admin_interface: 'http://localhost:3001',
+    frontend_app: 'http://localhost:3000'
+  });
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -247,15 +306,85 @@ app.get('/api/dashboard/snapshot/:storeId', (req, res) => {
 });
 
 app.put('/api/dashboard/snapshot/:storeId', (req, res) => {
+  // 处理前端发送的嵌套数据结构
+  const { sales, orders, messages, featuredOffer, feedback, payments, ads, inventory } = req.body;
+  
+  // 转换为后端的扁平结构
+  const updateData = {};
+  if (sales) {
+    updateData.sales_amount = sales.todaySoFar;
+  }
+  if (orders) {
+    updateData.open_orders = orders.totalCount;
+  }
+  if (messages) {
+    updateData.buyer_messages = messages.casesRequiringAttention;
+  }
+  if (featuredOffer) {
+    updateData.featured_offer_percent = featuredOffer.percentage;
+  }
+  if (feedback) {
+    updateData.seller_feedback_rating = feedback.rating;
+    updateData.seller_feedback_count = feedback.count;
+  }
+  if (ads) {
+    updateData.ad_sales = ads.sales;
+    updateData.ad_impressions = ads.impressions;
+  }
+  
   mockData.globalSnapshot = {
     ...mockData.globalSnapshot,
-    ...req.body,
+    ...updateData,
     updated_at: new Date().toISOString()
   };
   
   res.json({
     success: true,
     data: mockData.globalSnapshot
+  });
+});
+
+// 新增：Dashboard配置API
+app.get('/api/dashboard/config/:storeId', (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      globalSnapshot: mockData.globalSnapshot,
+      welcomeBanner: {
+        greeting: 'Good evening',
+        healthStatus: 'Healthy',
+        healthColor: '#507F00',
+        showTour: true,
+        showLearnMore: true
+      }
+    }
+  });
+});
+
+app.put('/api/dashboard/config/:storeId', (req, res) => {
+  const { globalSnapshot, welcomeBanner } = req.body;
+  
+  if (globalSnapshot) {
+    mockData.globalSnapshot = {
+      ...mockData.globalSnapshot,
+      ...globalSnapshot,
+      updated_at: new Date().toISOString()
+    };
+  }
+  
+  res.json({
+    success: true,
+    message: 'Dashboard configuration updated successfully',
+    data: {
+      globalSnapshot: mockData.globalSnapshot,
+      welcomeBanner: welcomeBanner || {
+        greeting: 'Good evening',
+        healthStatus: 'Healthy',
+        healthColor: '#507F00',
+        showTour: true,
+        showLearnMore: true
+      }
+    }
   });
 });
 
@@ -332,6 +461,228 @@ app.get('/api/dashboard/health/:storeId', (req, res) => {
       active_violations: 0,
       pending_actions: 2
     }
+  });
+});
+
+// User management endpoints
+app.get('/api/users', (req, res) => {
+  res.json({
+    success: true,
+    data: mockData.users
+  });
+});
+
+app.get('/api/users/:id', (req, res) => {
+  const user = mockData.users.find(u => u.id === req.params.id);
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      error: 'User not found'
+    });
+  }
+  
+  res.json({
+    success: true,
+    data: user
+  });
+});
+
+app.post('/api/users', (req, res) => {
+  const { username, password, email, phone, isActive = true } = req.body;
+  
+  // 验证用户名是邮箱或手机号
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username);
+  const isPhone = /^(\+\d{1,3}[- ]?)?\d{10,}$/.test(username);
+  
+  if (!isEmail && !isPhone) {
+    return res.status(400).json({
+      success: false,
+      message: '用户名必须是有效的邮箱地址或手机号码'
+    });
+  }
+  
+  // Check if username already exists
+  const existingUser = mockData.users.find(u => u.username === username);
+  if (existingUser) {
+    return res.status(400).json({
+      success: false,
+      message: '该邮箱或手机号已存在'
+    });
+  }
+  
+  const newUser = {
+    id: generateId(),
+    username,
+    password,
+    email: isEmail ? username : (email || ''),
+    phone: isPhone ? username : (phone || ''),
+    otpCode: generateOTP(),
+    isActive,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  
+  mockData.users.push(newUser);
+  
+  res.status(201).json({
+    success: true,
+    data: newUser,
+    message: '用户创建成功'
+  });
+});
+
+app.put('/api/users/:id', (req, res) => {
+  const userIndex = mockData.users.findIndex(u => u.id === req.params.id);
+  if (userIndex === -1) {
+    return res.status(404).json({
+      success: false,
+      error: 'User not found'
+    });
+  }
+  
+  const { username, password, email, phone, isActive } = req.body;
+  const existingUser = mockData.users[userIndex];
+  
+  // 如果更新用户名，验证格式
+  if (username && username !== existingUser.username) {
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username);
+    const isPhone = /^(\+\d{1,3}[- ]?)?\d{10,}$/.test(username);
+    
+    if (!isEmail && !isPhone) {
+      return res.status(400).json({
+        success: false,
+        message: '用户名必须是有效的邮箱地址或手机号码'
+      });
+    }
+    
+    // Check if username is taken by another user
+    const duplicateUser = mockData.users.find(u => u.username === username && u.id !== req.params.id);
+    if (duplicateUser) {
+      return res.status(400).json({
+        success: false,
+        message: '该邮箱或手机号已存在'
+      });
+    }
+  }
+  
+  // Update user data
+  const updatedUsername = username || existingUser.username;
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(updatedUsername);
+  const isPhone = /^(\+\d{1,3}[- ]?)?\d{10,}$/.test(updatedUsername);
+  
+  mockData.users[userIndex] = {
+    ...existingUser,
+    username: updatedUsername,
+    password: password || existingUser.password,
+    email: isEmail ? updatedUsername : (email !== undefined ? email : existingUser.email),
+    phone: isPhone ? updatedUsername : (phone !== undefined ? phone : existingUser.phone),
+    isActive: isActive !== undefined ? isActive : existingUser.isActive,
+    updatedAt: new Date().toISOString()
+  };
+  
+  res.json({
+    success: true,
+    data: mockData.users[userIndex],
+    message: '用户更新成功'
+  });
+});
+
+app.delete('/api/users/:id', (req, res) => {
+  const userIndex = mockData.users.findIndex(u => u.id === req.params.id);
+  if (userIndex === -1) {
+    return res.status(404).json({
+      success: false,
+      error: 'User not found'
+    });
+  }
+  
+  mockData.users.splice(userIndex, 1);
+  
+  res.json({
+    success: true,
+    message: '用户删除成功'
+  });
+});
+
+// User authentication endpoint for frontend
+app.post('/api/auth/login', (req, res) => {
+  const { username, password } = req.body;
+  
+  const user = mockData.users.find(u => 
+    u.username === username && 
+    u.password === password && 
+    u.isActive
+  );
+  
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: '用户名或密码错误'
+    });
+  }
+  
+  // Return user info without password
+  const { password: _, ...userInfo } = user;
+  
+  res.json({
+    success: true,
+    data: {
+      user: userInfo,
+      token: 'mock-jwt-token-' + user.id
+    },
+    message: '登录成功'
+  });
+});
+
+// OTP verification endpoint
+app.post('/api/auth/verify-otp', (req, res) => {
+  const { username, otp } = req.body;
+  
+  const user = mockData.users.find(u => 
+    u.username === username && 
+    u.isActive
+  );
+  
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: '用户不存在'
+    });
+  }
+  
+  if (user.otpCode !== otp) {
+    return res.status(401).json({
+      success: false,
+      message: '验证码错误'
+    });
+  }
+  
+  res.json({
+    success: true,
+    message: '验证码验证成功'
+  });
+});
+
+// Refresh OTP code endpoint
+app.post('/api/users/:id/refresh-otp', (req, res) => {
+  const userIndex = mockData.users.findIndex(u => u.id === req.params.id);
+  if (userIndex === -1) {
+    return res.status(404).json({
+      success: false,
+      error: 'User not found'
+    });
+  }
+  
+  const newOTP = generateOTP();
+  mockData.users[userIndex].otpCode = newOTP;
+  mockData.users[userIndex].updatedAt = new Date().toISOString();
+  
+  res.json({
+    success: true,
+    data: {
+      otpCode: newOTP
+    },
+    message: '验证码已刷新'
   });
 });
 

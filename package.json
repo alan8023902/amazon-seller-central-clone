@@ -23,7 +23,17 @@
     "backend",
     "backend-admin"
   ],
-  "keywords": ["amazon", "seller-central", "clone", "react", "node", "typescript"],
+  "keywords": [
+    "amazon",
+    "seller-central",
+    "clone",
+    "react",
+    "node",
+    "typescript"
+  ],
   "author": "Amazon Seller Central Clone Team",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
 }

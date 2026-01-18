@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon 登录系统测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #232F3E;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .test-button {
+            background: #FF9900;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: bold;
+        }
+        .test-button:hover {
+            background: #e88900;
+        }
+        .test-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .user-list {
+            background: #f0f8ff;
+            border: 1px solid #2196f3;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .user-item {
+            margin: 5px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-info {
+            flex: 1;
+        }
+        .user-type {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .user-type.email {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .user-type.phone {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .lang-info {
+            background: #fff3e0;
+            border: 1px solid #ff9800;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .flow-step {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .step-title {
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Amazon 登录系统测试</h1>
+            <p>测试恢复的三步登录流程和浏览器语言检测</p>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 可用测试账号</h3>
+            <p>以下是可以用于测试的账号：</p>
+            <button class="test-button" onclick="loadTestAccounts()">获取测试账号</button>
+            <div id="accounts-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔐 三步登录流程测试</h3>
+            <div class="flow-step">
+                <div class="step-title">第一步：输入邮箱/手机号</div>
+                <p>用户在第一个页面输入邮箱或手机号，点击"继续"</p>
+            </div>
+            <div class="flow-step">
+                <div class="step-title">第二步：输入密码</div>
+                <p>显示用户邮箱/手机号，用户输入密码，点击"登录"</p>
+            </div>
+            <div class="flow-step">
+                <div class="step-title">第三步：验证码验证</div>
+                <p>用户输入验证码，完成登录流程</p>
+            </div>
+            
+            <button class="test-button" onclick="testLoginFlow()">测试登录流程</button>
+            <div id="login-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🌐 浏览器语言检测测试</h3>
+            <div class="lang-info">
+                <strong>当前浏览器语言设置：</strong>
+                <div id="browser-lang-display"></div>
+            </div>
+            
+            <button class="test-button" onclick="testBrowserLanguage()">检测浏览器语言</button>
+            <button class="test-button" onclick="simulateLanguageChange()">模拟语言切换</button>
+            <div id="lang-test-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 用户管理API测试</h3>
+            <button class="test-button" onclick="testCreateEmailUser()">创建邮箱用户</button>
+            <button class="test-button" onclick="testCreatePhoneUser()">创建手机用户</button>
+            <button class="test-button" onclick="testInvalidUser()">测试无效用户名</button>
+            <div id="user-mgmt-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🎯 前端页面测试</h3>
+            <p>测试前端页面的语言切换和登录功能：</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="http://localhost:3000" target="_blank" class="test-button" style="text-decoration: none;">
+                    打开前端登录页面
+                </a>
+                <a href="http://localhost:3001" target="_blank" class="test-button" style="text-decoration: none;">
+                    打开管理后台
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3002/api';
+
+        // API调用函数
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            try {
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+                
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+
+                const response = await fetch(`${API_BASE}${endpoint}`, options);
+                const result = await response.json();
+                
+                return { success: true, status: response.status, data: result };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        function displayResult(elementId, result, title = '') {
+            const element = document.getElementById(elementId);
+            const resultDiv = document.createElement('div');
+            resultDiv.className = result.success ? 'test-result success' : 'test-result error';
+            
+            if (result.success) {
+                resultDiv.innerHTML = `<strong>${title}</strong>\n${JSON.stringify(result.data, null, 2)}`;
+            } else {
+                resultDiv.innerHTML = `<strong>❌ ${title} 失败</strong>\n错误: ${result.error}`;
+            }
+            
+            element.appendChild(resultDiv);
+        }
+
+        // 加载测试账号
+        async function loadTestAccounts() {
+            const result = await apiCall('/users');
+            
+            if (result.success && result.data.success) {
+                const users = result.data.data;
+                const accountsResult = document.getElementById('accounts-result');
+                
+                const userListDiv = document.createElement('div');
+                userListDiv.className = 'user-list';
+                userListDiv.innerHTML = `
+                    <h4>📋 可用测试账号 (${users.length} 个)</h4>
+                    ${users.map(user => {
+                        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.username);
+                        return `
+                            <div class="user-item">
+                                <div class="user-info">
+                                    <strong>${user.username}</strong>
+                                    <span class="user-type ${isEmail ? 'email' : 'phone'}">
+                                        ${isEmail ? '📧 邮箱' : '📱 手机'}
+                                    </span>
+                                    <br><small>密码: ${user.password}</small>
+                                </div>
+                                <div style="color: ${user.isActive ? '#4caf50' : '#f44336'}">
+                                    ${user.isActive ? '✅ 启用' : '❌ 禁用'}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                `;
+                
+                accountsResult.appendChild(userListDiv);
+            } else {
+                displayResult('accounts-result', result, '获取测试账号');
+            }
+        }
+
+        // 测试登录流程
+        async function testLoginFlow() {
+            const testEmail = 'demo@example.com';
+            const testPassword = 'demo123';
+            
+            const result = await apiCall('/auth/login', 'POST', {
+                username: testEmail,
+                password: testPassword
+            });
+            
+            if (result.success && result.data.success) {
+                const loginResult = document.getElementById('login-result');
+                const successDiv = document.createElement('div');
+                successDiv.className = 'test-result success';
+                successDiv.innerHTML = `
+                    <strong>✅ 登录流程测试成功</strong>
+                    用户: ${result.data.data.user.username}
+                    Token: ${result.data.data.token}
+                    
+                    <div style="margin-top: 10px; padding: 10px; background: #fff; border-radius: 4px;">
+                        <strong>完整登录流程：</strong>
+                        1. ✅ 用户输入邮箱: ${testEmail}
+                        2. ✅ 后端验证成功
+                        3. ✅ 返回用户信息和Token
+                        4. 🔄 前端应跳转到OTP验证页面
+                        5. 🔄 OTP验证后跳转到Dashboard
+                    </div>
+                `;
+                loginResult.appendChild(successDiv);
+            } else {
+                displayResult('login-result', result, '登录流程测试');
+            }
+        }
+
+        // 测试浏览器语言检测
+        function testBrowserLanguage() {
+            const browserLang = navigator.language || navigator.languages?.[0] || 'en';
+            const allLanguages = navigator.languages || [navigator.language];
+            const detected = browserLang.startsWith('zh') ? 'Chinese (中文)' : 'English';
+            
+            const langInfo = {
+                primary: browserLang,
+                all: allLanguages,
+                detected: detected,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                locale: Intl.DateTimeFormat().resolvedOptions().locale,
+                expectedUI: browserLang.startsWith('zh') ? '登录页面应显示中文' : '登录页面应显示英文'
+            };
+            
+            document.getElementById('lang-test-result').innerHTML = `
+                <div class="test-result success">
+                    <strong>🌐 浏览器语言检测结果</strong>
+                    主要语言: ${langInfo.primary}
+                    所有语言: ${langInfo.all.join(', ')}
+                    检测结果: ${langInfo.detected}
+                    时区: ${langInfo.timezone}
+                    区域设置: ${langInfo.locale}
+                    
+                    <div style="margin-top: 10px; padding: 10px; background: #fff3e0; border-radius: 4px;">
+                        <strong>预期行为:</strong> ${langInfo.expectedUI}
+                    </div>
+                </div>
+            `;
+        }
+
+        // 模拟语言切换
+        function simulateLanguageChange() {
+            const currentLang = navigator.language;
+            const langResult = document.getElementById('lang-test-result');
+            
+            const simulationDiv = document.createElement('div');
+            simulationDiv.className = 'test-result success';
+            simulationDiv.innerHTML = `
+                <strong>🔄 语言切换模拟</strong>
+                当前语言: ${currentLang}
+                
+                <div style="margin-top: 10px;">
+                    <strong>测试步骤:</strong>
+                    1. 在浏览器设置中更改语言偏好
+                    2. 刷新前端登录页面 (http://localhost:3000)
+                    3. 观察页面文本是否自动切换
+                    4. 登录后在右上角手动切换语言
+                </div>
+            `;
+            langResult.appendChild(simulationDiv);
+        }
+
+        // 测试创建邮箱用户
+        async function testCreateEmailUser() {
+            const timestamp = Date.now();
+            const result = await apiCall('/users', 'POST', {
+                username: `test${timestamp}@example.com`,
+                password: 'test123',
+                isActive: true
+            });
+            displayResult('user-mgmt-result', result, '创建邮箱用户');
+        }
+
+        // 测试创建手机用户
+        async function testCreatePhoneUser() {
+            const timestamp = Date.now();
+            const phoneNumber = `+86138${timestamp.toString().slice(-8)}`;
+            const result = await apiCall('/users', 'POST', {
+                username: phoneNumber,
+                password: 'phone123',
+                isActive: true
+            });
+            displayResult('user-mgmt-result', result, '创建手机用户');
+        }
+
+        // 测试无效用户名
+        async function testInvalidUser() {
+            const result = await apiCall('/users', 'POST', {
+                username: 'invalid-username',
+                password: 'test123',
+                isActive: true
+            });
+            displayResult('user-mgmt-result', result, '测试无效用户名');
+        }
+
+        // 显示浏览器语言信息
+        function showBrowserLanguageInfo() {
+            const browserLang = navigator.language || 'unknown';
+            const detected = browserLang.startsWith('zh') ? '中文 🇨🇳' : '英文 🇺🇸';
+            
+            document.getElementById('browser-lang-display').innerHTML = `
+                <div style="margin: 10px 0;">
+                    <strong>主要语言:</strong> ${browserLang}<br>
+                    <strong>检测结果:</strong> ${detected}<br>
+                    <strong>预期UI语言:</strong> ${browserLang.startsWith('zh') ? '中文界面' : '英文界面'}
+                </div>
+            `;
+        }
+
+        // 页面加载时执行
+        window.onload = function() {
+            showBrowserLanguageInfo();
+            loadTestAccounts();
+        };
+    </script>
+</body>
+</html>

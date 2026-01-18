@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Search, Filter, ChevronDown, Plus, 
@@ -15,6 +16,7 @@ import { cn } from '../utils/cn';
 const Inventory: React.FC = () => {
   const { session } = useStore();
   const { t } = useI18n();
+  const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -39,10 +41,17 @@ const Inventory: React.FC = () => {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-[22px] font-semibold text-amazon-text">Manage All Inventory</h1>
         <div className="flex items-center gap-4 text-[13px] font-medium text-amazon-link">
-           <button className="flex items-center gap-1.5 hover:underline">
+           <button 
+             onClick={() => navigate('/app/help')}
+             className="flex items-center gap-1.5 hover:underline"
+           >
              <HelpCircle size={14} /> Documentation
            </button>
-           <Button variant="yellow" className="w-auto px-5 py-2 flex items-center gap-2 font-black shadow-md border-amazon-yellowBorder">
+           <Button 
+             variant="yellow" 
+             onClick={() => navigate('/app/add-products')}
+             className="w-auto px-5 py-2 flex items-center gap-2 font-black shadow-md border-amazon-yellowBorder"
+           >
              <Plus size={16} /> Add a product
            </Button>
         </div>
@@ -153,10 +162,19 @@ const Inventory: React.FC = () => {
                     </td>
                     <td className="px-5 py-5 align-top pt-6 text-center">
                        <div className="flex flex-col gap-2 items-center">
-                          <Button variant="white" className="py-1 px-4 text-[11px] font-black w-auto uppercase tracking-wider shadow-sm border-gray-300 h-8 flex items-center gap-1.5 hover:border-amazon-teal transition-all">
+                          <Button 
+                            variant="white" 
+                            onClick={() => navigate(`/app/inventory/edit/${item.id}`)}
+                            className="py-1 px-4 text-[11px] font-black w-auto uppercase tracking-wider shadow-sm border-gray-300 h-8 flex items-center gap-1.5 hover:border-amazon-teal transition-all"
+                          >
                              <Edit2 size={12} /> Edit
                           </Button>
-                          <button className="text-[10px] text-amazon-link font-black hover:underline uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity">Copy to New ›</button>
+                          <button 
+                            onClick={() => navigate(`/app/inventory/copy/${item.id}`)}
+                            className="text-[10px] text-amazon-link font-black hover:underline uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity"
+                          >
+                            Copy to New ›
+                          </button>
                        </div>
                     </td>
                   </tr>

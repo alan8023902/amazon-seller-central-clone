@@ -2,7 +2,8 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:3002/api';
 
-const api = axios.create({
+// Create axios instance
+export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
@@ -135,6 +136,16 @@ export const dashboardApi = {
     return response.data;
   },
   
+  getConfig: async (storeId: string) => {
+    const response = await api.get(`/dashboard/config/${storeId}`);
+    return response.data;
+  },
+  
+  updateConfig: async (storeId: string, data: any) => {
+    const response = await api.put(`/dashboard/config/${storeId}`, data);
+    return response.data;
+  },
+  
   getProducts: async (storeId: string, params?: any) => {
     const response = await api.get(`/dashboard/products/${storeId}`, { params });
     return response.data;
@@ -156,4 +167,38 @@ export const dashboardApi = {
   },
 };
 
+// Users API
+export const usersApi = {
+  getUsers: async () => {
+    const response = await api.get('/users');
+    return response;
+  },
+  
+  getUser: async (id: string) => {
+    const response = await api.get(`/users/${id}`);
+    return response;
+  },
+  
+  createUser: async (data: any) => {
+    const response = await api.post('/users', data);
+    return response;
+  },
+  
+  updateUser: async (id: string, data: any) => {
+    const response = await api.put(`/users/${id}`, data);
+    return response;
+  },
+  
+  deleteUser: async (id: string) => {
+    const response = await api.delete(`/users/${id}`);
+    return response;
+  },
+  
+  refreshOTP: async (id: string) => {
+    const response = await api.post(`/users/${id}/refresh-otp`);
+    return response;
+  },
+};
+
+// Default export for compatibility
 export default api;

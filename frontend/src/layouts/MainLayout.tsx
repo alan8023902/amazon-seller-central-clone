@@ -20,6 +20,7 @@ import { useI18n } from "../hooks/useI18n";
 import { cn } from "../utils/cn";
 import { marketplaceConfigs } from "../i18n";
 import { ConsoleLogo } from "../components/UI";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import { Marketplace, Language, Store } from "../types";
 
 type MenuItem = {
@@ -380,51 +381,7 @@ const MainLayout: React.FC = () => {
           </div>
 
           {/* 6. language selector: "EN" with caret */}
-          <div className="relative h-full" ref={langRef}>
-            <div
-              onClick={() => setIsLangOpen(!isLangOpen)}
-              className={cn(
-                "h-full flex items-center px-2 hover:bg-white/10 cursor-pointer transition-colors rounded",
-                isLangOpen && "bg-white/10"
-              )}
-            >
-              <span className="text-[11px] font-bold uppercase leading-none">{session.language.split('-')[0]}</span>
-              <ChevronDown
-                size={12}
-                className={cn("ml-1 opacity-60 transition-transform", isLangOpen && "rotate-180")}
-              />
-            </div>
-
-            {isLangOpen && (
-              <div className="absolute top-11 right-0 w-48 bg-white shadow-xl border border-gray-200 py-2 rounded-b-sm animate-in fade-in slide-in-from-top-1 z-[100]">
-                <div className="px-4 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b mb-1">
-                  {t("selectLanguage")}
-                </div>
-                {[
-                  { code: "en-US" as Language, label: "English" },
-                  { code: "zh-CN" as Language, label: "Chinese (Simplified)" },
-                ].map((lang) => (
-                  <div
-                    key={lang.code}
-                    onClick={() => {
-                      setLanguage(lang.code);
-                      setIsLangOpen(false);
-                    }}
-                    className="px-4 py-2 hover:bg-gray-100 flex items-center justify-between cursor-pointer"
-                  >
-                    <span
-                      className={cn(
-                        "text-sm-amz font-medium text-amazon-text",
-                        session.language === lang.code && "font-black text-amazon-teal"
-                      )}
-                    >
-                      {lang.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <LanguageSwitcher />
 
           {/* 7. text: "Help" */}
           <button

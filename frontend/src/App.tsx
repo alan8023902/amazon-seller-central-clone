@@ -2,6 +2,7 @@
 import React, { Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useStore } from './store';
+import ErrorBoundary from './components/ErrorBoundary';
 import MainLayout from './layouts/MainLayout';
 import WithSidebarLayout from './layouts/WithSidebarLayout';
 import { LoginEmail, LoginPassword, LoginOTP, RegisterPage } from './features/AuthPages';
@@ -67,7 +68,8 @@ function App() {
   return (
     <div className={isAuth ? "amz-auth" : "amz-console"}>
     <Suspense fallback={<Loading />}>
-      <Routes>
+      <ErrorBoundary>
+        <Routes>
         {/* Auth Routes */}
         <Route path="/auth/login-email" element={<LoginEmail />} />
         <Route path="/auth/login-password" element={<LoginPassword />} />
@@ -144,6 +146,7 @@ function App() {
         {/* Redirects */}
         <Route path="/" element={<Navigate to="/app/dashboard" replace />} />
       </Routes>
+      </ErrorBoundary>
     </Suspense>
     </div>
   );

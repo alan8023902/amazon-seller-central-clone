@@ -1,6 +1,7 @@
 import React from "react";
 import { BrandLogo } from "../components/UI";
 import { useI18n } from "../hooks/useI18n";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 const AuthLayout: React.FC<{ children: React.ReactNode; showNewUser?: React.ReactNode }> = ({
   children,
@@ -10,9 +11,13 @@ const AuthLayout: React.FC<{ children: React.ReactNode; showNewUser?: React.Reac
 
   return (
     <div className="bg-white">
-      {/* 顶部 Logo */}
-      <div className="pt-[15px] pb-[26px] flex justify-center">
+      {/* 顶部 Logo 和语言切换 */}
+      <div className="pt-[15px] pb-[26px] flex justify-center relative">
         <BrandLogo />
+        {/* 语言切换器 - 右上角 */}
+        <div className="absolute top-[15px] right-[20px]">
+          <LanguageSwitcher variant="auth" />
+        </div>
       </div>
 
       {/* 主内容 */}

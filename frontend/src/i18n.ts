@@ -66,6 +66,15 @@ export const translations: Record<LangType, Record<string, string>> = {
     passwordHelper: '密码必须至少为 6 个字符。',
     // 表单验证提示
     emailRequired: '请输入您的电子邮箱或手机号码',
+    
+    // 新增翻译
+    listingStatus: '商品状态',
+    recentlyAdded: '最近添加',
+    allProducts: '所有商品',
+    
+    // 欢迎信息
+    goodEvening: '晚上好，您的账户状态为',
+    healthy: '健康',
     // 欢迎信息
     goodEvening: '晚上好，您的账户状态为',
     healthy: '健康',
@@ -239,6 +248,15 @@ export const translations: Record<LangType, Record<string, string>> = {
     passwordHelper: 'Password must be at least 6 characters.',
     // 表单验证提示
     emailRequired: 'Please enter your email address or mobile phone number',
+    
+    // 新增翻译
+    listingStatus: 'Listing Status',
+    recentlyAdded: 'Recently Added',
+    allProducts: 'All Products',
+    
+    // 欢迎信息
+    goodEvening: 'Good evening, your account status is',
+    healthy: 'Healthy',
     // 欢迎信息
     goodEvening: 'Good evening, your account status is',
     healthy: 'Healthy',

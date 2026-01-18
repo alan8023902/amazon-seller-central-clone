@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // ==================== Shared Card UI tokens ====================
 const outerCard = "bg-white border border-[#E3E6E6] rounded-[8px] shadow-none";
@@ -12,6 +13,8 @@ const divider = "border-t border-[#E3E6E6]";
 
 // ==================== ActionsCard Component ====================
 export function ActionsCard() {
+  const navigate = useNavigate();
+  
   return (
     <div className={`${outerCard} ring-2 ring-[#007185] ring-offset-2 ring-offset-white`}>
       {/* Header */}
@@ -26,9 +29,12 @@ export function ActionsCard() {
       {/* Body */}
       <div className="mx-4 mb-4 rounded-[8px] border border-[#E3E6E6] bg-white px-4 py-3">
         <div className="flex items-center justify-between">
-          <a href="#" className="text-[13px] font-semibold text-[#007185] hover:underline">
+          <button 
+            onClick={() => navigate('/app/shipments')}
+            className="text-[13px] font-semibold text-[#007185] hover:underline"
+          >
             Shipment performance
-          </a>
+          </button>
           <button className={kebabButton}>⋮</button>
         </div>
         <div className="mt-1 text-[12px] text-[#565959] leading-5">
