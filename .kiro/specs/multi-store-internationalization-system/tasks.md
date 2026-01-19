@@ -74,7 +74,7 @@ This implementation plan converts the multi-store management and internationaliz
     - **Property 4: Store Context Synchronization**
     - **Validates: Requirements 2.2, 2.3**
 
-  - [-] 4.4 Update global store with store management
+  - [x] 4.4 Update global store with store management
     - Enhance `frontend/src/store.ts` with store context integration
     - Add store switching actions and state persistence
     - Integrate with existing marketplace and language settings
