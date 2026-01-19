@@ -6,17 +6,33 @@ import { storeApi } from '../services/api';
 const { Title } = Typography;
 const { Option } = Select;
 
-const StoreSettings: React.FC = () => {
+interface StoreSettingsProps {
+  selectedStoreId: string;
+  selectedStore: any;
+  onStoreChange: (storeId: string, store: any) => void;
+}
+
+const StoreSettings: React.FC<StoreSettingsProps> = ({ selectedStoreId, selectedStore }) => {
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
 
-  const { data: store, isLoading } = useQuery({
-    queryKey: ['store'],
-    queryFn: storeApi.getStore,
+  const { data: storeData, isLoading } = useQuery({
+    queryKey: ['store', selectedStoreId],
+    queryFn: () => fetch(`http://localhost:3002/api/stores/${selectedStoreId}`).then(res => res.json()),
+    enabled: !!selectedStoreId,
   });
 
   const updateStoreMutation = useMutation({
-    mutationFn: storeApi.updateStore,
+    mutationFn: async (values: any) => {
+      const response = await fetch(`http://localhost:3002/api/stores/${selectedStoreId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+      return response.json();
+    },
     onSuccess: () => {
       message.success('店铺信息更新成功！');
       queryClient.invalidateQueries({ queryKey: ['store'] });
@@ -31,63 +47,154 @@ const StoreSettings: React.FC = () => {
   };
 
   React.useEffect(() => {
-    if (store) {
-      form.setFieldsValue(store);
+    if (storeData?.success && storeData.data) {
+      form.setFieldsValue(storeData.data);
+    } else if (selectedStore) {
+      // 如果API没有返回数据，使用选中的店铺信息
+      form.setFieldsValue(selectedStore);
     }
-  }, [store, form]);
+  }, [storeData, selectedStore, form]);
 
   return (
     <div>
-      <Title level={2}>店铺设置</Title>
-      
-      <Card title="基本信息" loading={isLoading}>
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          style={{ maxWidth: 600 }}
-        >
-          <Form.Item
-            label="店铺名称"
-            name="name"
-            rules={[{ required: true, message: '请输入店铺名称' }]}
-          >
-            <Input placeholder="请输入店铺名称" />
-          </Form.Item>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <Title level={2}>店铺设置</Title>
+        {selectedStore && (
+          <div style={{ fontSize: '14px', color: '#666' }}>
+            当前店铺: <strong>{selectedStore.name}</strong> ({selectedStore.marketplace})
+          </div>
+        )}
+      </div>
 
-          <Form.Item
-            label="国家/地区"
-            name="country"
-            rules={[{ required: true, message: '请选择国家/地区' }]}
+      {!selectedStoreId ? (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '60px 0', 
+          color: '#999',
+          fontSize: '16px' 
+        }}>
+          请先在页面顶部选择一个店铺
+        </div>
+      ) : (
+        <Card title="基本信息" loading={isLoading}>
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+            style={{ maxWidth: 600 }}
           >
-            <Select placeholder="请选择国家/地区">
-              <Option value="United States">United States</Option>
-              <Option value="Japan">Japan</Option>
-              <Option value="United Kingdom">United Kingdom</Option>
-              <Option value="Germany">Germany</Option>
-              <Option value="Europe">Europe</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            label="货币符号"
-            name="currency_symbol"
-            rules={[{ required: true, message: '请输入货币符号' }]}
-          >
-            <Input placeholder="如: US$, ¥, £, €" />
-          </Form.Item>
-
-          <Form.Item>
-            <Button 
-              type="primary" 
-              htmlType="submit"
-              loading={updateStoreMutation.isPending}
+            <Form.Item
+              label="店铺名称"
+              name="name"
+              rules={[{ required: true, message: '请输入店铺名称' }]}
             >
-              保存设置
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
+              <Input placeholder="请输入店铺名称" />
+            </Form.Item>
+
+            <Form.Item
+              label="市场"
+              name="marketplace"
+              rules={[{ required: true, message: '请选择市场' }]}
+            >
+              <Select placeholder="请选择市场">
+                <Option value="United States">United States</Option>
+                <Option value="Japan">Japan</Option>
+                <Option value="United Kingdom">United Kingdom</Option>
+                <Option value="Germany">Germany</Option>
+                <Option value="Europe">Europe</Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              label="国家/地区"
+              name="country"
+              rules={[{ required: true, message: '请选择国家/地区' }]}
+            >
+              <Select placeholder="请选择国家/地区">
+                <Option value="United States">United States</Option>
+                <Option value="Japan">Japan</Option>
+                <Option value="United Kingdom">United Kingdom</Option>
+                <Option value="Germany">Germany</Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              label="货币符号"
+              name="currency_symbol"
+              rules={[{ required: true, message: '请选择货币符号' }]}
+            >
+              <Select placeholder="请选择货币符号">
+                <Option value="$">$ (美元)</Option>
+                <Option value="¥">¥ (日元)</Option>
+                <Option value="£">£ (英镑)</Option>
+                <Option value="€">€ (欧元)</Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              label="时区"
+              name="timezone"
+              rules={[{ required: true, message: '请选择时区' }]}
+            >
+              <Select placeholder="请选择时区">
+                <Option value="America/New_York">America/New_York (UTC-5)</Option>
+                <Option value="Asia/Tokyo">Asia/Tokyo (UTC+9)</Option>
+                <Option value="Europe/London">Europe/London (UTC+0)</Option>
+                <Option value="Europe/Berlin">Europe/Berlin (UTC+1)</Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              label="业务类型"
+              name="business_type"
+              rules={[{ required: true, message: '请选择业务类型' }]}
+            >
+              <Select placeholder="请选择业务类型">
+                <Option value="Individual">Individual</Option>
+                <Option value="Business">Business</Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              label="联系邮箱"
+              name="contact_email"
+            >
+              <Input placeholder="请输入联系邮箱" type="email" />
+            </Form.Item>
+
+            <Form.Item
+              label="联系电话"
+              name="contact_phone"
+            >
+              <Input placeholder="请输入联系电话" />
+            </Form.Item>
+
+            <Form.Item
+              label="税务ID"
+              name="tax_id"
+            >
+              <Input placeholder="请输入税务ID" />
+            </Form.Item>
+
+            <Form.Item
+              label="VAT号码"
+              name="vat_number"
+            >
+              <Input placeholder="请输入VAT号码" />
+            </Form.Item>
+
+            <Form.Item>
+              <Button 
+                type="primary" 
+                htmlType="submit"
+                loading={updateStoreMutation.isPending}
+              >
+                保存设置
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
+      )}
     </div>
   );
 };

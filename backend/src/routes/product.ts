@@ -170,9 +170,17 @@ router.post('/:id/image', upload.single('image'), asyncHandler(async (req, res) 
     throw createError('Product not found', 404);
   }
   
-  const response: ApiResponse<{ imageUrl: string }> = {
+  const response: ApiResponse<{ 
+    imageUrl: string; 
+    imageFilename: string; 
+    imageSize: number; 
+  }> = {
     success: true,
-    data: { imageUrl },
+    data: { 
+      imageUrl,
+      imageFilename: req.file.filename,
+      imageSize: req.file.size
+    },
     message: 'Image uploaded successfully',
   };
   

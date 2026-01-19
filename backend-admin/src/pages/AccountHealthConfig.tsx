@@ -38,7 +38,13 @@ interface AccountHealthData {
   pendingActions: number;
 }
 
-const AccountHealthConfig: React.FC = () => {
+interface AccountHealthConfigProps {
+  selectedStoreId: string;
+  selectedStore: any;
+  onStoreChange: (storeId: string, store: any) => void;
+}
+
+const AccountHealthConfig: React.FC<AccountHealthConfigProps> = ({ selectedStoreId, selectedStore }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [autoGenerate, setAutoGenerate] = useState(true);

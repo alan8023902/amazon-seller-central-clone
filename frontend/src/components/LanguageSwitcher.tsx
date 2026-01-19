@@ -30,9 +30,51 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   }, []);
 
   const languages = [
-    { code: "en-US" as Language, label: "English" },
-    { code: "zh-CN" as Language, label: "中文 (简体)" },
+    { code: "en-US" as Language, label: "English", flag: "🇺🇸" },
+    { code: "zh-CN" as Language, label: "中文 (简体)", flag: "🇨🇳" },
   ];
+
+  const handleLanguageChange = (langCode: Language) => {
+    console.log('LanguageSwitcher: Changing language to', langCode);
+    
+    // Set language in store (this will trigger re-renders across the app)
+    setLanguage(langCode);
+    
+    // Persist to localStorage for future sessions
+    localStorage.setItem('preferred-language', langCode);
+    
+    // Close dropdown
+    setIsOpen(false);
+    
+    // Force a small delay to ensure all components re-render with new language
+    setTimeout(() => {
+      // Trigger a custom event that components can listen to for immediate updates
+      window.dispatchEvent(new CustomEvent('languageChanged', { 
+        detail: { language: langCode } 
+      }));
+      
+      // Force a page refresh if needed (as a fallback)
+      console.log('Language change completed, current language:', langCode);
+    }, 100);
+  };
+
+  // Load persisted language preference on mount
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('preferred-language') as Language;
+    if (savedLanguage && savedLanguage !== session.language) {
+      setLanguage(savedLanguage);
+    }
+  }, []);
+
+  const getCurrentLanguageLabel = () => {
+    const currentLang = languages.find(lang => lang.code === session.language);
+    return currentLang?.label || 'English';
+  };
+
+  const getCurrentLanguageFlag = () => {
+    const currentLang = languages.find(lang => lang.code === session.language);
+    return currentLang?.flag || '🇺🇸';
+  };
 
   if (variant === 'auth') {
     return (
@@ -41,6 +83,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center gap-1 text-[13px] text-amazon-link hover:underline"
         >
+          <span>{getCurrentLanguageFlag()}</span>
           <span>{session.language === 'zh-CN' ? '中文' : 'English'}</span>
           <ChevronDown size={12} className={cn("transition-transform", isOpen && "rotate-180")} />
         </button>
@@ -53,20 +96,23 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
             {languages.map((lang) => (
               <div
                 key={lang.code}
-                onClick={() => {
-                  setLanguage(lang.code);
-                  setIsOpen(false);
-                }}
+                onClick={() => handleLanguageChange(lang.code)}
                 className="px-4 py-2 hover:bg-gray-100 flex items-center justify-between cursor-pointer"
               >
-                <span
-                  className={cn(
-                    "text-sm font-medium text-amazon-text",
-                    session.language === lang.code && "font-black text-amazon-teal"
-                  )}
-                >
-                  {lang.label}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span>{lang.flag}</span>
+                  <span
+                    className={cn(
+                      "text-sm font-medium text-amazon-text",
+                      session.language === lang.code && "font-black text-amazon-teal"
+                    )}
+                  >
+                    {lang.label}
+                  </span>
+                </div>
+                {session.language === lang.code && (
+                  <span className="text-amazon-teal">✓</span>
+                )}
               </div>
             ))}
           </div>
@@ -75,7 +121,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
     );
   }
 
-  // Header variant (existing code)
+  // Header variant (enhanced)
   return (
     <div className={cn("relative h-full", className)} ref={ref}>
       <div
@@ -102,20 +148,23 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
           {languages.map((lang) => (
             <div
               key={lang.code}
-              onClick={() => {
-                setLanguage(lang.code);
-                setIsOpen(false);
-              }}
+              onClick={() => handleLanguageChange(lang.code)}
               className="px-4 py-2 hover:bg-gray-100 flex items-center justify-between cursor-pointer"
             >
-              <span
-                className={cn(
-                  "text-sm font-medium text-amazon-text",
-                  session.language === lang.code && "font-black text-amazon-teal"
-                )}
-              >
-                {lang.label}
-              </span>
+              <div className="flex items-center gap-2">
+                <span>{lang.flag}</span>
+                <span
+                  className={cn(
+                    "text-sm font-medium text-amazon-text",
+                    session.language === lang.code && "font-black text-amazon-teal"
+                  )}
+                >
+                  {lang.label}
+                </span>
+              </div>
+              {session.language === lang.code && (
+                <span className="text-amazon-teal">✓</span>
+              )}
             </div>
           ))}
         </div>

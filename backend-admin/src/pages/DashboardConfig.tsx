@@ -64,7 +64,16 @@ interface WelcomeBannerData {
   showLearnMore: boolean;
 }
 
-const DashboardConfig: React.FC = () => {
+interface DashboardConfigProps {
+  selectedStoreId: string;
+  selectedStore: any;
+  onStoreChange: (storeId: string, store: any) => void;
+}
+
+const DashboardConfig: React.FC<DashboardConfigProps> = ({ 
+  selectedStoreId, 
+  selectedStore 
+}) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [globalSnapshot, setGlobalSnapshot] = useState<GlobalSnapshotData>({
@@ -88,12 +97,14 @@ const DashboardConfig: React.FC = () => {
 
   useEffect(() => {
     loadDashboardData();
-  }, []);
+  }, [selectedStoreId]);
 
   const loadDashboardData = async () => {
+    if (!selectedStoreId) return;
+    
     try {
       // 从后端加载当前配置
-      const response = await dashboardApi.getConfig('1');
+      const response = await dashboardApi.getConfig(selectedStoreId);
       if (response.success) {
         // 设置从后端获取的数据
         if (response.data.globalSnapshot) {
@@ -111,9 +122,14 @@ const DashboardConfig: React.FC = () => {
   };
 
   const handleSaveGlobalSnapshot = async () => {
+    if (!selectedStoreId) {
+      message.error('请先选择店铺');
+      return;
+    }
+    
     setLoading(true);
     try {
-      const response = await dashboardApi.updateConfig('1', {
+      const response = await dashboardApi.updateConfig(selectedStoreId, {
         globalSnapshot,
         welcomeBanner
       });
@@ -131,9 +147,14 @@ const DashboardConfig: React.FC = () => {
   };
 
   const handleSaveWelcomeBanner = async () => {
+    if (!selectedStoreId) {
+      message.error('请先选择店铺');
+      return;
+    }
+    
     setLoading(true);
     try {
-      const response = await dashboardApi.updateConfig('1', {
+      const response = await dashboardApi.updateConfig(selectedStoreId, {
         globalSnapshot,
         welcomeBanner
       });
@@ -166,14 +187,31 @@ const DashboardConfig: React.FC = () => {
 
   return (
     <div>
-      <div style={{ marginBottom: 24 }}>
-        <h2>Dashboard 页面配置</h2>
-        <p style={{ color: '#666' }}>
-          配置前端 Dashboard 页面显示的数据内容，修改后将实时更新到前端页面
-        </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <div>
+          <h2>Dashboard 页面配置</h2>
+          <p style={{ color: '#666' }}>
+            配置前端 Dashboard 页面显示的数据内容，修改后将实时更新到前端页面
+          </p>
+        </div>
+        {selectedStore && (
+          <div style={{ fontSize: '14px', color: '#666' }}>
+            当前店铺: <strong>{selectedStore.name}</strong> ({selectedStore.marketplace})
+          </div>
+        )}
       </div>
 
-      <Tabs defaultActiveKey="globalSnapshot">
+      {!selectedStoreId ? (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '60px 0', 
+          color: '#999',
+          fontSize: '16px' 
+        }}>
+          请先在页面顶部选择一个店铺
+        </div>
+      ) : (
+        <Tabs defaultActiveKey="globalSnapshot">
         <TabPane tab="Global Snapshot" key="globalSnapshot">
           <Card title="Global Snapshot 数据配置" extra={
             <Space>
@@ -452,6 +490,7 @@ const DashboardConfig: React.FC = () => {
           </Card>
         </TabPane>
       </Tabs>
+      )}
     </div>
   );
 };

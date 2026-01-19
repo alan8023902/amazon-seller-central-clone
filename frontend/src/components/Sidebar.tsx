@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronRight, ChevronDown, X } from 'lucide-react';
 import { SidebarConfig, SidebarMenuItem } from '../nav/sidebar.config.tsx';
+import { useI18n } from '../hooks/useI18n';
 import { cn } from '../utils/cn';
 
 interface SidebarProps {
@@ -10,6 +11,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ config }) => {
   const location = useLocation();
+  const { t } = useI18n();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   // 检查菜单项是否激活
@@ -50,7 +52,7 @@ const Sidebar: React.FC<SidebarProps> = ({ config }) => {
             className="flex items-center gap-2 flex-1"
           >
             {item.icon && <span className="text-gray-400">{item.icon}</span>}
-            <span className={cn('truncate', isItemActive && 'font-bold')}>{item.label}</span>
+            <span className={cn('truncate', isItemActive && 'font-bold')}>{t(item.label)}</span>
           </Link>
 
           {hasChildren && (
@@ -78,7 +80,7 @@ const Sidebar: React.FC<SidebarProps> = ({ config }) => {
       <div className="px-4 py-3 border-b border-gray-200 flex items-center">
         <button className="flex items-center gap-2 text-sm font-bold uppercase text-gray-700 hover:text-amazon-teal transition-colors">
           <X size={14} />
-          <span>CLOSE REPORTS MENU</span>
+          <span>{t('closeReportsMenu')}</span>
         </button>
       </div>
       

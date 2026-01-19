@@ -6,7 +6,13 @@ import { productApi, dashboardApi, salesApi } from '../services/api';
 
 const { Title } = Typography;
 
-const Dashboard: React.FC = () => {
+interface DashboardProps {
+  selectedStoreId: string;
+  selectedStore: any;
+  onStoreChange: (storeId: string, store: any) => void;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ selectedStoreId, selectedStore }) => {
   // 获取产品统计
   const { data: productsData, isLoading: productsLoading, error: productsError } = useQuery({
     queryKey: ['products-stats'],

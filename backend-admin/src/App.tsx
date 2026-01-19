@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Layout, Menu, Typography, Button, message } from 'antd';
+import { Layout, Menu, Typography, Button, message, Space } from 'antd';
 import { 
   DashboardOutlined, 
   ShopOutlined, 
@@ -12,6 +12,7 @@ import {
   UserOutlined
 } from '@ant-design/icons';
 import LoginForm from './components/LoginForm';
+import StoreSelector from './components/StoreSelector';
 import Dashboard from './pages/Dashboard';
 import StoreSettings from './pages/StoreSettings';
 import ProductManagement from './pages/ProductManagement';
@@ -71,6 +72,8 @@ function App() {
   const [selectedKey, setSelectedKey] = React.useState('dashboard');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState('');
+  const [selectedStoreId, setSelectedStoreId] = useState<string>('');
+  const [selectedStore, setSelectedStore] = useState<any>(null);
 
   // 默认账号密码
   const defaultCredentials = {
@@ -103,30 +106,43 @@ function App() {
     return <LoginForm onLogin={handleLogin} />;
   }
 
+  const handleStoreChange = (storeId: string, store: any) => {
+    setSelectedStoreId(storeId);
+    setSelectedStore(store);
+    message.success(`已切换到店铺: ${store.name}`);
+  };
+
   const handleMenuClick = (e: any) => {
     setSelectedKey(e.key);
   };
 
   const renderContent = () => {
+    // 传递选中的店铺信息给所有页面组件
+    const commonProps = {
+      selectedStoreId,
+      selectedStore,
+      onStoreChange: handleStoreChange
+    };
+
     switch (selectedKey) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard {...commonProps} />;
       case 'dashboard-config':
-        return <DashboardConfig />;
+        return <DashboardConfig {...commonProps} />;
       case 'user-management':
-        return <UserManagement />;
+        return <UserManagement {...commonProps} />;
       case 'store':
-        return <StoreSettings />;
+        return <StoreSettings {...commonProps} />;
       case 'products':
-        return <ProductManagement />;
+        return <ProductManagement {...commonProps} />;
       case 'sales':
-        return <SalesDataConfig />;
+        return <SalesDataConfig {...commonProps} />;
       case 'cx-health':
-        return <CXHealthConfig />;
+        return <CXHealthConfig {...commonProps} />;
       case 'account-health':
-        return <AccountHealthConfig />;
+        return <AccountHealthConfig {...commonProps} />;
       default:
-        return <Dashboard />;
+        return <Dashboard {...commonProps} />;
     }
   };
 
@@ -143,6 +159,11 @@ function App() {
           Amazon Seller Central - 数据管理后台
         </Title>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <StoreSelector
+            value={selectedStoreId}
+            onChange={handleStoreChange}
+            style={{ minWidth: 250 }}
+          />
           <span style={{ color: 'white' }}>
             <UserOutlined /> {currentUser}
           </span>

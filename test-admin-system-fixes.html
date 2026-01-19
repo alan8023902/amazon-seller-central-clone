@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin System Fixes Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-title {
+            color: #232f3e;
+            border-bottom: 2px solid #ff9900;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        button {
+            background-color: #ff9900;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #e68900;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        .json-display {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Admin System Fixes Test</h1>
+    <p>Testing all the fixes implemented for the multi-store internationalization system</p>
+
+    <div class="test-grid">
+        <!-- Dashboard Config API Test -->
+        <div class="test-section">
+            <h2 class="test-title">1. Dashboard Config API Fix</h2>
+            <p>Testing the missing dashboard config endpoint that was causing 404 errors</p>
+            <button onclick="testDashboardConfig()">Test Dashboard Config API</button>
+            <div id="dashboardConfigResult"></div>
+        </div>
+
+        <!-- Store Management Test -->
+        <div class="test-section">
+            <h2 class="test-title">2. Store Management</h2>
+            <p>Testing store CRUD operations and data isolation</p>
+            <button onclick="testStoreManagement()">Test Store Operations</button>
+            <div id="storeManagementResult"></div>
+        </div>
+
+        <!-- Product Management Test -->
+        <div class="test-section">
+            <h2 class="test-title">3. Product Management</h2>
+            <p>Testing realistic products and store-specific filtering</p>
+            <button onclick="testProductManagement()">Test Product Operations</button>
+            <div id="productManagementResult"></div>
+        </div>
+
+        <!-- Image Upload Test -->
+        <div class="test-section">
+            <h2 class="test-title">4. Image Upload System</h2>
+            <p>Testing product image upload functionality</p>
+            <button onclick="testImageUpload()">Test Image Upload</button>
+            <div id="imageUploadResult"></div>
+        </div>
+
+        <!-- Data Synchronization Test -->
+        <div class="test-section">
+            <h2 class="test-title">5. Data Synchronization</h2>
+            <p>Testing data sync between admin (3001) and frontend (3000)</p>
+            <button onclick="testDataSync()">Test Data Sync</button>
+            <div id="dataSyncResult"></div>
+        </div>
+
+        <!-- Store Selector Test -->
+        <div class="test-section">
+            <h2 class="test-title">6. Store Selector Enhancement</h2>
+            <p>Testing store selector with proper store names only</p>
+            <button onclick="testStoreSelector()">Test Store Selector</button>
+            <div id="storeSelectorResult"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3002/api';
+        const ADMIN_BASE = 'http://localhost:3001';
+
+        function displayResult(elementId, status, message, data = null) {
+            const element = document.getElementById(elementId);
+            const statusClass = status === 'success' ? 'success' : 
+                               status === 'error' ? 'error' : 
+                               status === 'warning' ? 'warning' : 'info';
+            
+            let html = `<div class="status ${statusClass}">${message}</div>`;
+            
+            if (data) {
+                html += `<div class="json-display">${JSON.stringify(data, null, 2)}</div>`;
+            }
+            
+            element.innerHTML = html;
+        }
+
+        async function testDashboardConfig() {
+            displayResult('dashboardConfigResult', 'info', 'Testing dashboard config API...');
+            
+            try {
+                // Test GET dashboard config
+                const response = await fetch(`${API_BASE}/dashboard/config/store-us-main`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayResult('dashboardConfigResult', 'success', 
+                        '✅ Dashboard config API working correctly!', data);
+                } else {
+                    displayResult('dashboardConfigResult', 'error', 
+                        `❌ Dashboard config API failed: ${response.status} ${response.statusText}`);
+                }
+            } catch (error) {
+                displayResult('dashboardConfigResult', 'error', 
+                    `❌ Dashboard config API error: ${error.message}`);
+            }
+        }
+
+        async function testStoreManagement() {
+            displayResult('storeManagementResult', 'info', 'Testing store management...');
+            
+            try {
+                // Test GET stores
+                const response = await fetch(`${API_BASE}/stores`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const storeCount = data.data ? data.data.length : 0;
+                    displayResult('storeManagementResult', 'success', 
+                        `✅ Store management working! Found ${storeCount} stores`, data);
+                } else {
+                    displayResult('storeManagementResult', 'error', 
+                        `❌ Store management failed: ${response.status} ${response.statusText}`);
+                }
+            } catch (error) {
+                displayResult('storeManagementResult', 'error', 
+                    `❌ Store management error: ${error.message}`);
+            }
+        }
+
+        async function testProductManagement() {
+            displayResult('productManagementResult', 'info', 'Testing product management...');
+            
+            try {
+                // Test GET products for a specific store
+                const response = await fetch(`${API_BASE}/products?store_id=store-us-main&limit=5`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const productCount = data.data ? data.data.length : 0;
+                    displayResult('productManagementResult', 'success', 
+                        `✅ Product management working! Found ${productCount} products for US store`, data);
+                } else {
+                    displayResult('productManagementResult', 'error', 
+                        `❌ Product management failed: ${response.status} ${response.statusText}`);
+                }
+            } catch (error) {
+                displayResult('productManagementResult', 'error', 
+                    `❌ Product management error: ${error.message}`);
+            }
+        }
+
+        async function testImageUpload() {
+            displayResult('imageUploadResult', 'info', 'Testing image upload system...');
+            
+            try {
+                // First get a product to test with
+                const productsResponse = await fetch(`${API_BASE}/products?store_id=store-us-main&limit=1`);
+                
+                if (!productsResponse.ok) {
+                    throw new Error('Failed to get products for image upload test');
+                }
+                
+                const productsData = await productsResponse.json();
+                
+                if (productsData.data && productsData.data.length > 0) {
+                    const productId = productsData.data[0].id;
+                    
+                    // Create a test image blob
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 100;
+                    canvas.height = 100;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#ff9900';
+                    ctx.fillRect(0, 0, 100, 100);
+                    ctx.fillStyle = 'white';
+                    ctx.font = '16px Arial';
+                    ctx.fillText('TEST', 30, 55);
+                    
+                    canvas.toBlob(async (blob) => {
+                        const formData = new FormData();
+                        formData.append('image', blob, 'test-image.png');
+                        
+                        const uploadResponse = await fetch(`${API_BASE}/products/${productId}/image`, {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        if (uploadResponse.ok) {
+                            const uploadData = await uploadResponse.json();
+                            displayResult('imageUploadResult', 'success', 
+                                '✅ Image upload system working!', uploadData);
+                        } else {
+                            displayResult('imageUploadResult', 'error', 
+                                `❌ Image upload failed: ${uploadResponse.status} ${uploadResponse.statusText}`);
+                        }
+                    }, 'image/png');
+                } else {
+                    displayResult('imageUploadResult', 'warning', 
+                        '⚠️ No products found to test image upload');
+                }
+            } catch (error) {
+                displayResult('imageUploadResult', 'error', 
+                    `❌ Image upload error: ${error.message}`);
+            }
+        }
+
+        async function testDataSync() {
+            displayResult('dataSyncResult', 'info', 'Testing data synchronization...');
+            
+            try {
+                // Test if admin system can access backend data
+                const backendResponse = await fetch(`${API_BASE}/stores`);
+                
+                if (!backendResponse.ok) {
+                    throw new Error('Backend API not accessible');
+                }
+                
+                const backendData = await backendResponse.json();
+                
+                // Test if admin system is running
+                try {
+                    const adminResponse = await fetch(`${ADMIN_BASE}`, { mode: 'no-cors' });
+                    displayResult('dataSyncResult', 'success', 
+                        `✅ Data sync ready! Backend has ${backendData.data.length} stores, Admin system accessible`);
+                } catch (adminError) {
+                    displayResult('dataSyncResult', 'warning', 
+                        `⚠️ Backend working but admin system may not be running on port 3001`);
+                }
+            } catch (error) {
+                displayResult('dataSyncResult', 'error', 
+                    `❌ Data sync error: ${error.message}`);
+            }
+        }
+
+        async function testStoreSelector() {
+            displayResult('storeSelectorResult', 'info', 'Testing store selector...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/stores`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.data && data.data.length > 0) {
+                        const stores = data.data.map(store => ({
+                            id: store.id,
+                            name: store.name,
+                            marketplace: store.marketplace,
+                            currency: store.currency_symbol
+                        }));
+                        
+                        displayResult('storeSelectorResult', 'success', 
+                            '✅ Store selector data ready! Stores with proper names and currencies', stores);
+                    } else {
+                        displayResult('storeSelectorResult', 'warning', 
+                            '⚠️ No stores found for selector');
+                    }
+                } else {
+                    displayResult('storeSelectorResult', 'error', 
+                        `❌ Store selector test failed: ${response.status} ${response.statusText}`);
+                }
+            } catch (error) {
+                displayResult('storeSelectorResult', 'error', 
+                    `❌ Store selector error: ${error.message}`);
+            }
+        }
+
+        // Auto-run basic tests on page load
+        window.onload = function() {
+            setTimeout(() => {
+                testDashboardConfig();
+                testStoreManagement();
+                testProductManagement();
+                testStoreSelector();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

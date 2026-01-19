@@ -21,17 +21,17 @@ export interface SidebarConfig {
 // Reports 侧边栏配置
 export const reportsSidebar: SidebarConfig = {
   id: 'reports',
-  label: 'Reports',
+  label: 'reports',
   items: [
     {
       id: 'dashboards',
-      label: 'Dashboards',
+      label: 'dashboards',
       path: '/app/business-reports',
       icon: <Activity size={12} />,
       children: [
         {
           id: 'sales-dashboard',
-          label: 'Sales Dashboard',
+          label: 'salesDashboard',
           path: '/app/business-reports/sales-dashboard',
           activePrefix: '/app/business-reports'
         }
@@ -39,68 +39,68 @@ export const reportsSidebar: SidebarConfig = {
     },
     {
       id: 'business-reports',
-      label: 'Business Reports',
+      label: 'businessReports',
       path: '/app/business-reports/by-date',
       icon: <FileText size={12} />,
       children: [
         {
           id: 'by-date',
-          label: 'By Date',
+          label: 'byDate',
           path: '/app/business-reports/by-date'
         }
       ]
     },
     {
       id: 'sales-and-traffic',
-      label: 'Sales and Traffic',
+      label: 'salesAndTraffic',
       path: '/app/business-reports/sales-traffic',
       icon: <Activity size={12} />,
       children: [
         {
           id: 'detail-page-sales',
-          label: 'Detail Page Sales and Traffic',
+          label: 'detailPageSales',
           path: '/app/business-reports/by-date/detail-page-sales'
         },
         {
           id: 'by-parent-item',
-          label: '... By Parent Item',
+          label: 'byParentItem',
           path: '/app/business-reports/sales-traffic/by-parent-item'
         },
         {
           id: 'by-child-item',
-          label: '... By Child Item',
+          label: 'byChildItem',
           path: '/app/business-reports/sales-traffic/by-child-item'
         }
       ]
     },
     {
       id: 'seller-performance',
-      label: 'Seller Performance',
+      label: 'sellerPerformance',
       path: '/app/business-reports/seller-performance',
       icon: <Activity size={12} />
     },
     {
       id: 'by-asin',
-      label: 'By ASIN',
+      label: 'byAsin',
       path: '/app/business-reports/by-asin',
       icon: <Tag size={12} />,
       children: [
         {
           id: 'asin-detail-sales',
-          label: 'Detail Page Sales and Traffic',
+          label: 'asinDetailSales',
           path: '/app/business-reports/by-asin/detail-sales'
         }
       ]
     },
     {
       id: 'other',
-      label: 'Other',
+      label: 'other',
       path: '/app/business-reports/other',
       icon: <FileText size={12} />
     },
     {
       id: 'sales-by-month',
-      label: 'Sales and Orders by Month',
+      label: 'salesByMonth',
       path: '/app/business-reports/sales-by-month',
       icon: <FileText size={12} />
     }
@@ -110,47 +110,47 @@ export const reportsSidebar: SidebarConfig = {
 // Settings 侧边栏配置
 export const settingsSidebar: SidebarConfig = {
   id: 'settings',
-  label: 'Account Settings',
+  label: 'accountSettings',
   items: [
     {
       id: 'account-overview',
-      label: 'Account Overview',
+      label: 'accountOverview',
       path: '/app/settings',
       icon: <Users size={12} />
     },
     {
       id: 'store-info',
-      label: 'Store Info',
+      label: 'storeInfo',
       path: '/app/settings/store-info',
       icon: <Package size={12} />
     },
     {
       id: 'business-info',
-      label: 'Business Information',
+      label: 'businessInfo',
       path: '/app/settings/business-info',
       icon: <FileText size={12} />
     },
     {
       id: 'payment-info',
-      label: 'Payment Information',
+      label: 'paymentInfo',
       path: '/app/settings/payment-info',
       icon: <Tag size={12} />
     },
     {
       id: 'shipping-returns',
-      label: 'Shipping and Returns',
+      label: 'shippingReturns',
       path: '/app/settings/shipping-returns',
       icon: <ShoppingCart size={12} />
     },
     {
       id: 'tax-info',
-      label: 'Tax Information',
+      label: 'taxInfo',
       path: '/app/settings/tax-info',
       icon: <FileText size={12} />
     },
     {
       id: 'account-management',
-      label: 'Account Management',
+      label: 'accountManagement',
       path: '/app/settings/account-management',
       icon: <Users size={12} />
     }
@@ -160,23 +160,23 @@ export const settingsSidebar: SidebarConfig = {
 // Inventory 侧边栏配置
 export const inventorySidebar: SidebarConfig = {
   id: 'inventory',
-  label: 'Inventory',
+  label: 'inventory',
   items: [
     {
       id: 'manage-all',
-      label: 'Manage All Inventory',
+      label: 'manageAllInventory',
       path: '/app/inventory',
       icon: <Package size={12} />
     },
     {
       id: 'add-products',
-      label: 'Add Products',
+      label: 'addProducts',
       path: '/app/add-products',
       icon: <Package size={12} />
     },
     {
       id: 'fba-inventory',
-      label: 'FBA Inventory',
+      label: 'fbaInventory',
       path: '/app/inventory/fba',
       icon: <Package size={12} />
     }
@@ -186,23 +186,23 @@ export const inventorySidebar: SidebarConfig = {
 // Orders 侧边栏配置
 export const ordersSidebar: SidebarConfig = {
   id: 'orders',
-  label: 'Orders',
+  label: 'orders',
   items: [
     {
       id: 'manage-orders',
-      label: 'Manage Orders',
+      label: 'manageOrders',
       path: '/app/orders',
       icon: <ShoppingCart size={12} />
     },
     {
       id: 'returns',
-      label: 'Returns',
+      label: 'returns',
       path: '/app/orders/returns',
       icon: <ShoppingCart size={12} />
     },
     {
       id: 'order-reports',
-      label: 'Order Reports',
+      label: 'orderReports',
       path: '/app/orders/reports',
       icon: <FileText size={12} />
     }
@@ -212,23 +212,23 @@ export const ordersSidebar: SidebarConfig = {
 // Ads 侧边栏配置
 export const adsSidebar: SidebarConfig = {
   id: 'ads',
-  label: 'Advertising',
+  label: 'advertising',
   items: [
     {
       id: 'campaigns',
-      label: 'Campaigns',
+      label: 'campaigns',
       path: '/app/ads',
       icon: <Tag size={12} />
     },
     {
       id: 'ad-groups',
-      label: 'Ad Groups',
+      label: 'adGroups',
       path: '/app/ads/groups',
       icon: <Tag size={12} />
     },
     {
       id: 'keywords',
-      label: 'Keywords',
+      label: 'keywords',
       path: '/app/ads/keywords',
       icon: <Tag size={12} />
     }
@@ -238,17 +238,17 @@ export const adsSidebar: SidebarConfig = {
 // Performance 侧边栏配置
 export const performanceSidebar: SidebarConfig = {
   id: 'performance',
-  label: 'Performance',
+  label: 'performance',
   items: [
     {
       id: 'account-health',
-      label: 'Account Health',
+      label: 'accountHealth',
       path: '/app/performance',
       icon: <Activity size={12} />
     },
     {
       id: 'performance-notifications',
-      label: 'Performance Notifications',
+      label: 'performanceNotifications',
       path: '/app/performance-notifications',
       icon: <Activity size={12} />
     }

@@ -1,0 +1,42 @@
+[
+  {
+    "store_id": "test-store-1768846729298-4ketkgav4",
+    "title": "New seller performance standards",
+    "post_date": "2026-01-19",
+    "views": 1234,
+    "comments": 56,
+    "post_type": "FORUM",
+    "likes": 0,
+    "id": "3311a07c-d103-4c8f-8a54-950c6612b9b8"
+  },
+  {
+    "store_id": "test-store-1768846729298-4ketkgav4",
+    "title": "Holiday selling tips and best practices",
+    "post_date": "2026-01-19",
+    "views": 987,
+    "comments": 23,
+    "post_type": "NEWS",
+    "likes": 45,
+    "id": "488a2658-32be-4098-8c38-83e56250b816"
+  },
+  {
+    "store_id": "store-us-main",
+    "title": "New seller performance standards",
+    "post_date": "2026-01-19",
+    "views": 1234,
+    "comments": 56,
+    "post_type": "FORUM",
+    "likes": 0,
+    "id": "3249531b-8d5f-4e4c-8c9e-6a745403d265"
+  },
+  {
+    "store_id": "store-us-main",
+    "title": "Holiday selling tips and best practices",
+    "post_date": "2026-01-19",
+    "views": 987,
+    "comments": 23,
+    "post_type": "NEWS",
+    "likes": 45,
+    "id": "17abc6ca-a4a4-4439-b8d8-08a1b862573e"
+  }
+]

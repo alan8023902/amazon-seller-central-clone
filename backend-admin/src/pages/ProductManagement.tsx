@@ -11,22 +11,27 @@ import {
   message,
   Popconfirm,
   Typography,
-  Tag
+  Tag,
+  Upload,
+  Image
 } from 'antd';
 import { 
   PlusOutlined, 
   SearchOutlined, 
   EditOutlined, 
-  DeleteOutlined
+  DeleteOutlined,
+  UploadOutlined
 } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { productApi } from '../services/api';
+import ImageUpload from '../components/ImageUpload';
 
 const { Title } = Typography;
 const { Option } = Select;
 
 interface Product {
   id: string;
+  store_id: string;
   title: string;
   sku: string;
   asin: string;
@@ -38,7 +43,16 @@ interface Product {
   units_sold: number;
 }
 
-const ProductManagement: React.FC = () => {
+interface ProductManagementProps {
+  selectedStoreId: string;
+  selectedStore: any;
+  onStoreChange: (storeId: string, store: any) => void;
+}
+
+const ProductManagement: React.FC<ProductManagementProps> = ({ 
+  selectedStoreId, 
+  selectedStore 
+}) => {
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -46,13 +60,15 @@ const ProductManagement: React.FC = () => {
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
 
-  // 获取产品列表
+  // 获取产品列表 - 根据选中的店铺过滤
   const { data: productsResponse, isLoading } = useQuery({
-    queryKey: ['products', { search: searchText, status: statusFilter }],
+    queryKey: ['products', selectedStoreId, { search: searchText, status: statusFilter }],
     queryFn: () => productApi.getProducts({ 
+      store_id: selectedStoreId,
       search: searchText || undefined,
       status: statusFilter === 'All' ? undefined : statusFilter as any
     }),
+    enabled: !!selectedStoreId, // 只有选择了店铺才执行查询
   });
 
   // 创建产品
@@ -108,14 +124,31 @@ const ProductManagement: React.FC = () => {
   };
 
   const handleSubmit = (values: any) => {
-    if (editingProduct) {
-      updateProductMutation.mutate({ id: editingProduct.id, data: values });
-    } else {
-      createProductMutation.mutate({
-        ...values,
-        store_id: '1', // 默认店铺ID
-      });
+    if (!selectedStoreId) {
+      message.error('请先选择店铺');
+      return;
     }
+
+    const submitData = {
+      ...values,
+      store_id: selectedStoreId, // 使用选中的店铺ID
+    };
+
+    if (editingProduct) {
+      updateProductMutation.mutate({ id: editingProduct.id, data: submitData });
+    } else {
+      createProductMutation.mutate(submitData);
+    }
+  };
+
+  const handleImageUploaded = (imageUrl: string, imageData: { filename: string; size: number }) => {
+    // Update form with image URL
+    form.setFieldsValue({ image_url: imageUrl });
+    message.success('图片上传成功！');
+  };
+
+  const handleImageRemoved = () => {
+    form.setFieldsValue({ image_url: undefined });
   };
 
   const columns = [
@@ -221,54 +254,74 @@ const ProductManagement: React.FC = () => {
 
   return (
     <div>
-      <Title level={2}>产品管理</Title>
-      
-      {/* 搜索和筛选 */}
-      <div style={{ marginBottom: 16, display: 'flex', gap: 16 }}>
-        <Input
-          placeholder="搜索产品名称、SKU或ASIN"
-          prefix={<SearchOutlined />}
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          style={{ width: 300 }}
-        />
-        <Select
-          value={statusFilter}
-          onChange={setStatusFilter}
-          style={{ width: 120 }}
-        >
-          <Option value="All">全部状态</Option>
-          <Option value="Active">活跃</Option>
-          <Option value="Inactive">非活跃</Option>
-        </Select>
-        <Button 
-          type="primary" 
-          icon={<PlusOutlined />}
-          onClick={() => {
-            setEditingProduct(null);
-            form.resetFields();
-            setIsModalVisible(true);
-          }}
-        >
-          新增产品
-        </Button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <Title level={2}>产品管理</Title>
+        {selectedStore && (
+          <div style={{ fontSize: '14px', color: '#666' }}>
+            当前店铺: <strong>{selectedStore.name}</strong> ({selectedStore.marketplace})
+          </div>
+        )}
       </div>
 
-      {/* 产品表格 */}
-      <Table
-        columns={columns}
-        dataSource={productsResponse?.data || []}
-        loading={isLoading}
-        rowKey="id"
-        pagination={{
-          total: productsResponse?.pagination?.total || 0,
-          pageSize: 10,
-          showSizeChanger: true,
-          showQuickJumper: true,
-          showTotal: (total, range) => 
-            `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
-        }}
-      />
+      {!selectedStoreId ? (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '60px 0', 
+          color: '#999',
+          fontSize: '16px' 
+        }}>
+          请先在页面顶部选择一个店铺
+        </div>
+      ) : (
+        <>
+          {/* 搜索和筛选 */}
+          <div style={{ marginBottom: 16, display: 'flex', gap: 16 }}>
+            <Input
+              placeholder="搜索产品名称、SKU或ASIN"
+              prefix={<SearchOutlined />}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              style={{ width: 300 }}
+            />
+            <Select
+              value={statusFilter}
+              onChange={setStatusFilter}
+              style={{ width: 120 }}
+            >
+              <Option value="All">全部状态</Option>
+              <Option value="Active">活跃</Option>
+              <Option value="Inactive">非活跃</Option>
+            </Select>
+            <Button 
+              type="primary" 
+              icon={<PlusOutlined />}
+              onClick={() => {
+                setEditingProduct(null);
+                form.resetFields();
+                setIsModalVisible(true);
+              }}
+            >
+              新增产品
+            </Button>
+          </div>
+
+          {/* 产品表格 */}
+          <Table
+            columns={columns}
+            dataSource={productsResponse?.data || []}
+            loading={isLoading}
+            rowKey="id"
+            pagination={{
+              total: productsResponse?.pagination?.total || 0,
+              pageSize: 10,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total, range) => 
+                `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
+            }}
+          />
+        </>
+      )}
 
       {/* 新增/编辑产品模态框 */}
       <Modal
@@ -334,6 +387,19 @@ const ProductManagement: React.FC = () => {
               placeholder="请输入库存数量"
               min={0}
               style={{ width: '100%' }}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="产品图片"
+            name="image_url"
+          >
+            <ImageUpload
+              productId={editingProduct?.id}
+              currentImage={form.getFieldValue('image_url')}
+              onImageUploaded={handleImageUploaded}
+              onImageRemoved={handleImageRemoved}
+              disabled={!editingProduct && createProductMutation.isPending}
             />
           </Form.Item>
 

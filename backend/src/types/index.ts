@@ -8,7 +8,23 @@ export const StoreSchema = z.object({
   id: z.string(),
   name: z.string(),
   country: z.string().default('United States'),
+  marketplace: z.string().default('United States'), // Add marketplace field
   currency_symbol: z.string().default('$'),
+  business_type: z.enum(['Individual', 'Business']).default('Business'), // Add business type
+  timezone: z.string().default('UTC'), // Add timezone
+  description: z.string().optional(), // Add description
+  // Store settings
+  vacation_mode: z.boolean().default(false), // Add vacation mode
+  auto_pricing: z.boolean().default(false), // Add auto pricing
+  inventory_alerts: z.boolean().default(true), // Add inventory alerts
+  order_notifications: z.boolean().default(true), // Add order notifications
+  // Contact information
+  contact_email: z.string().email().optional(), // Add contact email
+  contact_phone: z.string().optional(), // Add contact phone
+  // Business details
+  tax_id: z.string().optional(), // Add tax ID
+  vat_number: z.string().optional(), // Add VAT number
+  // Status and metadata
   is_active: z.boolean().default(true),
   created_at: z.string(),
   updated_at: z.string(),
@@ -179,6 +195,70 @@ export const VocDataSchema = z.object({
 
 export type VocData = z.infer<typeof VocDataSchema>;
 
+// Order Schema
+export const OrderSchema = z.object({
+  id: z.string(),
+  store_id: z.string(),
+  order_number: z.string(),
+  customer_name: z.string().optional(),
+  order_date: z.string(),
+  ship_date: z.string().optional(),
+  delivery_date: z.string().optional(),
+  status: z.enum(['Pending', 'Shipped', 'Delivered', 'Cancelled', 'Returned']).default('Pending'),
+  fulfillment_type: z.enum(['FBA', 'FBM']).default('FBA'),
+  total_amount: z.number().default(0),
+  currency: z.string().default('USD'),
+  items_count: z.number().int().default(1),
+  shipping_address: z.string().optional(),
+  tracking_number: z.string().optional(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+
+export type Order = z.infer<typeof OrderSchema>;
+
+// Inventory Schema
+export const InventorySchema = z.object({
+  id: z.string(),
+  store_id: z.string(),
+  product_id: z.string(),
+  asin: z.string(),
+  sku: z.string(),
+  available_quantity: z.number().int().default(0),
+  reserved_quantity: z.number().int().default(0),
+  inbound_quantity: z.number().int().default(0),
+  fulfillment_center: z.string().optional(),
+  last_updated: z.string(),
+});
+
+export type Inventory = z.infer<typeof InventorySchema>;
+
+// Store Settings Schema
+export const StoreSettingsSchema = z.object({
+  id: z.string(),
+  store_id: z.string(),
+  // Notification settings
+  email_notifications: z.boolean().default(true),
+  sms_notifications: z.boolean().default(false),
+  order_alerts: z.boolean().default(true),
+  inventory_alerts: z.boolean().default(true),
+  performance_alerts: z.boolean().default(true),
+  // Business settings
+  auto_pricing_enabled: z.boolean().default(false),
+  auto_reorder_enabled: z.boolean().default(false),
+  vacation_mode: z.boolean().default(false),
+  vacation_start_date: z.string().optional(),
+  vacation_end_date: z.string().optional(),
+  // Display settings
+  default_currency: z.string().default('USD'),
+  date_format: z.enum(['MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD']).default('MM/DD/YYYY'),
+  time_format: z.enum(['12h', '24h']).default('12h'),
+  language: z.enum(['en-US', 'zh-CN', 'ja-JP', 'de-DE', 'fr-FR']).default('en-US'),
+  updated_at: z.string(),
+});
+
+export type StoreSettings = z.infer<typeof StoreSettingsSchema>;
+
 // API Response types
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -198,7 +278,27 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 
 // Request types
 export interface ProductFilters {
+  store_id?: string;
   status?: 'Active' | 'Inactive' | 'All';
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface OrderFilters {
+  store_id?: string;
+  status?: 'Pending' | 'Shipped' | 'Delivered' | 'Cancelled' | 'Returned' | 'All';
+  fulfillment_type?: 'FBA' | 'FBM' | 'All';
+  date_range?: SalesDateRange;
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface StoreFilters {
+  marketplace?: string;
+  business_type?: 'Individual' | 'Business' | 'All';
+  is_active?: boolean;
   search?: string;
   page?: number;
   limit?: number;
@@ -208,3 +308,49 @@ export interface SalesDateRange {
   startDate: string;
   endDate: string;
 }
+
+// Store creation and update types
+export interface CreateStoreRequest {
+  name: string;
+  country?: string;
+  marketplace?: string;
+  currency_symbol?: string;
+  business_type?: 'Individual' | 'Business';
+  timezone?: string;
+  description?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  tax_id?: string;
+  vat_number?: string;
+}
+
+export interface UpdateStoreRequest extends Partial<CreateStoreRequest> {
+  vacation_mode?: boolean;
+  auto_pricing?: boolean;
+  inventory_alerts?: boolean;
+  order_notifications?: boolean;
+  is_active?: boolean;
+}
+
+// Validation schemas for requests
+export const CreateStoreRequestSchema = z.object({
+  name: z.string().min(1, 'Store name is required'),
+  country: z.string().optional(),
+  marketplace: z.string().optional(),
+  currency_symbol: z.string().optional(),
+  business_type: z.enum(['Individual', 'Business']).optional(),
+  timezone: z.string().optional(),
+  description: z.string().optional(),
+  contact_email: z.string().email().optional(),
+  contact_phone: z.string().optional(),
+  tax_id: z.string().optional(),
+  vat_number: z.string().optional(),
+});
+
+export const UpdateStoreRequestSchema = CreateStoreRequestSchema.partial().extend({
+  vacation_mode: z.boolean().optional(),
+  auto_pricing: z.boolean().optional(),
+  inventory_alerts: z.boolean().optional(),
+  order_notifications: z.boolean().optional(),
+  is_active: z.boolean().optional(),
+});

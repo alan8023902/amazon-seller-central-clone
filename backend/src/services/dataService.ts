@@ -51,7 +51,7 @@ export class DataService {
     return data.find(item => item.id === id) || null;
   }
 
-  async findByStoreId<T extends { store_id: string }>(filename: string, storeId: string): Promise<T[]> {
+  async findByStoreId<T extends { id: string; store_id: string }>(filename: string, storeId: string): Promise<T[]> {
     const data = await this.readData<T>(filename);
     return data.filter(item => item.store_id === storeId);
   }

@@ -66,12 +66,12 @@ class BackendApiService {
   }
 
   // Dashboard API methods
-  async getDashboardSnapshot(storeId: string = '1'): Promise<GlobalSnapshotData> {
+  async getDashboardSnapshot(storeId: string): Promise<GlobalSnapshotData> {
     const response = await this.request<GlobalSnapshotData>(`/dashboard/snapshot/${storeId}`);
     return response.data;
   }
 
-  async updateDashboardSnapshot(storeId: string = '1', data: Partial<GlobalSnapshotData>): Promise<GlobalSnapshotData> {
+  async updateDashboardSnapshot(storeId: string, data: Partial<GlobalSnapshotData>): Promise<GlobalSnapshotData> {
     const response = await this.request<GlobalSnapshotData>(`/dashboard/snapshot/${storeId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -79,12 +79,12 @@ class BackendApiService {
     return response.data;
   }
 
-  async getDashboardConfig(storeId: string = '1') {
+  async getDashboardConfig(storeId: string) {
     const response = await this.request(`/dashboard/config/${storeId}`);
     return response.data;
   }
 
-  async updateDashboardConfig(storeId: string = '1', config: any) {
+  async updateDashboardConfig(storeId: string, config: any) {
     const response = await this.request(`/dashboard/config/${storeId}`, {
       method: 'PUT',
       body: JSON.stringify(config),
@@ -93,7 +93,7 @@ class BackendApiService {
   }
 
   // Products API methods
-  async getProducts(params?: {
+  async getProducts(storeId: string, params?: {
     search?: string;
     status?: string;
     page?: number;
@@ -105,46 +105,51 @@ class BackendApiService {
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.limit) queryParams.append('limit', params.limit.toString());
 
-    const response = await this.request(`/products?${queryParams.toString()}`);
+    const response = await this.request(`/products/${storeId}?${queryParams.toString()}`);
     return response.data;
   }
 
-  async getProduct(id: string) {
-    const response = await this.request(`/products/${id}`);
+  async getProduct(storeId: string, id: string) {
+    const response = await this.request(`/products/${storeId}/${id}`);
     return response.data;
   }
 
-  async createProduct(productData: any) {
-    const response = await this.request('/products', {
+  async createProduct(storeId: string, productData: any) {
+    const response = await this.request(`/products/${storeId}`, {
       method: 'POST',
       body: JSON.stringify(productData),
     });
     return response.data;
   }
 
-  async updateProduct(id: string, productData: any) {
-    const response = await this.request(`/products/${id}`, {
+  async updateProduct(storeId: string, id: string, productData: any) {
+    const response = await this.request(`/products/${storeId}/${id}`, {
       method: 'PUT',
       body: JSON.stringify(productData),
     });
     return response.data;
   }
 
-  async deleteProduct(id: string) {
-    const response = await this.request(`/products/${id}`, {
+  async deleteProduct(storeId: string, id: string) {
+    const response = await this.request(`/products/${storeId}/${id}`, {
       method: 'DELETE',
     });
     return response.data;
   }
 
   // Store API methods
-  async getStore() {
-    const response = await this.request('/store');
+  async getStores() {
+    const response = await this.request('/stores');
     return response.data;
   }
 
-  async updateStore(storeData: any) {
-    const response = await this.request('/store', {
+  async getStore(storeId: string) {
+    const response = await this.request(`/stores/${storeId}`);
+    return response.data;
+  }
+
+  async updateStore(storeId: string, storeData: any) {
+    const response = await this.request(`/stores/${storeId}`, {
       method: 'PUT',
       body: JSON.stringify(storeData),
     });
@@ -152,12 +157,12 @@ class BackendApiService {
   }
 
   // Sales API methods
-  async getSalesSnapshot(storeId: string = '1') {
+  async getSalesSnapshot(storeId: string) {
     const response = await this.request(`/sales/snapshot/${storeId}`);
     return response.data;
   }
 
-  async getDailySales(storeId: string = '1', params?: {
+  async getDailySales(storeId: string, params?: {
     startDate?: string;
     endDate?: string;
     limit?: number;
@@ -171,7 +176,7 @@ class BackendApiService {
     return response.data;
   }
 
-  async getChartData(storeId: string = '1', period: string = '30d') {
+  async getChartData(storeId: string, period: string = '30d') {
     const response = await this.request(`/sales/chart-data/${storeId}?period=${period}`);
     return response.data;
   }

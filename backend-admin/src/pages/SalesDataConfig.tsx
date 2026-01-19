@@ -19,23 +19,31 @@ import dayjs from 'dayjs';
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
 
-const SalesDataConfig: React.FC = () => {
+interface SalesDataConfigProps {
+  selectedStoreId: string;
+  selectedStore: any;
+  onStoreChange: (storeId: string, store: any) => void;
+}
+
+const SalesDataConfig: React.FC<SalesDataConfigProps> = ({ 
+  selectedStoreId, 
+  selectedStore 
+}) => {
   const [form] = Form.useForm();
   const [generateForm] = Form.useForm();
   const [volatility, setVolatility] = useState(0.3);
   const queryClient = useQueryClient();
 
-  const storeId = '1'; // 默认店铺ID
-
   // 获取销售快照数据
   const { data: salesSnapshot, isLoading } = useQuery({
-    queryKey: ['salesSnapshot', storeId],
-    queryFn: () => salesApi.getSalesSnapshot(storeId),
+    queryKey: ['salesSnapshot', selectedStoreId],
+    queryFn: () => salesApi.getSalesSnapshot(selectedStoreId),
+    enabled: !!selectedStoreId,
   });
 
   // 更新销售快照
   const updateSnapshotMutation = useMutation({
-    mutationFn: (data: any) => salesApi.updateSalesSnapshot(storeId, data),
+    mutationFn: (data: any) => salesApi.updateSalesSnapshot(selectedStoreId, data),
     onSuccess: () => {
       message.success('销售快照更新成功！');
       queryClient.invalidateQueries({ queryKey: ['salesSnapshot'] });
@@ -47,7 +55,7 @@ const SalesDataConfig: React.FC = () => {
 
   // 生成每日销售数据
   const generateDailySalesMutation = useMutation({
-    mutationFn: (data: any) => salesApi.generateDailySales(storeId, data),
+    mutationFn: (data: any) => salesApi.generateDailySales(selectedStoreId, data),
     onSuccess: (response) => {
       message.success(`成功生成 ${response.data.length} 天的销售数据！`);
       queryClient.invalidateQueries({ queryKey: ['dailySales'] });
@@ -58,10 +66,19 @@ const SalesDataConfig: React.FC = () => {
   });
 
   const handleSnapshotSubmit = (values: any) => {
+    if (!selectedStoreId) {
+      message.error('请先选择店铺');
+      return;
+    }
     updateSnapshotMutation.mutate(values);
   };
 
   const handleGenerateData = (values: any) => {
+    if (!selectedStoreId) {
+      message.error('请先选择店铺');
+      return;
+    }
+    
     const { dateRange, totalSales, totalUnits } = values;
     
     generateDailySalesMutation.mutate({
@@ -94,9 +111,26 @@ const SalesDataConfig: React.FC = () => {
 
   return (
     <div>
-      <Title level={2}>销售数据配置</Title>
-      
-      <Row gutter={24}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <Title level={2}>销售数据配置</Title>
+        {selectedStore && (
+          <div style={{ fontSize: '14px', color: '#666' }}>
+            当前店铺: <strong>{selectedStore.name}</strong> ({selectedStore.marketplace})
+          </div>
+        )}
+      </div>
+
+      {!selectedStoreId ? (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '60px 0', 
+          color: '#999',
+          fontSize: '16px' 
+        }}>
+          请先在页面顶部选择一个店铺
+        </div>
+      ) : (
+        <Row gutter={24}>
         <Col span={12}>
           {/* 销售快照数据配置 */}
           <Card title="📈 销售快照数据" style={{ marginBottom: 24 }}>
@@ -303,6 +337,7 @@ const SalesDataConfig: React.FC = () => {
           )}
         </Col>
       </Row>
+      )}
     </div>
   );
 };

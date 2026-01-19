@@ -14,8 +14,8 @@ const AccountHealth: React.FC = () => {
       
       {/* Intro Paragraph */}
       <p className="text-sm-amz text-amazon-secondaryText leading-relaxed mb-6">
-        Your account health is measured against performance targets and policies. Maintain a healthy account to avoid restrictions. 
-        <a href="#" className="text-amazon-link font-bold hover:underline ml-1">Contact emergency support</a> if you need immediate assistance.
+        {t('accountHealthIntro')}
+        <a href="#" className="text-amazon-link font-bold hover:underline ml-1">{t('contactEmergencySupport')}</a> {t('immediateAssistance')}
       </p>
 
       {/* Top Section */}
@@ -27,12 +27,12 @@ const AccountHealth: React.FC = () => {
               <ShieldCheck size={48} />
             </div>
             <div className="flex-1">
-              <h2 className="text-lg font-bold text-amazon-text mb-2">Account Health Assurance</h2>
+              <h2 className="text-lg font-bold text-amazon-text mb-2">{t('accountHealthAssurance')}</h2>
               <p className="text-sm-amz text-amazon-secondaryText leading-relaxed mb-3">
-                Protect your account from unexpected disruptions with our comprehensive health monitoring program.
+                {t('accountHealthAssuranceDesc')}
               </p>
               <a href="#" className="text-amazon-link font-bold hover:underline flex items-center gap-1">
-                See what it takes to qualify <ChevronRight size={14} />
+                {t('seeQualifyRequirements')} <ChevronRight size={14} />
               </a>
             </div>
           </Card>
@@ -41,12 +41,12 @@ const AccountHealth: React.FC = () => {
         {/* Right-side Help Card */}
         <div className="col-span-12 lg:col-span-4">
           <Card className="!p-6">
-            <h2 className="text-lg font-bold text-amazon-text mb-2">Need help?</h2>
+            <h2 className="text-lg font-bold text-amazon-text mb-2">{t('needHelpAccount')}</h2>
             <p className="text-sm-amz text-amazon-secondaryText leading-relaxed mb-4">
-              Our support team is available to assist you with account health questions and concerns.
+              {t('supportTeamAvailable')}
             </p>
             <Button variant="yellow" className="w-full">
-              Contact Us
+              {t('contactUs')}
             </Button>
           </Card>
         </div>
@@ -56,47 +56,47 @@ const AccountHealth: React.FC = () => {
       <div className="grid grid-cols-12 gap-6">
         {/* Left Card: Customer Service Performance */}
         <div className="col-span-12 lg:col-span-4">
-          <Card title="Customer Service Performance" className="h-full">
+          <Card title={t('customerServicePerformance')} className="h-full">
             <div className="space-y-6">
               {/* Order Defect Rate */}
               <div>
-                <h3 className="text-sm-amz font-bold text-amazon-text mb-2">Order Defect Rate</h3>
-                <p className="text-xs-amz text-amazon-secondaryText mb-4">Target: under 1%</p>
+                <h3 className="text-sm-amz font-bold text-amazon-text mb-2">{t('orderDefectRate')}</h3>
+                <p className="text-xs-amz text-amazon-secondaryText mb-4">{t('target')}: {t('under1Percent')}</p>
                 
                 {/* Comparison Table */}
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div className="bg-gray-50 rounded-sm p-3">
-                    <p className="text-xs-amz text-amazon-secondaryText mb-1">Seller Fulfilled</p>
+                    <p className="text-xs-amz text-amazon-secondaryText mb-1">{t('sellerFulfilled')}</p>
                     <p className="text-lg font-bold text-amazon-text">3%</p>
                   </div>
                   <div className="bg-gray-50 rounded-sm p-3">
-                    <p className="text-xs-amz text-amazon-secondaryText mb-1">Fulfilled by Amazon</p>
+                    <p className="text-xs-amz text-amazon-secondaryText mb-1">{t('fulfilledByAmazon')}</p>
                     <p className="text-lg font-bold text-amazon-text">2%</p>
                   </div>
                 </div>
                 
                 {/* Metrics Breakdown */}
                 <p className="text-xs-amz text-amazon-secondaryText mb-2">
-                  Order Defect Rate consists of three different metrics:
+                  {t('orderDefectRateConsists')}
                 </p>
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between items-center">
-                    <p className="text-sm-amz text-amazon-secondaryText">Negative feedback</p>
+                    <p className="text-sm-amz text-amazon-secondaryText">{t('negativeFeedback')}</p>
                     <p className="text-sm-amz font-bold text-amazon-text">0%</p>
                   </div>
                   <div className="flex justify-between items-center">
-                    <p className="text-sm-amz text-amazon-secondaryText">A-to-z Guarantee claims</p>
+                    <p className="text-sm-amz text-amazon-secondaryText">{t('aToZClaims')}</p>
                     <p className="text-sm-amz font-bold text-amazon-text">0%</p>
                   </div>
                   <div className="flex justify-between items-center">
-                    <p className="text-sm-amz text-amazon-secondaryText">Chargeback claims</p>
+                    <p className="text-sm-amz text-amazon-secondaryText">{t('chargebackClaims')}</p>
                     <p className="text-sm-amz font-bold text-amazon-text">0%</p>
                   </div>
                 </div>
                 
                 {/* View Details Link */}
                 <a href="#" className="text-amazon-link font-bold hover:underline text-sm-amz">
-                  View details
+                  {t('viewDetails')}
                 </a>
               </div>
             </div>
@@ -106,18 +106,18 @@ const AccountHealth: React.FC = () => {
         {/* Middle Card: Policy Compliance */}
         <div className="col-span-12 lg:col-span-4">
           <Card 
-            title="Policy Compliance" 
+            title={t('policyCompliance')} 
             className="h-full" 
             headerAction={
               <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs font-bold">
-                Healthy
+                {t('healthy')}
               </span>
             }
           >
             <div className="space-y-6">
               {/* Account Health Rating */}
               <div>
-                <h3 className="text-sm-amz font-bold text-amazon-text mb-2">Account Health Rating</h3>
+                <h3 className="text-sm-amz font-bold text-amazon-text mb-2">{t('accountHealthRating')}</h3>
                 <p className="text-3xl font-bold text-amazon-text mb-4">982</p>
                 
                 {/* Horizontal Scale Bar */}
@@ -136,17 +136,17 @@ const AccountHealth: React.FC = () => {
               
               {/* All Issues List */}
               <div>
-                <h3 className="text-sm-amz font-bold text-amazon-text mb-3">All Issues</h3>
+                <h3 className="text-sm-amz font-bold text-amazon-text mb-3">{t('allIssues')}</h3>
                 <div className="space-y-2 mb-4">
                   {[
-                    'Product Policy Violations',
-                    'Listing Policy Violations',
-                    'Intellectual Property Violations',
-                    'Customer Product Reviews',
-                    'Other Policy Violations'
+                    { key: 'productPolicyViolations', label: t('productPolicyViolations') },
+                    { key: 'listingPolicyViolations', label: t('listingPolicyViolations') },
+                    { key: 'intellectualPropertyViolations', label: t('intellectualPropertyViolations') },
+                    { key: 'customerProductReviews', label: t('customerProductReviews') },
+                    { key: 'otherPolicyViolations', label: t('otherPolicyViolations') }
                   ].map((issue, index) => (
                     <div key={index} className="flex justify-between items-center">
-                      <p className="text-sm-amz text-amazon-secondaryText">{issue}</p>
+                      <p className="text-sm-amz text-amazon-secondaryText">{issue.label}</p>
                       <p className="text-sm-amz font-bold text-amazon-text">0</p>
                     </div>
                   ))}
@@ -154,7 +154,7 @@ const AccountHealth: React.FC = () => {
                 
                 {/* View All Link */}
                 <a href="#" className="text-amazon-link font-bold hover:underline text-sm-amz">
-                  View all(0)
+                  {t('viewAll')}(0)
                 </a>
               </div>
             </div>
@@ -164,30 +164,30 @@ const AccountHealth: React.FC = () => {
         {/* Right Card: Shipping Performance */}
         <div className="col-span-12 lg:col-span-4">
           <Card 
-            title="Shipping Performance" 
+            title={t('shippingPerformance')} 
             className="h-full" 
             headerAction={
               <div className="flex items-center gap-1 text-amazon-link font-bold text-sm-amz cursor-pointer hover:underline">
-                Seller Fulfilled <ChevronDown size={14} />
+                {t('sellerFulfilled')} <ChevronDown size={14} />
               </div>
             }
           >
             <div className="space-y-4">
               {/* Metrics List */}
               {[
-                { name: 'Late Shipment Rate', value: '0%', target: 'under 4%', period: '30 days' },
-                { name: 'Pre-fulfillment Cancel Rate', value: '0%', target: 'under 2.5%', period: '7 days' },
-                { name: 'Valid Tracking Rate', value: '99%', target: 'over 95%', period: '30 days' },
-                { name: 'On-time Delivery Rate', value: 'N/A', target: 'over 90%', period: '' }
+                { name: t('lateShipmentRate'), value: '0%', target: t('under4Percent'), period: t('thirtyDays') },
+                { name: t('preFulfillmentCancelRate'), value: '0%', target: t('under2Point5Percent'), period: t('sevenDays') },
+                { name: t('validTrackingRate'), value: '99%', target: t('over95Percent'), period: t('thirtyDays') },
+                { name: t('onTimeDeliveryRate'), value: 'N/A', target: t('over90Percent'), period: '' }
               ].map((metric, index) => (
                 <div key={index} className="flex justify-between items-center">
                   <div>
                     <p className="text-sm-amz font-medium text-amazon-text">{metric.name}</p>
                     {metric.period && (
-                      <p className="text-[10px] text-amazon-secondaryText">Target: {metric.target}, {metric.period}</p>
+                      <p className="text-[10px] text-amazon-secondaryText">{t('target')}: {metric.target}, {metric.period}</p>
                     )}
                     {!metric.period && (
-                      <p className="text-[10px] text-amazon-secondaryText">Target: {metric.target}</p>
+                      <p className="text-[10px] text-amazon-secondaryText">{t('target')}: {metric.target}</p>
                     )}
                   </div>
                   <p className="text-sm-amz font-bold text-amazon-text">{metric.value}</p>
@@ -197,10 +197,10 @@ const AccountHealth: React.FC = () => {
               {/* Bottom Links */}
               <div className="pt-4 border-t border-gray-200 space-y-2">
                 <a href="#" className="text-amazon-link font-bold hover:underline text-sm-amz block">
-                  View details
+                  {t('viewDetails')}
                 </a>
                 <a href="#" className="text-amazon-link font-bold hover:underline text-sm-amz block">
-                  View shipping eligibilities here
+                  {t('viewShippingEligibilities')}
                 </a>
               </div>
             </div>

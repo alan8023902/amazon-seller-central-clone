@@ -13,8 +13,8 @@ const Verification: React.FC = () => {
     { q: t('verificationFaq1'), a: t('verificationFaq1Ans') },
     { q: t('verificationFaq2'), a: t('verificationFaq2Ans') },
     { q: t('verificationFaq3'), a: t('verificationFaq3Ans') },
-    { q: 'How long does verification take?', a: 'Postcards typically arrive within 5-7 business days depending on your location.' },
-    { q: 'Can I change my address during verification?', a: 'Changing your address will reset the verification process and require a new postcard.' }
+    { q: t('verificationFaq4'), a: t('verificationFaq4Ans') },
+    { q: t('verificationFaq5'), a: t('verificationFaq5Ans') }
   ];
 
   return (
@@ -74,10 +74,10 @@ const Verification: React.FC = () => {
                     <div>
                       <div className="text-[10px] font-black text-amazon-teal uppercase tracking-widest mb-2">{t('currentBusinessAddress')}</div>
                       <div className="text-[14px] font-black text-amazon-text leading-tight">
-                        深圳市宝安区石岩街道<br />
-                        塘头工业园三区8栋3楼304室<br />
-                        广东省, 518000<br />
-                        中国
+                        {t('currentBusinessAddressSample')}<br />
+                        {t('addressLine2Sample')}<br />
+                        {t('addressLine3Sample')}<br />
+                        {t('countrySample')}
                       </div>
                       <div className="mt-4 flex items-center gap-2">
                          <div className="px-2 py-0.5 bg-amazon-success text-white text-[9px] font-black uppercase rounded-sm">Verified</div>

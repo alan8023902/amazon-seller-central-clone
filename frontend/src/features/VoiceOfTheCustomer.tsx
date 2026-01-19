@@ -25,17 +25,19 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
 
 // Colored Pill Component
 const StatusPill: React.FC<{ status: string }> = ({ status }) => {
+  const { t } = useI18n();
+  
   const getStatusColor = () => {
     switch (status) {
-      case '极差':
+      case t('veryPoor'):
         return 'bg-red-100 text-red-700';
-      case '不合格':
+      case t('poor'):
         return 'bg-orange-100 text-orange-700';
-      case '一般':
+      case t('fair'):
         return 'bg-yellow-100 text-yellow-700';
-      case '良好':
+      case t('good'):
         return 'bg-green-100 text-green-700';
-      case '极好':
+      case t('excellent'):
         return 'bg-green-200 text-green-800';
       default:
         return 'bg-gray-100 text-gray-700';
@@ -54,11 +56,11 @@ const VoiceOfTheCustomer: React.FC = () => {
 
   // Mock data for satisfaction summary
   const satisfactionSummary = [
-    { status: '极好', count: 5, color: 'bg-green-200 text-green-800' },
-    { status: '良好', count: 8, color: 'bg-green-100 text-green-700' },
-    { status: '一般', count: 3, color: 'bg-yellow-100 text-yellow-700' },
-    { status: '不合格', count: 2, color: 'bg-orange-100 text-orange-700' },
-    { status: '极差', count: 1, color: 'bg-red-100 text-red-700' },
+    { status: t('excellent'), count: 5, color: 'bg-green-200 text-green-800' },
+    { status: t('good'), count: 8, color: 'bg-green-100 text-green-700' },
+    { status: t('fair'), count: 3, color: 'bg-yellow-100 text-yellow-700' },
+    { status: t('poor'), count: 2, color: 'bg-orange-100 text-orange-700' },
+    { status: t('veryPoor'), count: 1, color: 'bg-red-100 text-red-700' },
   ];
 
   // Mock data for offer listings (13 rows)
@@ -68,16 +70,16 @@ const VoiceOfTheCustomer: React.FC = () => {
       image: 'https://via.placeholder.com/50',
       productName: 'Wireless Bluetooth Headphones',
       asin: 'B012345678',
-      skuStatus: '在售',
-      fulfillment: '亚马逊物流',
+      skuStatus: t('onSale'),
+      fulfillment: t('amazonFulfillment'),
       dissatisfactionRate: '1.2%',
       dissatisfactionOrders: 15,
       totalOrders: 1250,
       rating: 4.5,
       returnRate: '2.3%',
-      mainNegativeReason: '电池续航不足',
+      mainNegativeReason: t('batteryLifeInsufficient'),
       lastUpdated: '2026-01-12',
-      satisfactionStatus: '良好',
+      satisfactionStatus: t('good'),
       isOutOfStock: false
     },
     {
@@ -85,16 +87,16 @@ const VoiceOfTheCustomer: React.FC = () => {
       image: 'https://via.placeholder.com/50',
       productName: 'Smart Home Security Camera',
       asin: 'B087654321',
-      skuStatus: '在售',
-      fulfillment: '卖家自配送',
+      skuStatus: t('onSale'),
+      fulfillment: t('sellerFulfillment'),
       dissatisfactionRate: '5.8%',
       dissatisfactionOrders: 42,
       totalOrders: 724,
       rating: 3.8,
       returnRate: '4.1%',
-      mainNegativeReason: '连接不稳定',
+      mainNegativeReason: t('connectionUnstable'),
       lastUpdated: '2026-01-13',
-      satisfactionStatus: '一般',
+      satisfactionStatus: t('fair'),
       isOutOfStock: false
     },
     {
@@ -102,16 +104,16 @@ const VoiceOfTheCustomer: React.FC = () => {
       image: 'https://via.placeholder.com/50',
       productName: 'Portable External SSD 1TB',
       asin: 'B098765432',
-      skuStatus: '在售',
-      fulfillment: '亚马逊物流',
+      skuStatus: t('onSale'),
+      fulfillment: t('amazonFulfillment'),
       dissatisfactionRate: '0.5%',
       dissatisfactionOrders: 8,
       totalOrders: 1600,
       rating: 4.9,
       returnRate: '1.2%',
-      mainNegativeReason: '无',
+      mainNegativeReason: t('none'),
       lastUpdated: '2026-01-11',
-      satisfactionStatus: '极好',
+      satisfactionStatus: t('excellent'),
       isOutOfStock: false
     },
     {
@@ -119,16 +121,16 @@ const VoiceOfTheCustomer: React.FC = () => {
       image: 'https://via.placeholder.com/50',
       productName: 'Electric Toothbrush with UV Sanitizer',
       asin: 'B076543210',
-      skuStatus: '在售',
-      fulfillment: '亚马逊物流',
+      skuStatus: t('onSale'),
+      fulfillment: t('amazonFulfillment'),
       dissatisfactionRate: '8.9%',
       dissatisfactionOrders: 67,
       totalOrders: 753,
       rating: 3.2,
       returnRate: '6.5%',
-      mainNegativeReason: '产品质量问题',
+      mainNegativeReason: t('productQualityIssues'),
       lastUpdated: '2026-01-13',
-      satisfactionStatus: '极差',
+      satisfactionStatus: t('veryPoor'),
       isOutOfStock: false
     },
     {
@@ -136,16 +138,16 @@ const VoiceOfTheCustomer: React.FC = () => {
       image: 'https://via.placeholder.com/50',
       productName: 'Wireless Charging Pad',
       asin: 'B065432109',
-      skuStatus: '在售',
-      fulfillment: '卖家自配送',
+      skuStatus: t('onSale'),
+      fulfillment: t('sellerFulfillment'),
       dissatisfactionRate: '3.4%',
       dissatisfactionOrders: 23,
       totalOrders: 676,
       rating: 4.1,
       returnRate: '3.0%',
-      mainNegativeReason: '充电速度慢',
+      mainNegativeReason: t('chargingSpeedSlow'),
       lastUpdated: '2026-01-12',
-      satisfactionStatus: '合格',
+      satisfactionStatus: t('qualified'),
       isOutOfStock: true
     },
     {
@@ -153,16 +155,16 @@ const VoiceOfTheCustomer: React.FC = () => {
       image: 'https://via.placeholder.com/50',
       productName: 'Fitness Tracker Watch',
       asin: 'B054321098',
-      skuStatus: '在售',
-      fulfillment: '亚马逊物流',
+      skuStatus: t('onSale'),
+      fulfillment: t('amazonFulfillment'),
       dissatisfactionRate: '2.1%',
       dissatisfactionOrders: 34,
       totalOrders: 1619,
       rating: 4.4,
       returnRate: '2.8%',
-      mainNegativeReason: '屏幕易刮花',
+      mainNegativeReason: t('screenEasilyScratched'),
       lastUpdated: '2026-01-11',
-      satisfactionStatus: '良好',
+      satisfactionStatus: t('good'),
       isOutOfStock: false
     },
     {
@@ -170,16 +172,16 @@ const VoiceOfTheCustomer: React.FC = () => {
       image: 'https://via.placeholder.com/50',
       productName: 'Smart WiFi Router',
       asin: 'B043210987',
-      skuStatus: '在售',
-      fulfillment: '卖家自配送',
+      skuStatus: t('onSale'),
+      fulfillment: t('sellerFulfillment'),
       dissatisfactionRate: '6.7%',
       dissatisfactionOrders: 52,
       totalOrders: 776,
       rating: 3.5,
       returnRate: '5.2%',
-      mainNegativeReason: '设置复杂',
+      mainNegativeReason: t('complexSetup'),
       lastUpdated: '2026-01-13',
-      satisfactionStatus: '不合格',
+      satisfactionStatus: t('poor'),
       isOutOfStock: false
     },
     {
@@ -187,16 +189,16 @@ const VoiceOfTheCustomer: React.FC = () => {
       image: 'https://via.placeholder.com/50',
       productName: 'Waterproof Bluetooth Speaker',
       asin: 'B032109876',
-      skuStatus: '在售',
-      fulfillment: '亚马逊物流',
+      skuStatus: t('onSale'),
+      fulfillment: t('amazonFulfillment'),
       dissatisfactionRate: '1.8%',
       dissatisfactionOrders: 27,
       totalOrders: 1498,
       rating: 4.6,
       returnRate: '2.1%',
-      mainNegativeReason: '音质一般',
+      mainNegativeReason: t('averageSound'),
       lastUpdated: '2026-01-12',
-      satisfactionStatus: '良好',
+      satisfactionStatus: t('good'),
       isOutOfStock: false
     },
     {
@@ -204,16 +206,16 @@ const VoiceOfTheCustomer: React.FC = () => {
       image: 'https://via.placeholder.com/50',
       productName: 'USB-C Hub Multiport Adapter',
       asin: 'B021098765',
-      skuStatus: '在售',
-      fulfillment: '亚马逊物流',
+      skuStatus: t('onSale'),
+      fulfillment: t('amazonFulfillment'),
       dissatisfactionRate: '0.9%',
       dissatisfactionOrders: 12,
       totalOrders: 1333,
       rating: 4.8,
       returnRate: '1.5%',
-      mainNegativeReason: '无',
+      mainNegativeReason: t('none'),
       lastUpdated: '2026-01-11',
-      satisfactionStatus: '极好',
+      satisfactionStatus: t('excellent'),
       isOutOfStock: false
     },
     {
@@ -221,16 +223,16 @@ const VoiceOfTheCustomer: React.FC = () => {
       image: 'https://via.placeholder.com/50',
       productName: 'Gaming Mouse with RGB Lighting',
       asin: 'B010987654',
-      skuStatus: '在售',
-      fulfillment: '卖家自配送',
+      skuStatus: t('onSale'),
+      fulfillment: t('sellerFulfillment'),
       dissatisfactionRate: '4.3%',
       dissatisfactionOrders: 31,
       totalOrders: 721,
       rating: 4.0,
       returnRate: '3.8%',
-      mainNegativeReason: '按键不灵敏',
+      mainNegativeReason: t('buttonNotResponsive'),
       lastUpdated: '2026-01-13',
-      satisfactionStatus: '一般',
+      satisfactionStatus: t('fair'),
       isOutOfStock: false
     },
     {
@@ -238,16 +240,16 @@ const VoiceOfTheCustomer: React.FC = () => {
       image: 'https://via.placeholder.com/50',
       productName: 'Reusable Silicone Food Storage Bags',
       asin: 'B009876543',
-      skuStatus: '在售',
-      fulfillment: '亚马逊物流',
+      skuStatus: t('onSale'),
+      fulfillment: t('amazonFulfillment'),
       dissatisfactionRate: '1.5%',
       dissatisfactionOrders: 21,
       totalOrders: 1400,
       rating: 4.5,
       returnRate: '2.0%',
-      mainNegativeReason: '密封性能差',
+      mainNegativeReason: t('poorSealing'),
       lastUpdated: '2026-01-12',
-      satisfactionStatus: '良好',
+      satisfactionStatus: t('good'),
       isOutOfStock: false
     },
     {
@@ -255,16 +257,16 @@ const VoiceOfTheCustomer: React.FC = () => {
       image: 'https://via.placeholder.com/50',
       productName: 'LED Desk Lamp with USB Charging',
       asin: 'B097654321',
-      skuStatus: '在售',
-      fulfillment: '卖家自配送',
+      skuStatus: t('onSale'),
+      fulfillment: t('sellerFulfillment'),
       dissatisfactionRate: '2.7%',
       dissatisfactionOrders: 19,
       totalOrders: 704,
       rating: 4.2,
       returnRate: '2.9%',
-      mainNegativeReason: '灯光刺眼',
+      mainNegativeReason: t('harshLight'),
       lastUpdated: '2026-01-11',
-      satisfactionStatus: '合格',
+      satisfactionStatus: t('qualified'),
       isOutOfStock: false
     },
     {
@@ -272,16 +274,16 @@ const VoiceOfTheCustomer: React.FC = () => {
       image: 'https://via.placeholder.com/50',
       productName: 'Portable Power Bank 20000mAh',
       asin: 'B086543210',
-      skuStatus: '在售',
-      fulfillment: '亚马逊物流',
+      skuStatus: t('onSale'),
+      fulfillment: t('amazonFulfillment'),
       dissatisfactionRate: '0.7%',
       dissatisfactionOrders: 10,
       totalOrders: 1428,
       rating: 4.7,
       returnRate: '1.3%',
-      mainNegativeReason: '无',
+      mainNegativeReason: t('none'),
       lastUpdated: '2026-01-13',
-      satisfactionStatus: '极好',
+      satisfactionStatus: t('excellent'),
       isOutOfStock: false
     }
   ];
@@ -290,11 +292,11 @@ const VoiceOfTheCustomer: React.FC = () => {
     <div className="animate-in fade-in duration-500">
       {/* Page Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">买家之声</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('voiceOfCustomer')}</h1>
         <div className="flex items-center text-sm text-gray-600">
-          <p>查看您商品的买家满意度状况，了解造成负面买家体验的主要原因，并采取措施改进。</p>
+          <p>{t('voiceOfCustomerDesc')}</p>
           <a href="#" className="ml-2 text-amazon-link font-medium hover:underline">
-            了解更多信息
+            {t('learnMoreInfo')}
           </a>
         </div>
       </div>
@@ -302,10 +304,10 @@ const VoiceOfTheCustomer: React.FC = () => {
       {/* Satisfaction Summary Section */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">您商品的买家满意度状况明细</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('satisfactionSummaryTitle')}</h2>
           <a href="#" className="flex items-center text-sm text-amazon-link font-medium hover:underline">
             <HelpCircle size={14} className="mr-1" />
-            如何衡量买家满意度状况？
+            {t('howMeasureSatisfaction')}
           </a>
         </div>
         
@@ -317,7 +319,7 @@ const VoiceOfTheCustomer: React.FC = () => {
               </div>
               <div className="text-3xl font-bold text-gray-900 mb-2">{item.count}</div>
               <a href="#" className="text-sm text-amazon-link font-medium hover:underline">
-                查看商品信息
+                {t('viewProductInfo')}
               </a>
             </div>
           ))}
@@ -331,7 +333,7 @@ const VoiceOfTheCustomer: React.FC = () => {
           <div className="relative flex-grow max-w-md">
             <input
               type="text"
-              placeholder="搜索商品名称、ASIN"
+              placeholder={t('searchProductAsin')}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-1 focus:ring-amazon-orange"
             />
             <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -339,48 +341,48 @@ const VoiceOfTheCustomer: React.FC = () => {
           
           {/* Search Button */}
           <button className="px-4 py-2 bg-amazon-orange text-white text-sm font-medium rounded-sm hover:bg-amazon-orange-dark">
-            搜索
+            {t('searchButton')}
           </button>
           
           {/* Dropdown Filters */}
           <div className="flex gap-3 flex-wrap">
             <select className="px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-1 focus:ring-amazon-orange">
-              <option>筛选条件</option>
-              <option>选项 1</option>
-              <option>选项 2</option>
+              <option>{t('filterConditions')}</option>
+              <option>{t('option1')}</option>
+              <option>{t('option2')}</option>
             </select>
             
             <select className="px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-1 focus:ring-amazon-orange">
-              <option>订单配送方</option>
-              <option>亚马逊物流</option>
-              <option>卖家自配送</option>
+              <option>{t('orderFulfillment')}</option>
+              <option>{t('amazonFulfillment')}</option>
+              <option>{t('sellerFulfillment')}</option>
             </select>
             
             <select className="px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-1 focus:ring-amazon-orange">
-              <option>买家满意度状况</option>
-              <option>极好</option>
-              <option>良好</option>
-              <option>一般</option>
-              <option>不合格</option>
-              <option>极差</option>
+              <option>{t('buyerSatisfactionStatus')}</option>
+              <option>{t('excellent')}</option>
+              <option>{t('good')}</option>
+              <option>{t('fair')}</option>
+              <option>{t('poor')}</option>
+              <option>{t('veryPoor')}</option>
             </select>
             
             <select className="px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-1 focus:ring-amazon-orange">
-              <option>上次更新时间</option>
-              <option>过去 7 天</option>
-              <option>过去 30 天</option>
-              <option>过去 90 天</option>
+              <option>{t('lastUpdateTime')}</option>
+              <option>{t('past7Days')}</option>
+              <option>{t('past30Days')}</option>
+              <option>{t('past90Days')}</option>
             </select>
           </div>
           
           {/* Action Buttons */}
           <div className="ml-auto flex gap-3">
             <button className="px-4 py-2 border border-gray-300 bg-white text-sm font-medium rounded-sm hover:bg-gray-50">
-              清除筛选条件
+              {t('clearFilters')}
             </button>
             <button className="px-4 py-2 bg-amazon-orange text-white text-sm font-medium rounded-sm hover:bg-amazon-orange-dark flex items-center">
               <Download size={14} className="mr-1" />
-              下载数据
+              {t('downloadData')}
             </button>
           </div>
         </div>
@@ -389,27 +391,27 @@ const VoiceOfTheCustomer: React.FC = () => {
       {/* Offer Listings Table */}
       <Card className="!p-0 overflow-hidden">
         <div className="p-4 border-b bg-gray-50">
-          <h2 className="text-lg font-semibold text-gray-900">13 Offer Listings</h2>
+          <h2 className="text-lg font-semibold text-gray-900">13 {t('offerListings')}</h2>
         </div>
         
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr className="border-b">
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">图片</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商品名称/ASIN</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU 状况</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">订单配送方</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">买家不满意率</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">买家不满意订单</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">订单总数</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">星级评定</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">退货率</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">造成负面买家体验的主要原因</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">上次更新时间</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">买家满意度状况</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">已显示缺货标记</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('image')}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('productNameAsin')}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('skuStatus')}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('orderFulfillment')}</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('dissatisfactionRate')}</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('dissatisfactionOrders')}</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('totalOrders')}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('starRating')}</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('returnRate')}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('mainNegativeReason')}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('lastUpdated')}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('satisfactionStatus')}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('outOfStockMark')}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('actions')}</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-100">
@@ -482,13 +484,13 @@ const VoiceOfTheCustomer: React.FC = () => {
                   
                   {/* Out of Stock */}
                   <td className="px-4 py-4 whitespace-nowrap">
-                    <span className="text-sm font-medium text-gray-900">{item.isOutOfStock ? '是' : '否'}</span>
+                    <span className="text-sm font-medium text-gray-900">{item.isOutOfStock ? t('yes') : t('no')}</span>
                   </td>
                   
                   {/* Actions */}
                   <td className="px-4 py-4 whitespace-nowrap">
                     <button className="text-amazon-link font-medium hover:underline text-sm">
-                      查看详情
+                      {t('viewDetailsVoc')}
                     </button>
                   </td>
                 </tr>

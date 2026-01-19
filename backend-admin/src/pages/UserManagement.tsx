@@ -37,7 +37,13 @@ interface User {
   updatedAt: string;
 }
 
-const UserManagement: React.FC = () => {
+interface UserManagementProps {
+  selectedStoreId: string;
+  selectedStore: any;
+  onStoreChange: (storeId: string, store: any) => void;
+}
+
+const UserManagement: React.FC<UserManagementProps> = ({ selectedStoreId, selectedStore }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试管理后台店铺管理功能</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #1890ff;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #f6ffed;
+            border: 1px solid #b7eb8f;
+            color: #52c41a;
+        }
+        .error {
+            background-color: #fff2f0;
+            border: 1px solid #ffccc7;
+            color: #ff4d4f;
+        }
+        .info {
+            background-color: #e6f7ff;
+            border: 1px solid #91d5ff;
+            color: #1890ff;
+        }
+        button {
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #40a9ff;
+        }
+        .store-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .store-card {
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            padding: 15px;
+            background: #fafafa;
+        }
+        .store-card.active {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+        .store-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .store-details {
+            font-size: 14px;
+            color: #666;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-active {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .status-inactive {
+            background: #fff2f0;
+            color: #ff4d4f;
+            border: 1px solid #ffccc7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏪 管理后台店铺管理功能测试</h1>
+        <p>测试Amazon Seller Central数据管理后台的店铺选择和数据隔离功能</p>
+
+        <div class="test-section">
+            <h3>1. 后端API服务状态检查</h3>
+            <button onclick="checkBackendStatus()">检查后端服务</button>
+            <button onclick="checkAdminStatus()">检查管理后台</button>
+            <div id="service-status"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. 店铺数据加载测试</h3>
+            <button onclick="loadStores()">加载店铺列表</button>
+            <div id="stores-result"></div>
+            <div id="stores-list" class="store-list"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. 店铺数据隔离测试</h3>
+            <button onclick="testStoreIsolation()">测试数据隔离</button>
+            <div id="isolation-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. 产品管理测试</h3>
+            <button onclick="testProductManagement()">测试产品管理</button>
+            <div id="product-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>5. 销售数据配置测试</h3>
+            <button onclick="testSalesConfig()">测试销售配置</button>
+            <div id="sales-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>6. Dashboard配置测试</h3>
+            <button onclick="testDashboardConfig()">测试Dashboard配置</button>
+            <div id="dashboard-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>7. 前端同步测试</h3>
+            <button onclick="testFrontendSync()">测试前端数据同步</button>
+            <div id="sync-result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3002/api';
+        const ADMIN_BASE = 'http://localhost:3001';
+        const FRONTEND_BASE = 'http://localhost:3000';
+
+        let currentStores = [];
+
+        // 检查后端服务状态
+        async function checkBackendStatus() {
+            const statusDiv = document.getElementById('service-status');
+            statusDiv.innerHTML = '<div class="info">正在检查服务状态...</div>';
+
+            try {
+                // 检查后端API
+                const backendResponse = await fetch(`${API_BASE}/stores`);
+                const backendStatus = backendResponse.ok ? '✅ 正常' : '❌ 异常';
+
+                // 检查管理后台
+                const adminResponse = await fetch(ADMIN_BASE);
+                const adminStatus = adminResponse.ok ? '✅ 正常' : '❌ 异常';
+
+                // 检查前端
+                const frontendResponse = await fetch(FRONTEND_BASE);
+                const frontendStatus = frontendResponse.ok ? '✅ 正常' : '❌ 异常';
+
+                statusDiv.innerHTML = `
+                    <div class="success">
+                        <strong>服务状态检查完成:</strong><br>
+                        • 后端API (3002): ${backendStatus}<br>
+                        • 管理后台 (3001): ${adminStatus}<br>
+                        • 前端 (3000): ${frontendStatus}
+                    </div>
+                `;
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="error">服务检查失败: ${error.message}</div>`;
+            }
+        }
+
+        // 加载店铺列表
+        async function loadStores() {
+            const resultDiv = document.getElementById('stores-result');
+            const listDiv = document.getElementById('stores-list');
+            
+            resultDiv.innerHTML = '<div class="info">正在加载店铺列表...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/stores`);
+                const data = await response.json();
+
+                if (data.success) {
+                    currentStores = data.data;
+                    resultDiv.innerHTML = `<div class="success">成功加载 ${currentStores.length} 个店铺</div>`;
+                    
+                    // 显示店铺列表
+                    listDiv.innerHTML = currentStores.map(store => `
+                        <div class="store-card ${store.is_active ? 'active' : ''}">
+                            <div class="store-name">${store.name}</div>
+                            <div class="store-details">
+                                市场: ${store.marketplace}<br>
+                                货币: ${store.currency_symbol}<br>
+                                时区: ${store.timezone}<br>
+                                状态: <span class="status-badge ${store.is_active ? 'status-active' : 'status-inactive'}">
+                                    ${store.is_active ? '激活' : '未激活'}
+                                </span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    resultDiv.innerHTML = `<div class="error">加载失败: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">加载失败: ${error.message}</div>`;
+            }
+        }
+
+        // 测试店铺数据隔离
+        async function testStoreIsolation() {
+            const resultDiv = document.getElementById('isolation-result');
+            resultDiv.innerHTML = '<div class="info">正在测试数据隔离...</div>';
+
+            if (currentStores.length < 2) {
+                resultDiv.innerHTML = '<div class="error">需要至少2个店铺来测试数据隔离</div>';
+                return;
+            }
+
+            try {
+                const store1 = currentStores[0];
+                const store2 = currentStores[1];
+
+                // 获取两个店铺的产品数据
+                const products1Response = await fetch(`${API_BASE}/products?store_id=${store1.id}`);
+                const products1Data = await products1Response.json();
+
+                const products2Response = await fetch(`${API_BASE}/products?store_id=${store2.id}`);
+                const products2Data = await products2Response.json();
+
+                let isolationResults = [];
+
+                // 检查数据隔离
+                if (products1Data.success && products2Data.success) {
+                    const products1 = products1Data.data || [];
+                    const products2 = products2Data.data || [];
+
+                    isolationResults.push(`店铺 "${store1.name}" 有 ${products1.length} 个产品`);
+                    isolationResults.push(`店铺 "${store2.name}" 有 ${products2.length} 个产品`);
+
+                    // 检查是否有交叉数据
+                    const crossContamination = products1.some(p1 => 
+                        products2.some(p2 => p1.id === p2.id)
+                    );
+
+                    if (crossContamination) {
+                        isolationResults.push('❌ 发现数据交叉污染');
+                    } else {
+                        isolationResults.push('✅ 数据隔离正常');
+                    }
+                }
+
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <strong>数据隔离测试结果:</strong><br>
+                        ${isolationResults.join('<br>')}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">测试失败: ${error.message}</div>`;
+            }
+        }
+
+        // 测试产品管理
+        async function testProductManagement() {
+            const resultDiv = document.getElementById('product-result');
+            resultDiv.innerHTML = '<div class="info">正在测试产品管理...</div>';
+
+            if (currentStores.length === 0) {
+                resultDiv.innerHTML = '<div class="error">请先加载店铺列表</div>';
+                return;
+            }
+
+            try {
+                const testStore = currentStores[0];
+                const testResults = [];
+
+                // 测试获取产品列表
+                const productsResponse = await fetch(`${API_BASE}/products?store_id=${testStore.id}`);
+                const productsData = await productsResponse.json();
+
+                if (productsData.success) {
+                    testResults.push(`✅ 成功获取店铺 "${testStore.name}" 的产品列表 (${productsData.data?.length || 0} 个产品)`);
+                } else {
+                    testResults.push(`❌ 获取产品列表失败: ${productsData.message}`);
+                }
+
+                // 测试创建产品
+                const newProduct = {
+                    store_id: testStore.id,
+                    title: `测试产品 ${Date.now()}`,
+                    sku: `TEST-SKU-${Date.now()}`,
+                    asin: `B${Date.now().toString().slice(-9)}`,
+                    price: 29.99,
+                    inventory: 100,
+                    status: 'Active'
+                };
+
+                const createResponse = await fetch(`${API_BASE}/products`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newProduct)
+                });
+
+                const createData = await createResponse.json();
+                if (createData.success) {
+                    testResults.push(`✅ 成功创建测试产品: ${newProduct.title}`);
+                } else {
+                    testResults.push(`❌ 创建产品失败: ${createData.message}`);
+                }
+
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <strong>产品管理测试结果:</strong><br>
+                        ${testResults.join('<br>')}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">测试失败: ${error.message}</div>`;
+            }
+        }
+
+        // 测试销售配置
+        async function testSalesConfig() {
+            const resultDiv = document.getElementById('sales-result');
+            resultDiv.innerHTML = '<div class="info">正在测试销售配置...</div>';
+
+            if (currentStores.length === 0) {
+                resultDiv.innerHTML = '<div class="error">请先加载店铺列表</div>';
+                return;
+            }
+
+            try {
+                const testStore = currentStores[0];
+                const testResults = [];
+
+                // 测试获取销售快照
+                const snapshotResponse = await fetch(`${API_BASE}/sales/snapshot/${testStore.id}`);
+                const snapshotData = await snapshotResponse.json();
+
+                if (snapshotData.success) {
+                    testResults.push(`✅ 成功获取店铺 "${testStore.name}" 的销售快照`);
+                } else {
+                    testResults.push(`❌ 获取销售快照失败: ${snapshotData.message}`);
+                }
+
+                // 测试更新销售快照
+                const updateData = {
+                    total_order_items: 1000,
+                    units_ordered: 1500,
+                    ordered_product_sales: 25000.50,
+                    avg_units_per_order: 1.5,
+                    avg_sales_per_order: 25.00
+                };
+
+                const updateResponse = await fetch(`${API_BASE}/sales/snapshot/${testStore.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+
+                const updateResult = await updateResponse.json();
+                if (updateResult.success) {
+                    testResults.push(`✅ 成功更新销售快照数据`);
+                } else {
+                    testResults.push(`❌ 更新销售快照失败: ${updateResult.message}`);
+                }
+
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <strong>销售配置测试结果:</strong><br>
+                        ${testResults.join('<br>')}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">测试失败: ${error.message}</div>`;
+            }
+        }
+
+        // 测试Dashboard配置
+        async function testDashboardConfig() {
+            const resultDiv = document.getElementById('dashboard-result');
+            resultDiv.innerHTML = '<div class="info">正在测试Dashboard配置...</div>';
+
+            if (currentStores.length === 0) {
+                resultDiv.innerHTML = '<div class="error">请先加载店铺列表</div>';
+                return;
+            }
+
+            try {
+                const testStore = currentStores[0];
+                const testResults = [];
+
+                // 测试获取Dashboard配置
+                const configResponse = await fetch(`${API_BASE}/dashboard/config/${testStore.id}`);
+                const configData = await configResponse.json();
+
+                if (configData.success) {
+                    testResults.push(`✅ 成功获取店铺 "${testStore.name}" 的Dashboard配置`);
+                } else {
+                    testResults.push(`❌ 获取Dashboard配置失败: ${configData.message}`);
+                }
+
+                // 测试更新Dashboard配置
+                const updateConfig = {
+                    globalSnapshot: {
+                        sales: { todaySoFar: 199.99, currency: testStore.currency_symbol },
+                        orders: { totalCount: 10, fbmUnshipped: 1, fbmPending: 2, fbaPending: 7 },
+                        messages: { casesRequiringAttention: 1 },
+                        featuredOffer: { percentage: 95, daysAgo: 1 },
+                        feedback: { rating: 4.8, count: 25 },
+                        payments: { totalBalance: 1500.75, currency: testStore.currency_symbol }
+                    }
+                };
+
+                const updateResponse = await fetch(`${API_BASE}/dashboard/config/${testStore.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateConfig)
+                });
+
+                const updateResult = await updateResponse.json();
+                if (updateResult.success) {
+                    testResults.push(`✅ 成功更新Dashboard配置`);
+                } else {
+                    testResults.push(`❌ 更新Dashboard配置失败: ${updateResult.message}`);
+                }
+
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <strong>Dashboard配置测试结果:</strong><br>
+                        ${testResults.join('<br>')}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">测试失败: ${error.message}</div>`;
+            }
+        }
+
+        // 测试前端同步
+        async function testFrontendSync() {
+            const resultDiv = document.getElementById('sync-result');
+            resultDiv.innerHTML = '<div class="info">正在测试前端数据同步...</div>';
+
+            try {
+                const testResults = [];
+
+                // 检查前端是否能访问
+                const frontendResponse = await fetch(FRONTEND_BASE);
+                if (frontendResponse.ok) {
+                    testResults.push('✅ 前端服务正常运行');
+                } else {
+                    testResults.push('❌ 前端服务无法访问');
+                }
+
+                // 检查管理后台是否能访问
+                const adminResponse = await fetch(ADMIN_BASE);
+                if (adminResponse.ok) {
+                    testResults.push('✅ 管理后台服务正常运行');
+                } else {
+                    testResults.push('❌ 管理后台服务无法访问');
+                }
+
+                testResults.push('');
+                testResults.push('📋 手动测试步骤:');
+                testResults.push('1. 打开管理后台 (http://localhost:3001)');
+                testResults.push('2. 登录 (用户名: admin, 密码: admin123)');
+                testResults.push('3. 在顶部选择不同的店铺');
+                testResults.push('4. 修改产品或销售数据');
+                testResults.push('5. 打开前端 (http://localhost:3000)');
+                testResults.push('6. 验证数据是否同步更新');
+
+                resultDiv.innerHTML = `
+                    <div class="info">
+                        <strong>前端同步测试结果:</strong><br>
+                        ${testResults.join('<br>')}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">测试失败: ${error.message}</div>`;
+            }
+        }
+
+        // 页面加载时自动检查服务状态
+        window.onload = function() {
+            checkBackendStatus();
+            setTimeout(loadStores, 1000);
+        };
+    </script>
+</body>
+</html>

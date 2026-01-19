@@ -203,4 +203,114 @@ router.get('/health/:storeId', asyncHandler(async (req, res) => {
   res.json(response);
 }));
 
+// GET /api/dashboard/config/:storeId - Get dashboard configuration
+router.get('/config/:storeId', asyncHandler(async (req, res) => {
+  const { storeId } = req.params;
+  
+  // Get store information first
+  const stores = await dataService.readData('stores');
+  const store = stores.find((s: any) => s.id === storeId);
+  
+  if (!store) {
+    throw createError('Store not found', 404);
+  }
+  
+  // Get dashboard configuration data
+  let snapshots = await dataService.findByStoreId<GlobalSnapshot>('global_snapshots', storeId);
+  let snapshot = snapshots[0];
+  
+  // Create default snapshot if none exists
+  if (!snapshot) {
+    snapshot = await dataService.create<GlobalSnapshot>('global_snapshots', {
+      store_id: storeId,
+      sales_amount: 49.95,
+      open_orders: 6,
+      buyer_messages: 0,
+      featured_offer_percent: 100,
+      seller_feedback_rating: 5.00,
+      seller_feedback_count: 2,
+      payments_balance: 228.31,
+      fbm_unshipped: 0,
+      fbm_pending: 0,
+      fba_pending: 6,
+      inventory_performance_index: 400,
+      ad_sales: 0,
+      ad_impressions: 0,
+      updated_at: new Date().toISOString(),
+    });
+  }
+  
+  const configData = {
+    store: store,
+    snapshot: snapshot,
+    lastUpdated: snapshot.updated_at,
+  };
+  
+  const response: ApiResponse = {
+    success: true,
+    data: configData,
+  };
+  
+  res.json(response);
+}));
+
+// PUT /api/dashboard/config/:storeId - Update dashboard configuration
+router.put('/config/:storeId', asyncHandler(async (req, res) => {
+  const { storeId } = req.params;
+  const { snapshot: snapshotData } = req.body;
+  
+  if (!snapshotData) {
+    throw createError('Snapshot data is required', 400);
+  }
+  
+  const updateData = GlobalSnapshotSchema.partial().parse({
+    ...snapshotData,
+    updated_at: new Date().toISOString(),
+  });
+  
+  let snapshots = await dataService.findByStoreId<GlobalSnapshot>('global_snapshots', storeId);
+  let snapshot = snapshots[0];
+  
+  if (!snapshot) {
+    // Create new snapshot with default values plus any provided updates
+    const defaultSnapshot = {
+      store_id: storeId,
+      sales_amount: 0,
+      open_orders: 0,
+      buyer_messages: 0,
+      featured_offer_percent: 100,
+      seller_feedback_rating: 5.0,
+      seller_feedback_count: 0,
+      payments_balance: 0,
+      fbm_unshipped: 0,
+      fbm_pending: 0,
+      fba_pending: 0,
+      inventory_performance_index: 400,
+      ad_sales: 0,
+      ad_impressions: 0,
+      updated_at: new Date().toISOString(),
+    };
+    
+    snapshot = await dataService.create<GlobalSnapshot>('global_snapshots', {
+      ...defaultSnapshot,
+      ...updateData,
+    });
+  } else {
+    // Update existing snapshot
+    const updatedSnapshot = await dataService.update<GlobalSnapshot>('global_snapshots', snapshot.id, updateData);
+    if (!updatedSnapshot) {
+      throw createError('Failed to update snapshot', 500);
+    }
+    snapshot = updatedSnapshot;
+  }
+  
+  const response: ApiResponse<GlobalSnapshot> = {
+    success: true,
+    data: snapshot,
+    message: 'Dashboard configuration updated successfully',
+  };
+  
+  res.json(response);
+}));
+
 export = router;

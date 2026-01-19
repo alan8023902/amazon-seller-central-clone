@@ -89,17 +89,17 @@ const BusinessReports: React.FC = () => {
       {/* B. Page title row */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
-          <h1 className="text-3xl font-normal text-[#0F1111]">Sales Dashboard</h1>
-          <a href="#" className="text-sm text-[#007185] hover:underline">Learn more</a>
+          <h1 className="text-3xl font-normal text-[#0F1111]">{t('salesDashboardTitle')}</h1>
+          <a href="#" className="text-sm text-[#007185] hover:underline">{t('learnMore')}</a>
         </div>
         <div className="flex space-x-3">
           <button className="h-8 px-4 border border-[#007185] bg-white text-[#007185] rounded-sm text-sm flex items-center space-x-2 hover:bg-[#F0F9F0]">
             <RefreshCw size={14} />
-            <span>Refresh</span>
+            <span>{t('refresh')}</span>
           </button>
           <button className="h-8 px-4 bg-[#007185] text-white rounded-sm text-sm flex items-center space-x-2 hover:bg-[#005F6B]">
             <Download size={14} />
-            <span>Download</span>
+            <span>{t('download')}</span>
           </button>
         </div>
       </div>
@@ -107,14 +107,14 @@ const BusinessReports: React.FC = () => {
       {/* C. Business Performance Insights */}
       <div className="bg-white border border-[#D5D9D9] rounded-sm mb-6">
         <div className="p-4">
-          <h2 className="text-lg font-medium text-[#0F1111] mb-3">Business Performance Insights</h2>
+          <h2 className="text-lg font-medium text-[#0F1111] mb-3">{t('businessPerformanceInsights')}</h2>
           <p className="text-sm text-[#0F1111] mb-4">
-            You are all caught up! No new insights or actions since your last visit.
+            {t('allCaughtUp')}
           </p>
           <div className="flex justify-between items-center">
             <div></div>
             <div className="text-xs text-[#565959] flex items-center space-x-2">
-              <span>Help improve this experience</span>
+              <span>{t('helpImproveExperience')}</span>
               <button className="text-xs text-[#007185] hover:underline flex items-center space-x-1">
                 <ThumbsUp size={12} />
                 <ThumbsDown size={12} />
@@ -129,14 +129,14 @@ const BusinessReports: React.FC = () => {
         <div className="flex flex-wrap items-end gap-x-8 gap-y-4">
           {/* Date filter */}
           <div className="flex flex-col space-y-2">
-            <label className="text-xs font-medium text-[#565959] uppercase">Date</label>
+            <label className="text-xs font-medium text-[#565959] uppercase">{t('date')}</label>
             <div className="flex items-center space-x-3">
               <select className="h-7 px-2 border border-[#D5D9D9] rounded-sm text-sm bg-white focus:outline-none focus:ring-1 focus:ring-[#007185]">
-                <option>Custom</option>
-                <option>Last 30 days</option>
-                <option>Last 90 days</option>
-                <option>Last 6 months</option>
-                <option>Last year</option>
+                <option>{t('custom')}</option>
+                <option>{t('last30DaysReport')}</option>
+                <option>{t('last90Days')}</option>
+                <option>{t('last6Months')}</option>
+                <option>{t('lastYear')}</option>
               </select>
               <div className="flex items-center space-x-2">
                 <div className="relative">
@@ -147,7 +147,7 @@ const BusinessReports: React.FC = () => {
                     defaultValue={startDate.toISOString().split('T')[0]}
                   />
                 </div>
-                <span className="text-sm text-[#565959]">to</span>
+                <span className="text-sm text-[#565959]">{t('to')}</span>
                 <div className="relative">
                   <Calendar size={14} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#565959]" />
                   <input 
@@ -162,28 +162,28 @@ const BusinessReports: React.FC = () => {
           
           {/* Sales breakdown filter */}
           <div className="flex flex-col space-y-2">
-            <label className="text-xs font-medium text-[#565959] uppercase">Sales breakdown</label>
+            <label className="text-xs font-medium text-[#565959] uppercase">{t('salesBreakdown')}</label>
             <select className="h-7 px-2 border border-[#D5D9D9] rounded-sm text-sm bg-white focus:outline-none focus:ring-1 focus:ring-[#007185]">
-              <option>Marketplace total</option>
-              <option>By ASIN</option>
-              <option>By Category</option>
-              <option>By SKU</option>
+              <option>{t('marketplaceTotal')}</option>
+              <option>{t('byAsin')}</option>
+              <option>{t('byCategory')}</option>
+              <option>{t('bySku')}</option>
             </select>
           </div>
           
           {/* Fulfillment channel filter */}
           <div className="flex flex-col space-y-2">
-            <label className="text-xs font-medium text-[#565959] uppercase">Fulfillment channel</label>
+            <label className="text-xs font-medium text-[#565959] uppercase">{t('fulfillmentChannel')}</label>
             <select className="h-7 px-2 border border-[#D5D9D9] rounded-sm text-sm bg-white focus:outline-none focus:ring-1 focus:ring-[#007185]">
-              <option>Both (Amazon and seller)</option>
-              <option>Amazon fulfilled</option>
-              <option>Seller fulfilled</option>
+              <option>{t('bothAmazonAndSeller')}</option>
+              <option>{t('amazonFulfilled')}</option>
+              <option>{t('sellerFulfilled')}</option>
             </select>
           </div>
           
           {/* Apply button */}
           <button className="h-7 px-4 bg-[#007185] text-white rounded-sm text-sm font-medium hover:bg-[#005F6B]">
-            Apply
+            {t('apply')}
           </button>
         </div>
       </div>
@@ -191,37 +191,37 @@ const BusinessReports: React.FC = () => {
       {/* E. Sales Snapshot */}
       <div className="bg-white border border-[#D5D9D9] rounded-sm mb-6">
         <div className="bg-[#F8F8F8] border-b border-[#D5D9D9] px-4 py-3 flex justify-between items-center">
-          <h2 className="text-base font-medium text-[#0F1111]">Sales Snapshot</h2>
-          <p className="text-xs text-[#565959]">taken at 10:30 AM PST</p>
+          <h2 className="text-base font-medium text-[#0F1111]">{t('salesSnapshot')}</h2>
+          <p className="text-xs text-[#565959]">{t('takenAt')} 10:30 AM PST</p>
         </div>
         <div className="grid grid-cols-5 gap-0">
           {/* Total Order Items */}
           <div className="border-r border-[#D5D9D9] p-4 text-center">
-            <div className="text-xs text-[#565959] mb-2">Total Order Items</div>
+            <div className="text-xs text-[#565959] mb-2">{t('totalOrderItems')}</div>
             <div className="text-2xl font-medium text-[#0F1111]">248</div>
           </div>
           
           {/* Units Ordered */}
           <div className="border-r border-[#D5D9D9] p-4 text-center">
-            <div className="text-xs text-[#565959] mb-2">Units Ordered</div>
+            <div className="text-xs text-[#565959] mb-2">{t('unitsOrdered')}</div>
             <div className="text-2xl font-medium text-[#0F1111]">{formatNumber(192260)}</div>
           </div>
           
           {/* Ordered Product Sales */}
           <div className="border-r border-[#D5D9D9] p-4 text-center">
-            <div className="text-xs text-[#565959] mb-2">Ordered Product Sales</div>
+            <div className="text-xs text-[#565959] mb-2">{t('orderedProductSales')}</div>
             <div className="text-2xl font-medium text-[#0F1111]">{formatCurrency(18657478)}</div>
           </div>
           
           {/* Avg Units/Order Item */}
           <div className="border-r border-[#D5D9D9] p-4 text-center">
-            <div className="text-xs text-[#565959] mb-2">Avg. units/order item</div>
+            <div className="text-xs text-[#565959] mb-2">{t('avgUnitsOrderItem')}</div>
             <div className="text-2xl font-medium text-[#0F1111]">1.14</div>
           </div>
           
           {/* Avg Sales/Order Item */}
           <div className="p-4 text-center">
-            <div className="text-xs text-[#565959] mb-2">Avg. sales/order item</div>
+            <div className="text-xs text-[#565959] mb-2">{t('avgSalesOrderItem')}</div>
             <div className="text-2xl font-medium text-[#0F1111]">{formatCurrency(110.29)}</div>
           </div>
         </div>
@@ -231,19 +231,19 @@ const BusinessReports: React.FC = () => {
       <div className="bg-[#EBF7FF] p-4 mb-6">
         <div className="bg-white border border-[#D5D9D9] rounded-sm">
           <div className="bg-[#F8F8F8] border-b border-[#D5D9D9] px-4 py-3 flex justify-between items-center">
-            <h2 className="text-base font-medium text-[#0F1111]">Compare Sales</h2>
+            <h2 className="text-base font-medium text-[#0F1111]">{t('compareSales')}</h2>
             <div className="flex border border-[#D5D9D9] rounded-sm overflow-hidden">
               <button 
                 className={`px-3 py-1 text-sm ${activeView === 'graph' ? 'bg-[#007185] text-white' : 'bg-white text-[#0F1111]'}`}
                 onClick={() => setActiveView('graph')}
               >
-                Graph view
+                {t('graphView')}
               </button>
               <button 
                 className={`px-3 py-1 text-sm ${activeView === 'table' ? 'bg-[#007185] text-white' : 'bg-white text-[#0F1111]'}`}
                 onClick={() => setActiveView('table')}
               >
-                Table view
+                {t('tableView')}
               </button>
             </div>
           </div>
@@ -280,7 +280,7 @@ const BusinessReports: React.FC = () => {
                         strokeWidth={2} 
                         dot={false} 
                         activeDot={{ r: 6 }} 
-                        name="Current period"
+                        name={t('currentPeriod')}
                       />
                       <Line 
                         type="monotone" 
@@ -289,7 +289,7 @@ const BusinessReports: React.FC = () => {
                         strokeWidth={2} 
                         dot={false} 
                         activeDot={{ r: 6 }} 
-                        name="Last year"
+                        name={t('lastYear')}
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -324,7 +324,7 @@ const BusinessReports: React.FC = () => {
                         strokeWidth={2} 
                         dot={false} 
                         activeDot={{ r: 6 }} 
-                        name="Current period"
+                        name={t('currentPeriod')}
                       />
                       <Line 
                         type="monotone" 
@@ -333,7 +333,7 @@ const BusinessReports: React.FC = () => {
                         strokeWidth={2} 
                         dot={false} 
                         activeDot={{ r: 6 }} 
-                        name="Last year"
+                        name={t('lastYear')}
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -342,7 +342,7 @@ const BusinessReports: React.FC = () => {
             ) : (
               // Table view placeholder
               <div className="h-[300px] flex items-center justify-center text-sm text-[#565959]">
-                Table view content would be displayed here
+                {t('tableViewContent')}
               </div>
             )}
           </div>

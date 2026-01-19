@@ -1,5 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '../hooks/useI18n';
+import { Eye, MessageSquare, Heart } from 'lucide-react';
 
 // ==================== Shared Card UI tokens ====================
 const outerCard = "bg-white border border-[#E3E6E6] rounded-[8px] shadow-none";
@@ -14,34 +16,35 @@ const divider = "border-t border-[#E3E6E6]";
 // ==================== ActionsCard Component ====================
 export function ActionsCard() {
   const navigate = useNavigate();
-  
+  const { t } = useI18n();
+
   return (
     <div className={`${outerCard} ring-2 ring-[#007185] ring-offset-2 ring-offset-white`}>
       {/* Header */}
       <div className={cardHeaderRow}>
         <div className={cardTitleLeft}>
-          <div className={cardTitleText}>Actions</div>
+          <div className={cardTitleText}>{t('actions')}</div>
           <div className={infoIcon}>i</div>
         </div>
         <div className={badgeCount}>1</div>
       </div>
-      
+
       {/* Body */}
       <div className="mx-4 mb-4 rounded-[8px] border border-[#E3E6E6] bg-white px-4 py-3">
         <div className="flex items-center justify-between">
-          <button 
+          <button
             onClick={() => navigate('/app/shipments')}
             className="text-[13px] font-semibold text-[#007185] hover:underline"
           >
-            Shipment performance
+            {t('shipmentPerformance')}
           </button>
           <button className={kebabButton}>⋮</button>
         </div>
         <div className="mt-1 text-[12px] text-[#565959] leading-5">
-          0 outstanding shipment problems
+          {t('outstandingShipmentProblems', { count: 0 })}
         </div>
         <div className="text-[12px] text-[#565959] leading-5">
-          1 total in the last 120 days
+          {t('shipmentPerformanceSub')}
         </div>
       </div>
     </div>
@@ -70,6 +73,8 @@ const HeartIcon = () => (
 
 // ==================== CommunicationsCard Component ====================
 export function CommunicationsCard() {
+  const { t } = useI18n();
+
   // Mock data for Seller Forums
   const sellerForums = [
     {
@@ -94,7 +99,7 @@ export function CommunicationsCard() {
       replies: "5"
     }
   ];
-  
+
   // Mock data for Seller News
   const sellerNews = [
     {
@@ -119,45 +124,45 @@ export function CommunicationsCard() {
       reactions: "9"
     }
   ];
-  
+
   return (
     <div className={outerCard}>
       {/* Header */}
       <div className={cardHeaderRow}>
         <div className={cardTitleLeft}>
-          <div className={cardTitleText}>Communications</div>
+          <div className={cardTitleText}>{t('communications')}</div>
           <div className={infoIcon}>i</div>
         </div>
       </div>
-      
+
       {/* Body */}
       <div>
         {/* Seller Forums Section */}
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div>
-                <div className="text-[13px] font-semibold text-amazon-headerTeal">Seller Forums</div>
-                <a href="#" className="block text-[12px] text-[#007185] hover:underline">
-                  See all
-                </a>
-              </div>
+              <div className="text-[13px] font-semibold text-amazon-headerTeal">{t('sellerForums')}</div>
+              <a href="#" className="block text-[12px] text-[#007185] hover:underline">
+                {t('seeAll')}
+              </a>
+            </div>
             <button className={kebabButton}>⋮</button>
           </div>
-          
+
           <div className="mt-3">
             {sellerForums.map((item, index) => (
               <div key={item.id}>
                 <div className="text-[13px] text-[#0F1111] leading-5 line-clamp-2">
                   {item.title}
                 </div>
-                <div className="mt-1 flex items-center justify-between text-[12px] text-[#565959]">
-                  <span>{item.date}</span>
-                  <div className="flex items-center gap-3">
+                <div className="mt-1 flex items-center text-[11px] text-[#565959] gap-[25px]">
+                  <span className="flex-shrink-0">{item.date}</span>
+                  <div className="flex items-center gap-4 text-[#888C8C]">
                     <span className="inline-flex items-center gap-1">
-                      <EyeIcon /> {item.views}
+                      <Eye size={13} strokeWidth={2.5} className="opacity-70" /> {item.views}
                     </span>
                     <span className="inline-flex items-center gap-1">
-                      <CommentIcon /> {item.replies}
+                      <MessageSquare size={11} strokeWidth={2.5} className="opacity-70" /> {item.replies}
                     </span>
                   </div>
                 </div>
@@ -166,44 +171,37 @@ export function CommunicationsCard() {
             ))}
           </div>
         </div>
-        
+
         {/* Divider */}
         <div className={divider}></div>
-        
+
         {/* Seller News Section */}
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-[13px] font-semibold text-amazon-headerTeal">Seller News</div>
+              <div className="text-[13px] font-semibold text-amazon-headerTeal">{t('sellerNews')}</div>
               <a href="#" className="block text-[12px] text-[#007185] hover:underline">
-                See all
+                {t('seeAll')}
               </a>
             </div>
             <button className={kebabButton}>⋮</button>
           </div>
-          
+
           <div className="mt-3">
             {sellerNews.map((item, index) => (
               <div key={item.id}>
                 <div className="text-[13px] text-[#0F1111] leading-5 line-clamp-2">
                   {item.title}
                 </div>
-                <div className="mt-1 flex items-center justify-between text-[12px] text-[#565959]">
-                  <span>{item.date}</span>
-                  <div className="flex items-center gap-3">
+                <div className="mt-1 flex items-center text-[11px] text-[#565959] gap-[25px]">
+                  <span className="flex-shrink-0">{item.date}</span>
+                  <div className="flex items-center gap-4 text-[#888C8C]">
                     <span className="inline-flex items-center gap-1">
-                      <EyeIcon /> {item.views}
+                      <Eye size={13} strokeWidth={2.5} className="opacity-70" /> {item.views}
                     </span>
-                    {item.comments && (
-                      <span className="inline-flex items-center gap-1">
-                        <CommentIcon /> {item.comments}
-                      </span>
-                    )}
-                    {item.reactions && (
-                      <span className="inline-flex items-center gap-1">
-                        <HeartIcon /> {item.reactions}
-                      </span>
-                    )}
+                    <span className="inline-flex items-center gap-1">
+                      <Heart size={11} strokeWidth={2.5} className="opacity-70 fill-[#888C8C]" /> {item.reactions}
+                    </span>
                   </div>
                 </div>
                 {index < sellerNews.length - 1 && <div className="border-t border-[#E3E6E6] my-3"></div>}

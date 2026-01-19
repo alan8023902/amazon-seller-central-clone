@@ -26,10 +26,13 @@ const Inventory: React.FC = () => {
   });
 
   const currencySymbol = marketplaceConfigs[session.marketplace]?.currency || '$';
-  const statuses = ['All', 'Active', 'Inactive', 'Out of Stock'];
+  const statuses = [t('all'), t('active'), t('inactive'), t('outOfStock')];
 
   const filteredItems = (inventory || []).filter(item => {
-    const matchesStatus = filter === 'All' || item.status === filter;
+    const matchesStatus = filter === t('all') || item.status === filter || 
+                         (filter === t('active') && item.status === 'Active') ||
+                         (filter === t('inactive') && item.status === 'Inactive') ||
+                         (filter === t('outOfStock') && item.status === 'Out of Stock');
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           item.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           item.asin.toLowerCase().includes(searchTerm.toLowerCase());
@@ -39,20 +42,20 @@ const Inventory: React.FC = () => {
   return (
     <div className="animate-in fade-in slide-in-from-top-2 duration-500">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-[22px] font-semibold text-amazon-text">Manage All Inventory</h1>
+        <h1 className="text-[22px] font-semibold text-amazon-text">{t('inventoryManagement')}</h1>
         <div className="flex items-center gap-4 text-[13px] font-medium text-amazon-link">
            <button 
              onClick={() => navigate('/app/help')}
              className="flex items-center gap-1.5 hover:underline"
            >
-             <HelpCircle size={14} /> Documentation
+             <HelpCircle size={14} /> {t('documentation')}
            </button>
            <Button 
              variant="yellow" 
              onClick={() => navigate('/app/add-products')}
              className="w-auto px-5 py-2 flex items-center gap-2 font-black shadow-md border-amazon-yellowBorder"
            >
-             <Plus size={16} /> Add a product
+             <Plus size={16} /> {t('addAProduct')}
            </Button>
         </div>
       </div>
@@ -69,7 +72,12 @@ const Inventory: React.FC = () => {
                 : 'border-transparent text-gray-500 hover:text-amazon-text hover:bg-gray-50'
             )}
           >
-            {status} ({status === 'All' ? (inventory?.length || 0) : (inventory?.filter(i => i.status === status).length || 0)})
+            {status} ({status === t('all') ? (inventory?.length || 0) : (inventory?.filter(i => 
+              i.status === status || 
+              (status === t('active') && i.status === 'Active') ||
+              (status === t('inactive') && i.status === 'Inactive') ||
+              (status === t('outOfStock') && i.status === 'Out of Stock')
+            ).length || 0)})
           </button>
         ))}
       </div>
@@ -79,7 +87,7 @@ const Inventory: React.FC = () => {
           <div className="relative flex-1 min-w-[350px]">
             <input 
               className="w-full border border-gray-300 rounded-sm py-2 pl-11 pr-4 text-sm-amz amz-input-focus shadow-inner bg-white"
-              placeholder="Search by product name, SKU, ASIN or manufacturer"
+              placeholder={t('searchByProduct')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -87,7 +95,7 @@ const Inventory: React.FC = () => {
           </div>
           <div className="flex items-center gap-3">
             <button className="border border-gray-300 px-4 py-2 rounded-sm text-xs-amz font-black bg-white hover:bg-gray-50 shadow-sm flex items-center gap-2 uppercase tracking-widest transition-all active:scale-95">
-              <Filter size={14} className="text-amazon-teal" /> Preferences <ChevronDown size={14} className="opacity-50" />
+              <Filter size={14} className="text-amazon-teal" /> {t('preferences')} <ChevronDown size={14} className="opacity-50" />
             </button>
           </div>
         </div>
@@ -100,11 +108,11 @@ const Inventory: React.FC = () => {
         <div className="bg-gray-100/80 px-5 py-3 border-b border-amazon-border flex justify-between items-center text-[10px] font-black text-gray-500 uppercase tracking-[0.15em]">
            <div className="flex items-center gap-5">
               <input type="checkbox" className="w-4 h-4 rounded-sm border-gray-300" />
-              <span className="cursor-pointer hover:text-amazon-text transition-colors flex items-center gap-1.5">Action on Selected <ChevronDown size={12} /></span>
+              <span className="cursor-pointer hover:text-amazon-text transition-colors flex items-center gap-1.5">{t('actionOnSelected')} <ChevronDown size={12} /></span>
            </div>
            <div className="flex items-center gap-4">
               {isRefetching && <RefreshCw size={12} className="animate-spin text-amazon-teal" />}
-              <div className="bg-white px-3 py-1 rounded-sm border border-gray-200 text-amazon-text font-black lowercase tracking-tight">{filteredItems.length} Products Found</div>
+              <div className="bg-white px-3 py-1 rounded-sm border border-gray-200 text-amazon-text font-black lowercase tracking-tight">{filteredItems.length} {t('productsFound')}</div>
            </div>
         </div>
         
@@ -112,19 +120,19 @@ const Inventory: React.FC = () => {
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-28 gap-4">
                <div className="w-12 h-12 border-4 border-amazon-teal border-t-transparent rounded-full animate-spin"></div>
-               <p className="text-xs-amz text-amazon-secondaryText font-black uppercase tracking-[0.2em] italic">Accessing Merchant Catalog...</p>
+               <p className="text-xs-amz text-amazon-secondaryText font-black uppercase tracking-[0.2em] italic">{t('accessingMerchantCatalog')}</p>
             </div>
           ) : (
             <table className="w-full text-[13px] border-collapse">
               <thead>
                 <tr className="bg-white border-b text-amazon-secondaryText text-left font-black uppercase tracking-[0.15em] text-[9px]">
                   <th className="px-5 py-4 w-10"><input type="checkbox" className="w-4 h-4 rounded-sm border-gray-300" /></th>
-                  <th className="px-5 py-4 w-16 text-center">Media</th>
-                  <th className="px-5 py-4 min-w-[300px]">Product Identification <ArrowUpDown className="inline ml-1 opacity-40" size={10}/></th>
-                  <th className="px-5 py-4">Status</th>
-                  <th className="px-5 py-4 text-right">Qty <ArrowUpDown className="inline ml-1 opacity-40" size={10}/></th>
-                  <th className="px-5 py-4 text-right">Unit Price</th>
-                  <th className="px-5 py-4 text-center">Offer Control</th>
+                  <th className="px-5 py-4 w-16 text-center">{t('media')}</th>
+                  <th className="px-5 py-4 min-w-[300px]">{t('productIdentification')} <ArrowUpDown className="inline ml-1 opacity-40" size={10}/></th>
+                  <th className="px-5 py-4">{t('inventoryStatus')}</th>
+                  <th className="px-5 py-4 text-right">{t('inventoryQty')} <ArrowUpDown className="inline ml-1 opacity-40" size={10}/></th>
+                  <th className="px-5 py-4 text-right">{t('unitPrice')}</th>
+                  <th className="px-5 py-4 text-center">{t('offerControl')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white">
@@ -154,11 +162,11 @@ const Inventory: React.FC = () => {
                     </td>
                     <td className="px-5 py-5 align-top pt-7 text-right">
                        <div className={cn("font-black text-base", item.units < 50 ? "text-amazon-error" : "text-amazon-text")}>{item.units}</div>
-                       <div className="text-[9px] font-black text-amazon-secondaryText uppercase tracking-widest mt-0.5">Available</div>
+                       <div className="text-[9px] font-black text-amazon-secondaryText uppercase tracking-widest mt-0.5">{t('available')}</div>
                     </td>
                     <td className="px-5 py-5 align-top pt-7 text-right">
                       <div className="font-black text-amazon-text text-[14px]">{currencySymbol}{item.price.toFixed(2)}</div>
-                      <div className="text-[9px] text-amazon-teal font-black uppercase tracking-widest mt-0.5">+ Shipping</div>
+                      <div className="text-[9px] text-amazon-teal font-black uppercase tracking-widest mt-0.5">{t('shipping')}</div>
                     </td>
                     <td className="px-5 py-5 align-top pt-6 text-center">
                        <div className="flex flex-col gap-2 items-center">
@@ -167,13 +175,13 @@ const Inventory: React.FC = () => {
                             onClick={() => navigate(`/app/inventory/edit/${item.id}`)}
                             className="py-1 px-4 text-[11px] font-black w-auto uppercase tracking-wider shadow-sm border-gray-300 h-8 flex items-center gap-1.5 hover:border-amazon-teal transition-all"
                           >
-                             <Edit2 size={12} /> Edit
+                             <Edit2 size={12} /> {t('inventoryEdit')}
                           </Button>
                           <button 
                             onClick={() => navigate(`/app/inventory/copy/${item.id}`)}
                             className="text-[10px] text-amazon-link font-black hover:underline uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity"
                           >
-                            Copy to New ›
+                            {t('copyToNew')}
                           </button>
                        </div>
                     </td>
@@ -185,9 +193,9 @@ const Inventory: React.FC = () => {
           {!isLoading && filteredItems.length === 0 && (
             <div className="py-32 text-center text-gray-400 flex flex-col items-center">
                <ImageIcon size={64} className="mb-6 opacity-5" />
-               <p className="text-lg font-black text-gray-400 uppercase tracking-[0.2em]">Inventory Log Empty</p>
-               <p className="text-xs text-gray-400 mt-2 font-medium">We found no items matching your criteria in this marketplace.</p>
-               <button onClick={() => { setSearchTerm(''); setFilter('All'); }} className="mt-8 text-amazon-link font-black hover:underline text-sm-amz uppercase tracking-widest">Reset Global Filters</button>
+               <p className="text-lg font-black text-gray-400 uppercase tracking-[0.2em]">{t('inventoryLogEmpty')}</p>
+               <p className="text-xs text-gray-400 mt-2 font-medium">{t('noItemsMatchingCriteria')}</p>
+               <button onClick={() => { setSearchTerm(''); setFilter(t('all')); }} className="mt-8 text-amazon-link font-black hover:underline text-sm-amz uppercase tracking-widest">{t('resetGlobalFilters')}</button>
             </div>
           )}
         </div>

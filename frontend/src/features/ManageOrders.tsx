@@ -15,7 +15,7 @@ import { cn } from '../utils/cn';
 const ManageOrders: React.FC = () => {
   const { session } = useStore();
   const { t } = useI18n();
-  const [activeTab, setActiveTab] = useState('Unshipped');
+  const [activeTab, setActiveTab] = useState(t('unshipped'));
   const [searchTerm, setSearchTerm] = useState('');
   
   const { data: orders, isLoading, isRefetching } = useQuery({
@@ -24,10 +24,18 @@ const ManageOrders: React.FC = () => {
   });
 
   const currencySymbol = marketplaceConfigs[session.marketplace]?.currency || '$';
-  const tabs = ['Pending', 'Unshipped', 'Cancelled', 'Shipped'];
+  const tabs = [t('pending'), t('unshipped'), t('cancelled'), t('shipped')];
   
   const filteredOrders = (orders || []).filter(order => {
-    const matchesTab = order.status === activeTab;
+    // Map translated tab names back to English status values for filtering
+    const statusMap: Record<string, string> = {
+      [t('pending')]: 'Pending',
+      [t('unshipped')]: 'Unshipped', 
+      [t('cancelled')]: 'Cancelled',
+      [t('shipped')]: 'Shipped'
+    };
+    const englishStatus = statusMap[activeTab] || activeTab;
+    const matchesTab = order.status === englishStatus;
     const matchesSearch = order.id.includes(searchTerm) || 
                           order.buyerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           order.productName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -37,13 +45,13 @@ const ManageOrders: React.FC = () => {
   return (
     <div className="animate-in fade-in slide-in-from-top-2 duration-500">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-bold">Manage Orders</h1>
+        <h1 className="text-xl font-bold">{t('orderManagement')}</h1>
         <div className="flex items-center gap-3 text-xs-amz font-bold text-amazon-link">
            <button className="flex items-center gap-1 hover:underline">
-             <HelpCircle size={14} /> Learn more
+             <HelpCircle size={14} /> {t('orderLearnMore')}
            </button>
            <button className="flex items-center gap-1 hover:underline">
-             <Download size={14} /> Download report
+             <Download size={14} /> {t('downloadReport')}
            </button>
         </div>
       </div>
@@ -60,7 +68,17 @@ const ManageOrders: React.FC = () => {
                 : 'border-transparent text-gray-500 hover:text-amazon-text hover:bg-gray-50'
             )}
           >
-            {tab} ({orders?.filter(o => o.status === tab).length || 0})
+            {tab} ({orders?.filter(o => {
+              // Map translated tab names back to English status values for counting
+              const statusMap: Record<string, string> = {
+                [t('pending')]: 'Pending',
+                [t('unshipped')]: 'Unshipped', 
+                [t('cancelled')]: 'Cancelled',
+                [t('shipped')]: 'Shipped'
+              };
+              const englishStatus = statusMap[tab] || tab;
+              return o.status === englishStatus;
+            }).length || 0})
           </button>
         ))}
       </div>
@@ -69,21 +87,21 @@ const ManageOrders: React.FC = () => {
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2 text-xs-amz font-bold text-gray-700 cursor-pointer hover:bg-gray-50 p-1.5 rounded transition-colors border border-transparent hover:border-gray-200">
             <Calendar size={14} className="text-gray-400" />
-            <span>Last 365 days</span>
+            <span>{t('last365Days')}</span>
             <ChevronDown size={14} />
           </div>
           <div className="h-6 w-px bg-gray-200"></div>
           <div className="relative flex-1 min-w-[300px]">
             <input 
               className="w-full border border-gray-300 rounded-sm py-1.5 pl-10 pr-4 text-sm-amz amz-input-focus shadow-inner"
-              placeholder="Search by Order ID, Buyer Name, SKU, ASIN"
+              placeholder={t('searchByOrderId')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
           </div>
           <Button variant="white" className="w-auto px-4 py-1.5 text-xs font-bold shadow-sm">
-            <Filter size={14} /> Refine search
+            <Filter size={14} /> {t('refineSearch')}
           </Button>
         </div>
       </Card>
@@ -92,30 +110,30 @@ const ManageOrders: React.FC = () => {
         <div className="bg-gray-100 px-4 py-2.5 border-b border-amazon-border flex justify-between items-center text-[10px] font-bold text-gray-500 uppercase tracking-widest">
            <div className="flex items-center gap-4">
               <input type="checkbox" className="w-4 h-4 rounded-sm border-gray-300" />
-              <span className="cursor-pointer hover:text-amazon-text transition-colors flex items-center gap-1">Bulk Action (0 selected) <ChevronDown size={12} /></span>
+              <span className="cursor-pointer hover:text-amazon-text transition-colors flex items-center gap-1">{t('bulkAction')} (0 {t('selected')}) <ChevronDown size={12} /></span>
            </div>
            <div className="flex items-center gap-4">
               {isRefetching && <RefreshCw size={12} className="animate-spin text-amazon-teal" />}
-              <div className="bg-white px-2 py-0.5 rounded border border-gray-200 text-amazon-text lowercase font-bold">{filteredOrders.length} {activeTab} Orders Found</div>
+              <div className="bg-white px-2 py-0.5 rounded border border-gray-200 text-amazon-text lowercase font-bold">{filteredOrders.length} {activeTab} {t('ordersFound')}</div>
            </div>
         </div>
         <div className="overflow-x-auto min-h-[400px]">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
                <RefreshCw className="animate-spin text-amazon-teal" size={32} />
-               <p className="text-xs-amz text-gray-500 font-bold uppercase tracking-widest">Syncing Orders...</p>
+               <p className="text-xs-amz text-gray-500 font-bold uppercase tracking-widest">{t('syncingOrders')}</p>
             </div>
           ) : (
             <table className="w-full text-xs-amz border-collapse">
               <thead>
                 <tr className="bg-gray-50/50 border-b text-gray-500 text-left font-bold uppercase tracking-wider text-[10px]">
                   <th className="px-4 py-3 w-8"><input type="checkbox" className="w-4 h-4 rounded-sm border-gray-300" /></th>
-                  <th className="px-4 py-3 w-40">Order Date</th>
-                  <th className="px-4 py-3 min-w-[250px]">Order Details</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Buyer</th>
-                  <th className="px-4 py-3 text-right">Order Total</th>
-                  <th className="px-4 py-3 text-center">Actions</th>
+                  <th className="px-4 py-3 w-40">{t('orderDate')}</th>
+                  <th className="px-4 py-3 min-w-[250px]">{t('orderDetails')}</th>
+                  <th className="px-4 py-3">{t('orderStatus')}</th>
+                  <th className="px-4 py-3">{t('buyer')}</th>
+                  <th className="px-4 py-3 text-right">{t('orderTotal')}</th>
+                  <th className="px-4 py-3 text-center">{t('actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white">
@@ -124,7 +142,7 @@ const ManageOrders: React.FC = () => {
                     <td className="px-4 py-5 align-top"><input type="checkbox" className="w-4 h-4 mt-1 rounded-sm border-gray-300" /></td>
                     <td className="px-4 py-5 align-top">
                       <div className="font-bold text-amazon-text">{order.date}</div>
-                      <div className="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-tight">Standard Shipping</div>
+                      <div className="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-tight">{t('standardShipping')}</div>
                     </td>
                     <td className="px-4 py-5 align-top">
                       <div className="text-amazon-link font-black hover:underline cursor-pointer mb-1 text-sm-amz tracking-tight">
@@ -134,7 +152,7 @@ const ManageOrders: React.FC = () => {
                         {order.productName}
                       </div>
                       <div className="text-[10px] text-gray-500 mt-2 flex items-center gap-2">
-                        Qty: <span className="font-black text-amazon-text bg-gray-100 px-1.5 rounded-sm">{order.quantity}</span> 
+                        {t('orderQty')}: <span className="font-black text-amazon-text bg-gray-100 px-1.5 rounded-sm">{order.quantity}</span> 
                         <span className="text-gray-300">|</span> 
                         ASIN: <span className="text-amazon-text font-black">{order.asin}</span>
                       </div>
@@ -145,13 +163,16 @@ const ManageOrders: React.FC = () => {
                         order.status === 'Unshipped' ? 'bg-orange-50 text-orange-700 border-orange-100' : 
                         order.status === 'Shipped' ? 'bg-green-50 text-green-700 border-green-100' : 'bg-gray-50 text-gray-600 border-gray-200'
                       )}>
-                        {order.status}
+                        {order.status === 'Pending' ? t('pending') :
+                         order.status === 'Unshipped' ? t('unshipped') :
+                         order.status === 'Cancelled' ? t('cancelled') :
+                         order.status === 'Shipped' ? t('shipped') : order.status}
                       </div>
                     </td>
                     <td className="px-4 py-5 align-top">
                       <div className="font-black text-amazon-text">{order.buyerName}</div>
                       <button className="text-[10px] text-amazon-link hover:underline font-black mt-1.5 flex items-center gap-1.5 group/msg uppercase tracking-tighter">
-                         <Mail size={12} className="group-hover/msg:scale-110 transition-transform text-amazon-teal"/> Contact Buyer
+                         <Mail size={12} className="group-hover/msg:scale-110 transition-transform text-amazon-teal"/> {t('contactBuyer')}
                       </button>
                     </td>
                     <td className="px-4 py-5 align-top text-right">
@@ -161,13 +182,13 @@ const ManageOrders: React.FC = () => {
                       <div className="flex flex-col gap-2 max-w-[140px] mx-auto">
                          {order.status === 'Unshipped' ? (
                            <>
-                             <Button variant="yellow" className="py-1 px-2 text-[11px] font-black h-7 uppercase tracking-tight">Confirm shipment</Button>
+                             <Button variant="yellow" className="py-1 px-2 text-[11px] font-black h-7 uppercase tracking-tight">{t('confirmShipment')}</Button>
                              <Button variant="white" className="py-1 px-2 text-[11px] font-black h-7 uppercase tracking-tight border-gray-300 shadow-sm">
-                               <Printer size={12} className="shrink-0" /> Print slip
+                               <Printer size={12} className="shrink-0" /> {t('printSlip')}
                              </Button>
                            </>
                          ) : (
-                           <Button variant="white" className="py-1 px-2 text-[11px] font-black h-7 uppercase tracking-tight">View details</Button>
+                           <Button variant="white" className="py-1 px-2 text-[11px] font-black h-7 uppercase tracking-tight">{t('viewDetails')}</Button>
                          )}
                          <div className="flex items-center justify-center gap-4 mt-1 opacity-20 hover:opacity-100 transition-opacity">
                             <MoreHorizontal size={14} className="text-gray-400 cursor-pointer hover:text-amazon-text" />
@@ -182,9 +203,9 @@ const ManageOrders: React.FC = () => {
           {!isLoading && filteredOrders.length === 0 && (
             <div className="py-24 text-center text-gray-400 flex flex-col items-center">
                <FileText size={64} className="mb-4 opacity-10" />
-               <p className="text-base-amz font-black text-gray-500 uppercase tracking-widest">No matching orders</p>
-               <p className="text-xs text-gray-400 mt-2">Adjust your filters to see more results.</p>
-               <button onClick={() => { setSearchTerm(''); setActiveTab('Unshipped'); }} className="mt-6 text-amazon-link font-black hover:underline text-xs-amz uppercase tracking-widest">Clear Search</button>
+               <p className="text-base-amz font-black text-gray-500 uppercase tracking-widest">{t('noMatchingOrders')}</p>
+               <p className="text-xs text-gray-400 mt-2">{t('adjustFiltersToSeeMore')}</p>
+               <button onClick={() => { setSearchTerm(''); setActiveTab(t('unshipped')); }} className="mt-6 text-amazon-link font-black hover:underline text-xs-amz uppercase tracking-widest">{t('clearSearch')}</button>
             </div>
           )}
         </div>

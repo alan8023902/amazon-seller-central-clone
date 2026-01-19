@@ -1,7 +1,29 @@
 
 export type Marketplace = string; // Allow any marketplace name from API
 export type Language = 'en-US' | 'zh-CN';
-export type Store = string; // Allow any store name from API
+
+// Enhanced Store interface to match backend Store type
+export interface Store {
+  id: string;
+  name: string;
+  country: string;
+  marketplace: string;
+  currency_symbol: string;
+  business_type: 'Individual' | 'Business';
+  timezone: string;
+  description?: string;
+  vacation_mode: boolean;
+  auto_pricing: boolean;
+  inventory_alerts: boolean;
+  order_notifications: boolean;
+  contact_email?: string;
+  contact_phone?: string;
+  tax_id?: string;
+  vat_number?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface UserSession {
   email: string;
@@ -9,7 +31,8 @@ export interface UserSession {
   step: 'email' | 'password' | 'otp' | 'done';
   marketplace: Marketplace;
   language: Language;
-  store: Store;
+  store: Store | null; // Changed from string to Store object
+  selectedStoreId?: string; // Add selected store ID for easier access
 }
 
 export interface SalesHistoryPoint {

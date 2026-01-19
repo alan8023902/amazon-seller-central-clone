@@ -31,7 +31,13 @@ interface CXHealthData {
   firstContactResolution: number;
 }
 
-const CXHealthConfig: React.FC = () => {
+interface CXHealthConfigProps {
+  selectedStoreId: string;
+  selectedStore: any;
+  onStoreChange: (storeId: string, store: any) => void;
+}
+
+const CXHealthConfig: React.FC<CXHealthConfigProps> = ({ selectedStoreId, selectedStore }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [autoGenerate, setAutoGenerate] = useState(true);
