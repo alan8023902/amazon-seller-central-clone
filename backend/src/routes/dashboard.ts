@@ -60,15 +60,31 @@ router.put('/snapshot/:storeId', asyncHandler(async (req, res) => {
   let snapshot = snapshots[0];
   
   if (!snapshot) {
-    // Create new snapshot
+    // Create new snapshot with default values
     snapshot = await dataService.create<GlobalSnapshot>('global_snapshots', {
       store_id: storeId,
-      ...updateData,
+      sales_amount: updateData.sales_amount || 0,
+      open_orders: updateData.open_orders || 0,
+      buyer_messages: updateData.buyer_messages || 0,
+      featured_offer_percent: updateData.featured_offer_percent || 100,
+      seller_feedback_rating: updateData.seller_feedback_rating || 5.0,
+      seller_feedback_count: updateData.seller_feedback_count || 0,
+      payments_balance: updateData.payments_balance || 0,
+      fbm_unshipped: updateData.fbm_unshipped || 0,
+      fbm_pending: updateData.fbm_pending || 0,
+      fba_pending: updateData.fba_pending || 0,
+      inventory_performance_index: updateData.inventory_performance_index || 400,
+      ad_sales: updateData.ad_sales || 0,
+      ad_impressions: updateData.ad_impressions || 0,
       updated_at: new Date().toISOString(),
     });
   } else {
     // Update existing snapshot
-    snapshot = await dataService.update<GlobalSnapshot>('global_snapshots', snapshot.id, updateData);
+    const updatedSnapshot = await dataService.update<GlobalSnapshot>('global_snapshots', snapshot.id, updateData);
+    if (!updatedSnapshot) {
+      throw createError('Failed to update snapshot', 500);
+    }
+    snapshot = updatedSnapshot;
   }
   
   if (!snapshot) {

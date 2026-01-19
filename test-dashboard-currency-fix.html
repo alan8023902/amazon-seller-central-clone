@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Currency Fix Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { padding: 8px 16px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Dashboard Currency Fix Test</h1>
+    <p>Testing the afternoon development work restoration - Dashboard currency symbol fixes and API integration</p>
+
+    <div class="test-section info">
+        <h3>Test Overview</h3>
+        <p>This test verifies:</p>
+        <ul>
+            <li>✅ Backend API returns all products (not limited to 3)</li>
+            <li>✅ Currency symbols follow store selection</li>
+            <li>✅ Store switching updates currency symbols</li>
+            <li>✅ Dashboard loads data from backend API</li>
+        </ul>
+    </div>
+
+    <div class="test-section" id="backend-test">
+        <h3>1. Backend API Test</h3>
+        <button onclick="testBackendAPI()">Test Backend API</button>
+        <div id="backend-results"></div>
+    </div>
+
+    <div class="test-section" id="stores-test">
+        <h3>2. Stores API Test</h3>
+        <button onclick="testStoresAPI()">Test Stores API</button>
+        <div id="stores-results"></div>
+    </div>
+
+    <div class="test-section" id="dashboard-test">
+        <h3>3. Dashboard API Test</h3>
+        <button onclick="testDashboardAPI()">Test Dashboard API</button>
+        <div id="dashboard-results"></div>
+    </div>
+
+    <div class="test-section info">
+        <h3>4. Frontend Application Test</h3>
+        <p>Open the frontend application: <a href="http://localhost:3000" target="_blank">http://localhost:3000</a></p>
+        <p>Expected behavior:</p>
+        <ul>
+            <li>Dashboard should load with real data from backend</li>
+            <li>Store selector should show actual stores with currency symbols</li>
+            <li>Currency symbols should update when switching stores</li>
+            <li>Product table should show all products (not limited to 3)</li>
+        </ul>
+    </div>
+
+    <script>
+        async function testBackendAPI() {
+            const resultsDiv = document.getElementById('backend-results');
+            resultsDiv.innerHTML = '<p>Testing backend API...</p>';
+            
+            try {
+                // Test health endpoint
+                const healthResponse = await fetch('http://localhost:3002/health');
+                const healthData = await healthResponse.json();
+                
+                resultsDiv.innerHTML = `
+                    <div class="success">
+                        <h4>✅ Backend API is running</h4>
+                        <pre>${JSON.stringify(healthData, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Backend API Error</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testStoresAPI() {
+            const resultsDiv = document.getElementById('stores-results');
+            resultsDiv.innerHTML = '<p>Testing stores API...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:3002/api/stores');
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    resultsDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Stores API working - Found ${data.data.length} stores</h4>
+                            <pre>${JSON.stringify(data.data.map(s => ({
+                                name: s.name,
+                                marketplace: s.marketplace,
+                                currency_symbol: s.currency_symbol
+                            })), null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    throw new Error('No stores found');
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Stores API Error</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testDashboardAPI() {
+            const resultsDiv = document.getElementById('dashboard-results');
+            resultsDiv.innerHTML = '<p>Testing dashboard API...</p>';
+            
+            try {
+                // Test with TechNestGo store ID
+                const storeId = '0f1850fa-65f8-4dce-a758-2beca1a8ae96';
+                const response = await fetch(`http://localhost:3002/api/dashboard/${storeId}`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const inventoryCount = data.data.inventory ? data.data.inventory.length : 0;
+                    resultsDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Dashboard API working</h4>
+                            <p><strong>Products count:</strong> ${inventoryCount} (should be > 3)</p>
+                            <p><strong>Sales today:</strong> $${data.data.salesToday}</p>
+                            <p><strong>Open orders:</strong> ${data.data.openOrders}</p>
+                            <p><strong>Messages:</strong> ${data.data.messages}</p>
+                            <details>
+                                <summary>Full dashboard data</summary>
+                                <pre>${JSON.stringify(data.data, null, 2)}</pre>
+                            </details>
+                        </div>
+                    `;
+                } else {
+                    throw new Error('Invalid dashboard data');
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Dashboard API Error</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-run tests on page load
+        window.onload = function() {
+            testBackendAPI();
+            setTimeout(testStoresAPI, 1000);
+            setTimeout(testDashboardAPI, 2000);
+        };
+    </script>
+</body>
+</html>

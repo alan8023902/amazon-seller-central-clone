@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>综合功能测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .success { border-left: 4px solid #52c41a; }
+        .error { border-left: 4px solid #ff4d4f; }
+        .loading { border-left: 4px solid #1890ff; }
+        .warning { border-left: 4px solid #faad14; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; border: none; border-radius: 4px; background: #1890ff; color: white; }
+        button:hover { background: #40a9ff; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .status-success { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .status-error { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; }
+        .status-loading { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        h1 { color: #262626; text-align: center; margin-bottom: 30px; }
+        h3 { color: #595959; margin-top: 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Amazon Seller Central 克隆系统 - 综合功能测试</h1>
+        
+        <div class="grid">
+            <!-- 1. 店铺管理测试 -->
+            <div id="stores-section" class="test-section loading">
+                <h3>🏪 店铺管理测试</h3>
+                <button onclick="testStores()">测试店铺API</button>
+                <div id="stores-result">
+                    <span class="status-badge status-loading">等待测试</span>
+                </div>
+            </div>
+
+            <!-- 2. 产品管理测试 -->
+            <div id="products-section" class="test-section loading">
+                <h3>📦 产品管理测试</h3>
+                <button onclick="testProducts()">测试产品API</button>
+                <button onclick="testProductCreate()">测试产品创建</button>
+                <div id="products-result">
+                    <span class="status-badge status-loading">等待测试</span>
+                </div>
+            </div>
+
+            <!-- 3. 销售数据测试 -->
+            <div id="sales-section" class="test-section loading">
+                <h3>💰 销售数据测试</h3>
+                <button onclick="testSalesData()">测试销售快照</button>
+                <button onclick="testDailySales()">测试日销售数据</button>
+                <div id="sales-result">
+                    <span class="status-badge status-loading">等待测试</span>
+                </div>
+            </div>
+
+            <!-- 4. 仪表板数据测试 -->
+            <div id="dashboard-section" class="test-section loading">
+                <h3>📊 仪表板数据测试</h3>
+                <button onclick="testDashboard()">测试仪表板API</button>
+                <button onclick="testDashboardSnapshot()">测试仪表板快照</button>
+                <div id="dashboard-result">
+                    <span class="status-badge status-loading">等待测试</span>
+                </div>
+            </div>
+
+            <!-- 5. 客户之声测试 -->
+            <div id="voc-section" class="test-section loading">
+                <h3>🗣️ 客户之声测试</h3>
+                <button onclick="testVocData()">测试VOC数据</button>
+                <button onclick="testVocSummary()">测试VOC摘要</button>
+                <div id="voc-result">
+                    <span class="status-badge status-loading">等待测试</span>
+                </div>
+            </div>
+
+            <!-- 6. 数据一致性测试 -->
+            <div id="consistency-section" class="test-section loading">
+                <h3>🔄 数据一致性测试</h3>
+                <button onclick="testDataConsistency()">测试前后端数据一致性</button>
+                <div id="consistency-result">
+                    <span class="status-badge status-loading">等待测试</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 全局测试控制 -->
+        <div class="test-section" style="text-align: center; margin-top: 30px;">
+            <button onclick="runAllTests()" style="background: #52c41a; font-size: 16px; padding: 15px 30px;">🚀 运行所有测试</button>
+            <button onclick="clearResults()" style="background: #faad14;">🧹 清除结果</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3002/api';
+        let stores = [];
+        let testResults = {};
+
+        // 工具函数
+        function updateSection(sectionId, status, content) {
+            const section = document.getElementById(sectionId);
+            const result = document.getElementById(sectionId.replace('-section', '-result'));
+            
+            section.className = `test-section ${status}`;
+            
+            let statusBadge = '';
+            switch(status) {
+                case 'success':
+                    statusBadge = '<span class="status-badge status-success">✅ 通过</span>';
+                    break;
+                case 'error':
+                    statusBadge = '<span class="status-badge status-error">❌ 失败</span>';
+                    break;
+                case 'loading':
+                    statusBadge = '<span class="status-badge status-loading">⏳ 测试中</span>';
+                    break;
+                default:
+                    statusBadge = '<span class="status-badge status-loading">等待测试</span>';
+            }
+            
+            result.innerHTML = statusBadge + '<br>' + content;
+        }
+
+        // 1. 测试店铺管理
+        async function testStores() {
+            updateSection('stores-section', 'loading', '正在获取店铺列表...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/stores`);
+                const data = await response.json();
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    stores = data.data;
+                    testResults.stores = true;
+                    updateSection('stores-section', 'success', 
+                        `成功获取 ${stores.length} 个店铺<br>` +
+                        `店铺列表: ${stores.map(s => s.name).join(', ')}<br>` +
+                        `<pre>${JSON.stringify(data, null, 2)}</pre>`
+                    );
+                } else {
+                    throw new Error('店铺数据格式错误或为空');
+                }
+            } catch (error) {
+                testResults.stores = false;
+                updateSection('stores-section', 'error', `错误: ${error.message}`);
+            }
+        }
+
+        // 2. 测试产品管理
+        async function testProducts() {
+            if (stores.length === 0) {
+                updateSection('products-section', 'warning', '请先运行店铺测试');
+                return;
+            }
+
+            updateSection('products-section', 'loading', '正在获取产品列表...');
+            
+            try {
+                const storeId = stores[0].id;
+                const response = await fetch(`${API_BASE}/products?store_id=${storeId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    testResults.products = true;
+                    updateSection('products-section', 'success', 
+                        `成功获取店铺 "${stores[0].name}" 的 ${data.data.length} 个产品<br>` +
+                        `<pre>${JSON.stringify(data, null, 2)}</pre>`
+                    );
+                } else {
+                    throw new Error(data.error || '产品API返回错误');
+                }
+            } catch (error) {
+                testResults.products = false;
+                updateSection('products-section', 'error', `错误: ${error.message}`);
+            }
+        }
+
+        // 3. 测试产品创建
+        async function testProductCreate() {
+            if (stores.length === 0) {
+                updateSection('products-section', 'warning', '请先运行店铺测试');
+                return;
+            }
+
+            updateSection('products-section', 'loading', '正在创建测试产品...');
+            
+            try {
+                const storeId = stores[0].id;
+                const testProduct = {
+                    title: `测试产品 ${Date.now()}`,
+                    store_id: storeId,
+                    price: 99.99,
+                    sku: `TEST-${Date.now()}`,
+                    asin: `B${Date.now().toString().slice(-9)}`,
+                    status: 'Active',
+                    inventory: 100
+                };
+
+                const response = await fetch(`${API_BASE}/products`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testProduct)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    testResults.productCreate = true;
+                    updateSection('products-section', 'success', 
+                        `成功创建测试产品<br>` +
+                        `产品ID: ${data.data.id}<br>` +
+                        `<pre>${JSON.stringify(data, null, 2)}</pre>`
+                    );
+                } else {
+                    throw new Error(data.error || '产品创建失败');
+                }
+            } catch (error) {
+                testResults.productCreate = false;
+                updateSection('products-section', 'error', `错误: ${error.message}`);
+            }
+        }
+
+        // 4. 测试销售数据
+        async function testSalesData() {
+            if (stores.length === 0) {
+                updateSection('sales-section', 'warning', '请先运行店铺测试');
+                return;
+            }
+
+            updateSection('sales-section', 'loading', '正在获取销售快照...');
+            
+            try {
+                const storeId = stores[0].id;
+                const response = await fetch(`${API_BASE}/sales/snapshot/${storeId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    testResults.sales = true;
+                    updateSection('sales-section', 'success', 
+                        `成功获取销售快照<br>` +
+                        `总订单项: ${data.data.total_order_items}<br>` +
+                        `订单产品销售额: $${data.data.ordered_product_sales}<br>` +
+                        `<pre>${JSON.stringify(data, null, 2)}</pre>`
+                    );
+                } else {
+                    throw new Error(data.error || '销售快照API返回错误');
+                }
+            } catch (error) {
+                testResults.sales = false;
+                updateSection('sales-section', 'error', `错误: ${error.message}`);
+            }
+        }
+
+        // 5. 测试日销售数据
+        async function testDailySales() {
+            if (stores.length === 0) {
+                updateSection('sales-section', 'warning', '请先运行店铺测试');
+                return;
+            }
+
+            updateSection('sales-section', 'loading', '正在获取日销售数据...');
+            
+            try {
+                const storeId = stores[0].id;
+                const response = await fetch(`${API_BASE}/sales/daily/${storeId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    testResults.dailySales = true;
+                    updateSection('sales-section', 'success', 
+                        `成功获取 ${data.data.length} 天的销售数据<br>` +
+                        `<pre>${JSON.stringify(data.data.slice(0, 3), null, 2)}...</pre>`
+                    );
+                } else {
+                    throw new Error(data.error || '日销售数据API返回错误');
+                }
+            } catch (error) {
+                testResults.dailySales = false;
+                updateSection('sales-section', 'error', `错误: ${error.message}`);
+            }
+        }
+
+        // 6. 测试仪表板数据
+        async function testDashboard() {
+            if (stores.length === 0) {
+                updateSection('dashboard-section', 'warning', '请先运行店铺测试');
+                return;
+            }
+
+            updateSection('dashboard-section', 'loading', '正在获取仪表板数据...');
+            
+            try {
+                const storeId = stores[0].id;
+                const response = await fetch(`${API_BASE}/dashboard/${storeId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    testResults.dashboard = true;
+                    updateSection('dashboard-section', 'success', 
+                        `成功获取仪表板数据<br>` +
+                        `今日销售: $${data.data.salesToday}<br>` +
+                        `待处理订单: ${data.data.openOrders}<br>` +
+                        `库存商品: ${data.data.inventory.length}<br>` +
+                        `<pre>${JSON.stringify(data.data, null, 2)}</pre>`
+                    );
+                } else {
+                    throw new Error(data.error || '仪表板API返回错误');
+                }
+            } catch (error) {
+                testResults.dashboard = false;
+                updateSection('dashboard-section', 'error', `错误: ${error.message}`);
+            }
+        }
+
+        // 7. 测试仪表板快照
+        async function testDashboardSnapshot() {
+            if (stores.length === 0) {
+                updateSection('dashboard-section', 'warning', '请先运行店铺测试');
+                return;
+            }
+
+            updateSection('dashboard-section', 'loading', '正在获取仪表板快照...');
+            
+            try {
+                const storeId = stores[0].id;
+                const response = await fetch(`${API_BASE}/dashboard/snapshot/${storeId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    testResults.dashboardSnapshot = true;
+                    updateSection('dashboard-section', 'success', 
+                        `成功获取仪表板快照<br>` +
+                        `总产品数: ${data.data.total_products}<br>` +
+                        `活跃产品数: ${data.data.active_products}<br>` +
+                        `总销售额: $${data.data.total_sales}<br>` +
+                        `<pre>${JSON.stringify(data, null, 2)}</pre>`
+                    );
+                } else {
+                    throw new Error(data.error || '仪表板快照API返回错误');
+                }
+            } catch (error) {
+                testResults.dashboardSnapshot = false;
+                updateSection('dashboard-section', 'error', `错误: ${error.message}`);
+            }
+        }
+
+        // 8. 测试VOC数据
+        async function testVocData() {
+            if (stores.length === 0) {
+                updateSection('voc-section', 'warning', '请先运行店铺测试');
+                return;
+            }
+
+            updateSection('voc-section', 'loading', '正在获取VOC数据...');
+            
+            try {
+                const storeId = stores[0].id;
+                const response = await fetch(`${API_BASE}/voc/data/${storeId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    testResults.voc = true;
+                    updateSection('voc-section', 'success', 
+                        `成功获取 ${data.data.length} 条VOC数据<br>` +
+                        `<pre>${JSON.stringify(data.data.slice(0, 2), null, 2)}...</pre>`
+                    );
+                } else {
+                    throw new Error(data.error || 'VOC数据API返回错误');
+                }
+            } catch (error) {
+                testResults.voc = false;
+                updateSection('voc-section', 'error', `错误: ${error.message}`);
+            }
+        }
+
+        // 9. 测试VOC摘要
+        async function testVocSummary() {
+            if (stores.length === 0) {
+                updateSection('voc-section', 'warning', '请先运行店铺测试');
+                return;
+            }
+
+            updateSection('voc-section', 'loading', '正在获取VOC摘要...');
+            
+            try {
+                const storeId = stores[0].id;
+                const response = await fetch(`${API_BASE}/voc/summary/${storeId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    testResults.vocSummary = true;
+                    const summary = data.data;
+                    updateSection('voc-section', 'success', 
+                        `成功获取VOC摘要<br>` +
+                        `优秀: ${summary.Excellent}, 良好: ${summary.Good}, 一般: ${summary.Average}<br>` +
+                        `<pre>${JSON.stringify(data, null, 2)}</pre>`
+                    );
+                } else {
+                    throw new Error(data.error || 'VOC摘要API返回错误');
+                }
+            } catch (error) {
+                testResults.vocSummary = false;
+                updateSection('voc-section', 'error', `错误: ${error.message}`);
+            }
+        }
+
+        // 10. 测试数据一致性
+        async function testDataConsistency() {
+            updateSection('consistency-section', 'loading', '正在检查数据一致性...');
+            
+            try {
+                // 检查所有API是否返回相同店铺的数据
+                if (stores.length === 0) {
+                    throw new Error('请先运行店铺测试');
+                }
+
+                const storeId = stores[0].id;
+                const [dashboardRes, salesRes, productsRes] = await Promise.all([
+                    fetch(`${API_BASE}/dashboard/${storeId}`),
+                    fetch(`${API_BASE}/sales/snapshot/${storeId}`),
+                    fetch(`${API_BASE}/products?store_id=${storeId}`)
+                ]);
+
+                const [dashboardData, salesData, productsData] = await Promise.all([
+                    dashboardRes.json(),
+                    salesRes.json(),
+                    productsRes.json()
+                ]);
+
+                let consistencyIssues = [];
+
+                // 检查产品数量一致性
+                if (dashboardData.success && productsData.success) {
+                    const dashboardProductCount = dashboardData.data.inventory.length;
+                    const actualProductCount = productsData.data.length;
+                    
+                    if (dashboardProductCount !== actualProductCount) {
+                        consistencyIssues.push(`产品数量不一致: 仪表板显示${dashboardProductCount}个，实际有${actualProductCount}个`);
+                    }
+                }
+
+                // 检查销售数据一致性
+                if (dashboardData.success && salesData.success) {
+                    const dashboardSales = dashboardData.data.salesSnapshot.orderedProductSales;
+                    const actualSales = salesData.data.ordered_product_sales;
+                    
+                    if (Math.abs(dashboardSales - actualSales) > 0.01) {
+                        consistencyIssues.push(`销售额不一致: 仪表板显示$${dashboardSales}，快照显示$${actualSales}`);
+                    }
+                }
+
+                if (consistencyIssues.length === 0) {
+                    testResults.consistency = true;
+                    updateSection('consistency-section', 'success', 
+                        `数据一致性检查通过 ✅<br>` +
+                        `所有API返回的数据保持一致<br>` +
+                        `店铺ID: ${storeId}<br>` +
+                        `检查项目: 产品数量、销售数据`
+                    );
+                } else {
+                    testResults.consistency = false;
+                    updateSection('consistency-section', 'error', 
+                        `发现数据一致性问题:<br>` +
+                        consistencyIssues.map(issue => `• ${issue}`).join('<br>')
+                    );
+                }
+            } catch (error) {
+                testResults.consistency = false;
+                updateSection('consistency-section', 'error', `错误: ${error.message}`);
+            }
+        }
+
+        // 运行所有测试
+        async function runAllTests() {
+            console.log('🚀 开始运行所有测试...');
+            
+            await testStores();
+            if (testResults.stores) {
+                await testProducts();
+                await testProductCreate();
+                await testSalesData();
+                await testDailySales();
+                await testDashboard();
+                await testDashboardSnapshot();
+                await testVocData();
+                await testVocSummary();
+                await testDataConsistency();
+            }
+            
+            // 显示总结
+            const totalTests = Object.keys(testResults).length;
+            const passedTests = Object.values(testResults).filter(Boolean).length;
+            
+            alert(`测试完成！\n通过: ${passedTests}/${totalTests}\n${passedTests === totalTests ? '🎉 所有测试通过！' : '⚠️ 部分测试失败，请检查详情'}`);
+        }
+
+        // 清除结果
+        function clearResults() {
+            testResults = {};
+            const sections = ['stores', 'products', 'sales', 'dashboard', 'voc', 'consistency'];
+            sections.forEach(section => {
+                updateSection(`${section}-section`, 'loading', '<span class="status-badge status-loading">等待测试</span>');
+            });
+        }
+
+        // 页面加载时自动运行基础测试
+        window.onload = () => {
+            console.log('页面加载完成，准备运行测试...');
+            setTimeout(() => {
+                testStores();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

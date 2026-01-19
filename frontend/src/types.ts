@@ -1,7 +1,7 @@
 
-export type Marketplace = 'United States' | 'Japan' | 'United Kingdom' | 'Germany' | 'Europe';
+export type Marketplace = string; // Allow any marketplace name from API
 export type Language = 'en-US' | 'zh-CN';
-export type Store = 'Store 1' | 'Store 2' | 'Store 3';
+export type Store = string; // Allow any store name from API
 
 export interface UserSession {
   email: string;

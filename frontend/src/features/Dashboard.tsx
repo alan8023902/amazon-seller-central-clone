@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Search, MoreHorizontal, ChevronDown, ChevronRight, Star } from 'lucide-react';
 import { useStore } from '../store';
 import { useI18n } from '../hooks/useI18n';
 import { ActionsCard, CommunicationsCard } from './LeftColumnComponents';
+import { storeApi, type StoreData, type DashboardData } from '../services/storeApi';
 
 // ==================== Mock Data ====================
 const ACTIONS = [
@@ -158,24 +159,97 @@ export default function Dashboard() {
   const [interactionFilter, setInteractionFilter] = useState('Frequently interacted');
   const [query, setQuery] = useState("");
   
-  // 获取当前站点的货币配置
-  const currentMarketplace = session.marketplace;
-  const currencySymbol = {
+  // State for API data
+  const [currentStore, setCurrentStore] = useState<StoreData | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load store and dashboard data
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Find current store by name (fallback to first store)
+        const stores = await storeApi.getStores();
+        const store = stores.find(s => s.name === session.store) || stores[0];
+        
+        if (!store) {
+          throw new Error('No stores found');
+        }
+        
+        setCurrentStore(store);
+        
+        // Load dashboard data for the store
+        const dashboard = await storeApi.getDashboardData(store.id);
+        setDashboardData(dashboard);
+        
+      } catch (err) {
+        console.error('Failed to load dashboard data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [session.store]);
+
+  // Get currency symbol from current store or fallback to marketplace configs
+  const marketplaceConfigs = {
     'United States': '$',
     'Japan': '¥',
     'United Kingdom': '£',
     'Germany': '€',
     'Europe': '€'
-  }[currentMarketplace] || '$';
+  };
+  
+  const currencySymbol = currentStore?.currency_symbol || marketplaceConfigs[session.marketplace] || '$';
+
+  // Use dashboard data from API or fallback to mock data
+  const products = dashboardData?.inventory || MOCK_PRODUCTS.map(p => ({
+    ...p,
+    sales: p.sales.replace('US$', currencySymbol),
+    price: p.price.replace('US$', currencySymbol)
+  }));
 
   const filteredProducts = useMemo(() => {
-    return MOCK_PRODUCTS.filter(p => {
-      const statusOk = statusFilter === t('all') ? true : p.listingStatus === statusFilter;
+    return products.filter((p: any) => {
+      const statusOk = statusFilter === t('all') ? true : p.listingStatus === statusFilter || p.status === statusFilter;
       const q = query.trim().toLowerCase();
-      const queryOk = !q ? true : (p.title.toLowerCase().includes(q) || p.asin.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q));
+      const queryOk = !q ? true : (
+        (p.title || p.name || '').toLowerCase().includes(q) || 
+        (p.asin || '').toLowerCase().includes(q) || 
+        (p.sku || '').toLowerCase().includes(q)
+      );
       return statusOk && queryOk;
     });
-  }, [statusFilter, query, t]);
+  }, [products, statusFilter, query, t]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-12 h-12 border-4 border-amazon-teal border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 bg-white border rounded-sm shadow-sm min-h-[400px]">
+        <h1 className="text-2xl font-black text-amazon-text mb-4">Dashboard Error</h1>
+        <p className="text-amazon-error">{error}</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="mt-4 px-4 py-2 bg-amazon-teal text-white rounded hover:bg-amazon-headerTeal"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in min-h-screen pb-8">
@@ -271,15 +345,15 @@ export default function Dashboard() {
             {/* Upper Content Area */}
             <div className="grid grid-cols-1 lg:grid-cols-6">
               <div className="lg:border-r border-[#E3E6E6] px-3 py-2">
-                <div className="text-[22px] font-bold text-[#002E35] mb-0.5">{currencySymbol}49.95</div>
+                <div className="text-[22px] font-bold text-[#002E35] mb-0.5">{currencySymbol}{dashboardData?.salesToday?.toFixed(2) || '49.95'}</div>
                 <div className="text-[11px] text-[#565959]">Today so far</div>
               </div>
               <div className="lg:border-r border-[#E3E6E6] px-3 py-2">
-                <div className="text-[22px] font-bold text-[#002E35] mb-0.5">6</div>
+                <div className="text-[22px] font-bold text-[#002E35] mb-0.5">{dashboardData?.openOrders || 6}</div>
                 <div className="text-[11px] text-[#565959]">Total Count</div>
               </div>
               <div className="lg:border-r border-[#E3E6E6] px-3 py-2">
-                <div className="text-[22px] font-bold text-[#002E35] mb-0.5">0</div>
+                <div className="text-[22px] font-bold text-[#002E35] mb-0.5">{dashboardData?.messages || 0}</div>
                 <div className="text-[11px] text-[#565959]">Cases requiring attention</div>
               </div>
               <div className="lg:border-r border-[#E3E6E6] px-3 py-2">
@@ -293,7 +367,7 @@ export default function Dashboard() {
                 <div className="text-[11px] text-[#565959]">Past Year (2)</div>
               </div>
               <div className="px-3 py-2">
-                <div className="text-[22px] font-bold text-[#002E35] mb-0.5">{currencySymbol}228.31</div>
+                <div className="text-[22px] font-bold text-[#002E35] mb-0.5">{currencySymbol}{dashboardData?.salesSnapshot?.orderedProductSales?.toFixed(2) || '228.31'}</div>
                 <div className="text-[11px] text-[#565959]">Total Balance</div>
               </div>
             </div>
@@ -423,15 +497,15 @@ export default function Dashboard() {
                 </thead>
 
                 <tbody>
-                  {filteredProducts.map((p) => (
-                    <tr key={p.id} className="border-b border-[#E3E6E6] hover:bg-[#F7F8F8] transition-colors">
+                  {filteredProducts.map((p: any, index: number) => (
+                    <tr key={p.id || index} className="border-b border-[#E3E6E6] hover:bg-[#F7F8F8] transition-colors">
                       <td className="px-4 py-2">
                         <div className="flex items-center gap-3">
                           <div className="flex items-center justify-center w-6 h-6">
                             <Star size={16} className="text-[#D5D9D9]" />
                           </div>
                           <img
-                            src={p.img}
+                            src={p.image || p.img || 'https://via.placeholder.com/40'}
                             alt="Product"
                             className="w-[40px] h-[40px] object-contain border border-[#E7EAEA] bg-white rounded-sm"
                           />
@@ -439,25 +513,33 @@ export default function Dashboard() {
                             <a
                               href="#"
                               className="text-[#007185] font-medium hover:underline hover:text-[#C7511F] truncate text-[13px] transition-colors"
-                              title={p.title}
+                              title={p.name || p.title}
                             >
-                              {p.title}
+                              {p.name || p.title}
                             </a>
-                            <div className="text-[12px] text-[#565959] mt-0.5 truncate">{p.sku}</div>
-                            <div className="text-[12px] text-[#565959] truncate">{p.asin}</div>
+                            <div className="text-[12px] text-[#565959] mt-0.5 truncate">SKU: {p.sku}</div>
+                            <div className="text-[12px] text-[#565959] truncate">ASIN: {p.asin}</div>
                           </div>
                         </div>
                       </td>
 
                       <td className="px-4 py-2">
-                        <span className="text-[12px] font-semibold text-[#0F1111]">{p.listingStatus === t('active') ? t('active') : t('inactive')}</span>
+                        <span className="text-[12px] font-semibold text-[#0F1111]">
+                          {(p.status || p.listingStatus) === 'Active' ? t('active') : t('inactive')}
+                        </span>
                       </td>
 
-                      <td className="px-4 py-2 text-right font-normal">{currencySymbol}{p.sales.replace('US$', '')}</td>
-                      <td className="px-4 py-2 text-right font-normal">{p.unitsSold}</td>
-                      <td className="px-4 py-2 text-right font-normal">{p.pageViews > 0 ? p.pageViews.toLocaleString() : "--"}</td>
-                      <td className="px-4 py-2 text-right font-normal">{p.inventory}</td>
-                      <td className="px-4 py-2 text-right font-normal">{currencySymbol}{p.price.replace('US$', '')}</td>
+                      <td className="px-4 py-2 text-right font-normal">
+                        {currencySymbol}{typeof p.sales === 'string' ? p.sales.replace(/[^0-9.]/g, '') : (p.sales_amount || 0).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-2 text-right font-normal">{p.unitsSold || p.units_sold || 0}</td>
+                      <td className="px-4 py-2 text-right font-normal">{(p.pageViews || 0) > 0 ? (p.pageViews || 0).toLocaleString() : "--"}</td>
+                      <td className="px-4 py-2 text-right font-normal">
+                        {typeof p.inventory === 'string' ? p.inventory : `${p.inventory || p.units || 0} 可售数量`}
+                      </td>
+                      <td className="px-4 py-2 text-right font-normal">
+                        {currencySymbol}{typeof p.price === 'string' ? p.price.replace(/[^0-9.]/g, '') : (p.price || 0).toFixed(2)}
+                      </td>
 
                       <td className="px-4 py-2 text-center">
                         <button className="p-1 text-[#888C8C] hover:text-[#002E35] hover:bg-[#F0F2F2] rounded-sm transition-colors border border-[#D5D9D9]">

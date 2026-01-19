@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Services Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .loading { background-color: #fff3cd; border-color: #ffeaa7; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .service-status { display: inline-block; width: 20px; height: 20px; border-radius: 50%; margin-right: 10px; }
+        .status-running { background-color: #28a745; }
+        .status-error { background-color: #dc3545; }
+        .status-unknown { background-color: #6c757d; }
+    </style>
+</head>
+<body>
+    <h1>Amazon Seller Central Clone - All Services Test</h1>
+    
+    <div class="test-section">
+        <h2>Service Status</h2>
+        <div id="service-status">
+            <div><span class="service-status status-unknown" id="backend-status"></span>Backend API (Port 3002): <span id="backend-text">Checking...</span></div>
+            <div><span class="service-status status-unknown" id="admin-status"></span>Admin Panel (Port 3001): <span id="admin-text">Checking...</span></div>
+            <div><span class="service-status status-unknown" id="frontend-status"></span>Frontend (Port 3000): <span id="frontend-text">Checking...</span></div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Backend API Tests</h2>
+        <button onclick="testAllEndpoints()">Test All Endpoints</button>
+        <div id="api-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Store Data Consistency</h2>
+        <button onclick="testStoreConsistency()">Test Store Data Consistency</button>
+        <div id="store-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Admin Panel Integration</h2>
+        <button onclick="testAdminIntegration()">Test Admin Panel Integration</button>
+        <div id="admin-results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3002/api';
+        
+        // Check service status
+        async function checkServiceStatus() {
+            // Check Backend API
+            try {
+                const response = await fetch(`${API_BASE}/stores`);
+                if (response.ok) {
+                    document.getElementById('backend-status').className = 'service-status status-running';
+                    document.getElementById('backend-text').textContent = 'Running';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                document.getElementById('backend-status').className = 'service-status status-error';
+                document.getElementById('backend-text').textContent = `Error: ${error.message}`;
+            }
+
+            // Check Admin Panel
+            try {
+                const response = await fetch('http://localhost:3001/');
+                if (response.ok) {
+                    document.getElementById('admin-status').className = 'service-status status-running';
+                    document.getElementById('admin-text').textContent = 'Running';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                document.getElementById('admin-status').className = 'service-status status-error';
+                document.getElementById('admin-text').textContent = `Error: ${error.message}`;
+            }
+
+            // Check Frontend
+            try {
+                const response = await fetch('http://localhost:3000/');
+                if (response.ok) {
+                    document.getElementById('frontend-status').className = 'service-status status-running';
+                    document.getElementById('frontend-text').textContent = 'Running';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                document.getElementById('frontend-status').className = 'service-status status-error';
+                document.getElementById('frontend-text').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        // Test all API endpoints
+        async function testAllEndpoints() {
+            const resultsDiv = document.getElementById('api-results');
+            resultsDiv.innerHTML = '<div class="loading">Testing API endpoints...</div>';
+            
+            const tests = [
+                { name: 'Get Stores', url: '/stores' },
+                { name: 'Get Products', url: '/products' },
+                { name: 'Get Users', url: '/users' },
+                { name: 'Health Check', url: '/health' }
+            ];
+
+            let results = '<h3>API Endpoint Test Results:</h3>';
+            
+            for (const test of tests) {
+                try {
+                    const response = await fetch(`${API_BASE}${test.url}`);
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        results += `<div class="success">✅ ${test.name}: SUCCESS</div>`;
+                        results += `<pre>${JSON.stringify(data, null, 2).substring(0, 500)}...</pre>`;
+                    } else {
+                        results += `<div class="error">❌ ${test.name}: HTTP ${response.status}</div>`;
+                    }
+                } catch (error) {
+                    results += `<div class="error">❌ ${test.name}: ${error.message}</div>`;
+                }
+            }
+            
+            resultsDiv.innerHTML = results;
+        }
+
+        // Test store data consistency
+        async function testStoreConsistency() {
+            const resultsDiv = document.getElementById('store-results');
+            resultsDiv.innerHTML = '<div class="loading">Testing store data consistency...</div>';
+            
+            try {
+                // Get stores
+                const storesResponse = await fetch(`${API_BASE}/stores`);
+                const storesData = await storesResponse.json();
+                const stores = storesData.data || [];
+                
+                let results = '<h3>Store Data Consistency Results:</h3>';
+                results += `<div class="success">✅ Found ${stores.length} stores</div>`;
+                
+                // Test each store's data
+                for (const store of stores.slice(0, 2)) { // Test first 2 stores
+                    results += `<h4>Testing Store: ${store.name} (${store.id})</h4>`;
+                    
+                    // Test dashboard data
+                    try {
+                        const dashboardResponse = await fetch(`${API_BASE}/dashboard/${store.id}`);
+                        const dashboardData = await dashboardResponse.json();
+                        
+                        if (dashboardResponse.ok) {
+                            results += `<div class="success">✅ Dashboard data: Sales $${dashboardData.data.salesToday}, Orders ${dashboardData.data.openOrders}</div>`;
+                        } else {
+                            results += `<div class="error">❌ Dashboard data failed</div>`;
+                        }
+                    } catch (error) {
+                        results += `<div class="error">❌ Dashboard data error: ${error.message}</div>`;
+                    }
+                    
+                    // Test sales snapshot
+                    try {
+                        const salesResponse = await fetch(`${API_BASE}/sales/snapshot/${store.id}`);
+                        const salesData = await salesResponse.json();
+                        
+                        if (salesResponse.ok) {
+                            results += `<div class="success">✅ Sales snapshot: $${salesData.data.ordered_product_sales} total sales</div>`;
+                        } else {
+                            results += `<div class="error">❌ Sales snapshot failed</div>`;
+                        }
+                    } catch (error) {
+                        results += `<div class="error">❌ Sales snapshot error: ${error.message}</div>`;
+                    }
+                    
+                    // Test VOC data
+                    try {
+                        const vocResponse = await fetch(`${API_BASE}/voc/data/${store.id}`);
+                        const vocData = await vocResponse.json();
+                        
+                        if (vocResponse.ok) {
+                            results += `<div class="success">✅ VOC data: ${vocData.data.length} products</div>`;
+                        } else {
+                            results += `<div class="error">❌ VOC data failed</div>`;
+                        }
+                    } catch (error) {
+                        results += `<div class="error">❌ VOC data error: ${error.message}</div>`;
+                    }
+                }
+                
+                resultsDiv.innerHTML = results;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">❌ Store consistency test failed: ${error.message}</div>`;
+            }
+        }
+
+        // Test admin panel integration
+        async function testAdminIntegration() {
+            const resultsDiv = document.getElementById('admin-results');
+            resultsDiv.innerHTML = '<div class="loading">Testing admin panel integration...</div>';
+            
+            try {
+                // Get stores first
+                const storesResponse = await fetch(`${API_BASE}/stores`);
+                const storesData = await storesResponse.json();
+                const stores = storesData.data || [];
+                
+                if (stores.length === 0) {
+                    resultsDiv.innerHTML = '<div class="error">❌ No stores found for admin testing</div>';
+                    return;
+                }
+                
+                const testStore = stores[0];
+                let results = '<h3>Admin Panel Integration Results:</h3>';
+                results += `<div class="success">✅ Testing with store: ${testStore.name}</div>`;
+                
+                // Test admin endpoints that should exist
+                const adminTests = [
+                    { name: 'Dashboard Config', url: `/dashboard/config/${testStore.id}` },
+                    { name: 'Dashboard Snapshot', url: `/dashboard/snapshot/${testStore.id}` },
+                    { name: 'Sales Snapshot', url: `/sales/snapshot/${testStore.id}` },
+                    { name: 'VOC Summary', url: `/voc/summary/${testStore.id}` }
+                ];
+                
+                for (const test of adminTests) {
+                    try {
+                        const response = await fetch(`${API_BASE}${test.url}`);
+                        const data = await response.json();
+                        
+                        if (response.ok) {
+                            results += `<div class="success">✅ ${test.name}: Available</div>`;
+                        } else {
+                            results += `<div class="error">❌ ${test.name}: HTTP ${response.status}</div>`;
+                        }
+                    } catch (error) {
+                        results += `<div class="error">❌ ${test.name}: ${error.message}</div>`;
+                    }
+                }
+                
+                resultsDiv.innerHTML = results;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">❌ Admin integration test failed: ${error.message}</div>`;
+            }
+        }
+
+        // Initialize
+        checkServiceStatus();
+        
+        // Auto-refresh service status every 30 seconds
+        setInterval(checkServiceStatus, 30000);
+    </script>
+</body>
+</html>

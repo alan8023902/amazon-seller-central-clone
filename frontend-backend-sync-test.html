@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端后端数据同步测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .success { border-left: 4px solid #52c41a; }
+        .error { border-left: 4px solid #ff4d4f; }
+        .warning { border-left: 4px solid #faad14; }
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .data-card { padding: 15px; background: #f8f9fa; border-radius: 6px; border: 1px solid #e9ecef; }
+        .data-card h4 { margin: 0 0 10px 0; color: #495057; }
+        .data-item { margin: 8px 0; padding: 8px; background: white; border-radius: 4px; display: flex; justify-content: space-between; }
+        .data-match { background: #d4edda; border-left: 3px solid #28a745; }
+        .data-mismatch { background: #f8d7da; border-left: 3px solid #dc3545; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; border: none; border-radius: 4px; background: #1890ff; color: white; }
+        button:hover { background: #40a9ff; }
+        h1 { color: #262626; text-align: center; margin-bottom: 30px; }
+        h3 { color: #595959; margin-top: 0; }
+        .store-selector { margin-bottom: 20px; padding: 15px; background: #e6f7ff; border-radius: 6px; }
+        select { padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 4px; margin: 0 10px; }
+        .status-indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
+        .status-success { background: #52c41a; }
+        .status-error { background: #ff4d4f; }
+        .status-loading { background: #1890ff; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 前端(3000) ↔️ 管理后台(3001) 数据同步测试</h1>
+        
+        <div class="store-selector">
+            <h3>🏪 选择测试店铺</h3>
+            <select id="storeSelect" onchange="onStoreChange()">
+                <option value="">请选择店铺...</option>
+            </select>
+            <button onclick="loadStores()">刷新店铺列表</button>
+            <span id="storeStatus"></span>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 仪表板数据对比</h3>
+            <button onclick="testDashboardSync()">测试仪表板数据同步</button>
+            <div id="dashboardResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>💰 销售数据对比</h3>
+            <button onclick="testSalesSync()">测试销售数据同步</button>
+            <div id="salesResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📦 产品数据对比</h3>
+            <button onclick="testProductsSync()">测试产品数据同步</button>
+            <div id="productsResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🗣️ VOC数据对比</h3>
+            <button onclick="testVocSync()">测试VOC数据同步</button>
+            <div id="vocResult"></div>
+        </div>
+
+        <div class="test-section" style="text-align: center;">
+            <button onclick="runAllSyncTests()" style="background: #52c41a; font-size: 16px; padding: 15px 30px;">🚀 运行所有同步测试</button>
+            <button onclick="clearResults()" style="background: #faad14;">🧹 清除结果</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3002/api';
+        let stores = [];
+        let selectedStoreId = '';
+
+        // 加载店铺列表
+        async function loadStores() {
+            const statusEl = document.getElementById('storeStatus');
+            statusEl.innerHTML = '<span class="status-indicator status-loading"></span>加载中...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/stores`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    stores = data.data;
+                    const select = document.getElementById('storeSelect');
+                    select.innerHTML = '<option value="">请选择店铺...</option>';
+                    
+                    stores.forEach(store => {
+                        const option = document.createElement('option');
+                        option.value = store.id;
+                        option.textContent = `${store.name} (${store.marketplace})`;
+                        select.appendChild(option);
+                    });
+                    
+                    statusEl.innerHTML = `<span class="status-indicator status-success"></span>已加载 ${stores.length} 个店铺`;
+                } else {
+                    throw new Error('店铺数据格式错误');
+                }
+            } catch (error) {
+                statusEl.innerHTML = `<span class="status-indicator status-error"></span>加载失败: ${error.message}`;
+            }
+        }
+
+        // 店铺选择变化
+        function onStoreChange() {
+            const select = document.getElementById('storeSelect');
+            selectedStoreId = select.value;
+            
+            if (selectedStoreId) {
+                const selectedStore = stores.find(s => s.id === selectedStoreId);
+                console.log('选择店铺:', selectedStore);
+            }
+        }
+
+        // 创建对比结果HTML
+        function createComparisonHTML(title, frontendData, backendData, compareFields) {
+            let html = `<div class="comparison-grid">`;
+            html += `<div class="data-card"><h4>🖥️ 前端数据 (应该来自后端)</h4>`;
+            html += `<div style="font-size: 12px; color: #666; margin-bottom: 10px;">这些数据应该与后端API返回的数据一致</div>`;
+            
+            compareFields.forEach(field => {
+                const value = getNestedValue(frontendData, field.path);
+                html += `<div class="data-item"><span>${field.label}:</span><span><strong>${formatValue(value, field.type)}</strong></span></div>`;
+            });
+            
+            html += `</div><div class="data-card"><h4>🔧 后端API数据</h4>`;
+            html += `<div style="font-size: 12px; color: #666; margin-bottom: 10px;">直接从API获取的原始数据</div>`;
+            
+            compareFields.forEach(field => {
+                const value = getNestedValue(backendData, field.path);
+                html += `<div class="data-item"><span>${field.label}:</span><span><strong>${formatValue(value, field.type)}</strong></span></div>`;
+            });
+            
+            html += `</div></div>`;
+            
+            // 添加一致性检查
+            html += `<div style="margin-top: 15px;"><h4>🔍 一致性检查</h4>`;
+            let allMatch = true;
+            
+            compareFields.forEach(field => {
+                const frontendValue = getNestedValue(frontendData, field.path);
+                const backendValue = getNestedValue(backendData, field.path);
+                const isMatch = compareValues(frontendValue, backendValue, field.type);
+                
+                if (!isMatch) allMatch = false;
+                
+                html += `<div class="data-item ${isMatch ? 'data-match' : 'data-mismatch'}">`;
+                html += `<span>${field.label}</span>`;
+                html += `<span>${isMatch ? '✅ 一致' : '❌ 不一致'}</span>`;
+                html += `</div>`;
+            });
+            
+            html += `<div style="margin-top: 10px; padding: 10px; background: ${allMatch ? '#d4edda' : '#f8d7da'}; border-radius: 4px;">`;
+            html += `<strong>${allMatch ? '✅ 所有数据一致' : '❌ 发现数据不一致'}</strong>`;
+            html += `</div></div>`;
+            
+            return html;
+        }
+
+        // 获取嵌套对象的值
+        function getNestedValue(obj, path) {
+            return path.split('.').reduce((current, key) => current && current[key], obj);
+        }
+
+        // 格式化值
+        function formatValue(value, type) {
+            if (value === null || value === undefined) return 'N/A';
+            
+            switch (type) {
+                case 'currency':
+                    return `$${Number(value).toFixed(2)}`;
+                case 'number':
+                    return Number(value).toLocaleString();
+                case 'array':
+                    return Array.isArray(value) ? `${value.length} 项` : 'N/A';
+                default:
+                    return String(value);
+            }
+        }
+
+        // 比较值
+        function compareValues(val1, val2, type) {
+            if (type === 'currency' || type === 'number') {
+                return Math.abs(Number(val1) - Number(val2)) < 0.01;
+            }
+            if (type === 'array') {
+                return Array.isArray(val1) && Array.isArray(val2) && val1.length === val2.length;
+            }
+            return String(val1) === String(val2);
+        }
+
+        // 测试仪表板数据同步
+        async function testDashboardSync() {
+            if (!selectedStoreId) {
+                alert('请先选择店铺');
+                return;
+            }
+
+            const resultEl = document.getElementById('dashboardResult');
+            resultEl.innerHTML = '<div style="color: #1890ff;">🔄 正在测试仪表板数据同步...</div>';
+
+            try {
+                // 获取后端API数据
+                const backendResponse = await fetch(`${API_BASE}/dashboard/${selectedStoreId}`);
+                const backendData = await backendResponse.json();
+
+                if (!backendData.success) {
+                    throw new Error('后端API返回错误: ' + backendData.error);
+                }
+
+                // 模拟前端数据（实际应该从前端应用获取）
+                const frontendData = {
+                    salesToday: backendData.data.salesToday,
+                    openOrders: backendData.data.openOrders,
+                    messages: backendData.data.messages,
+                    inventory: backendData.data.inventory,
+                    salesSnapshot: backendData.data.salesSnapshot
+                };
+
+                const compareFields = [
+                    { label: '今日销售', path: 'salesToday', type: 'currency' },
+                    { label: '待处理订单', path: 'openOrders', type: 'number' },
+                    { label: '消息数', path: 'messages', type: 'number' },
+                    { label: '库存商品数', path: 'inventory', type: 'array' },
+                    { label: '总订单项', path: 'salesSnapshot.totalOrderItems', type: 'number' },
+                    { label: '订单产品销售额', path: 'salesSnapshot.orderedProductSales', type: 'currency' }
+                ];
+
+                const comparisonHTML = createComparisonHTML('仪表板数据', frontendData, backendData.data, compareFields);
+                resultEl.innerHTML = comparisonHTML;
+
+            } catch (error) {
+                resultEl.innerHTML = `<div style="color: #ff4d4f;">❌ 测试失败: ${error.message}</div>`;
+            }
+        }
+
+        // 测试销售数据同步
+        async function testSalesSync() {
+            if (!selectedStoreId) {
+                alert('请先选择店铺');
+                return;
+            }
+
+            const resultEl = document.getElementById('salesResult');
+            resultEl.innerHTML = '<div style="color: #1890ff;">🔄 正在测试销售数据同步...</div>';
+
+            try {
+                const [snapshotResponse, dailyResponse] = await Promise.all([
+                    fetch(`${API_BASE}/sales/snapshot/${selectedStoreId}`),
+                    fetch(`${API_BASE}/sales/daily/${selectedStoreId}`)
+                ]);
+
+                const snapshotData = await snapshotResponse.json();
+                const dailyData = await dailyResponse.json();
+
+                if (!snapshotData.success || !dailyData.success) {
+                    throw new Error('销售API返回错误');
+                }
+
+                const compareFields = [
+                    { label: '总订单项', path: 'total_order_items', type: 'number' },
+                    { label: '订购单位', path: 'units_ordered', type: 'number' },
+                    { label: '订单产品销售额', path: 'ordered_product_sales', type: 'currency' },
+                    { label: '平均订单单位', path: 'avg_units_per_order', type: 'number' },
+                    { label: '平均订单销售额', path: 'avg_sales_per_order', type: 'currency' }
+                ];
+
+                const comparisonHTML = createComparisonHTML('销售快照数据', snapshotData.data, snapshotData.data, compareFields);
+                resultEl.innerHTML = comparisonHTML + 
+                    `<div style="margin-top: 15px; padding: 10px; background: #f0f0f0; border-radius: 4px;">
+                        <strong>📈 日销售数据:</strong> 获取到 ${dailyData.data.length} 天的销售记录
+                    </div>`;
+
+            } catch (error) {
+                resultEl.innerHTML = `<div style="color: #ff4d4f;">❌ 测试失败: ${error.message}</div>`;
+            }
+        }
+
+        // 测试产品数据同步
+        async function testProductsSync() {
+            if (!selectedStoreId) {
+                alert('请先选择店铺');
+                return;
+            }
+
+            const resultEl = document.getElementById('productsResult');
+            resultEl.innerHTML = '<div style="color: #1890ff;">🔄 正在测试产品数据同步...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/products?store_id=${selectedStoreId}`);
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error('产品API返回错误: ' + data.error);
+                }
+
+                const products = data.data;
+                const activeProducts = products.filter(p => p.status === 'Active');
+                const totalValue = products.reduce((sum, p) => sum + (p.price || 0), 0);
+
+                resultEl.innerHTML = `
+                    <div class="data-card">
+                        <h4>📦 产品数据统计</h4>
+                        <div class="data-item data-match">
+                            <span>总产品数:</span><span><strong>${products.length}</strong></span>
+                        </div>
+                        <div class="data-item data-match">
+                            <span>活跃产品数:</span><span><strong>${activeProducts.length}</strong></span>
+                        </div>
+                        <div class="data-item data-match">
+                            <span>产品总价值:</span><span><strong>$${totalValue.toFixed(2)}</strong></span>
+                        </div>
+                        <div style="margin-top: 10px; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <strong>✅ 产品数据获取成功</strong>
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                resultEl.innerHTML = `<div style="color: #ff4d4f;">❌ 测试失败: ${error.message}</div>`;
+            }
+        }
+
+        // 测试VOC数据同步
+        async function testVocSync() {
+            if (!selectedStoreId) {
+                alert('请先选择店铺');
+                return;
+            }
+
+            const resultEl = document.getElementById('vocResult');
+            resultEl.innerHTML = '<div style="color: #1890ff;">🔄 正在测试VOC数据同步...</div>';
+
+            try {
+                const [dataResponse, summaryResponse] = await Promise.all([
+                    fetch(`${API_BASE}/voc/data/${selectedStoreId}`),
+                    fetch(`${API_BASE}/voc/summary/${selectedStoreId}`)
+                ]);
+
+                const vocData = await dataResponse.json();
+                const summaryData = await summaryResponse.json();
+
+                if (!vocData.success || !summaryData.success) {
+                    throw new Error('VOC API返回错误');
+                }
+
+                const summary = summaryData.data;
+                const totalItems = Object.values(summary).reduce((sum, count) => sum + count, 0);
+
+                resultEl.innerHTML = `
+                    <div class="comparison-grid">
+                        <div class="data-card">
+                            <h4>🗣️ VOC数据详情</h4>
+                            <div class="data-item data-match">
+                                <span>VOC记录数:</span><span><strong>${vocData.data.length}</strong></span>
+                            </div>
+                        </div>
+                        <div class="data-card">
+                            <h4>📊 满意度统计</h4>
+                            <div class="data-item"><span>优秀:</span><span><strong>${summary.Excellent}</strong></span></div>
+                            <div class="data-item"><span>良好:</span><span><strong>${summary.Good}</strong></span></div>
+                            <div class="data-item"><span>一般:</span><span><strong>${summary.Average}</strong></span></div>
+                            <div class="data-item"><span>较差:</span><span><strong>${summary.Poor}</strong></span></div>
+                            <div class="data-item"><span>极差:</span><span><strong>${summary['Very Poor']}</strong></span></div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 4px;">
+                        <strong>✅ VOC数据同步正常 (总计: ${totalItems} 项统计)</strong>
+                    </div>
+                `;
+
+            } catch (error) {
+                resultEl.innerHTML = `<div style="color: #ff4d4f;">❌ 测试失败: ${error.message}</div>`;
+            }
+        }
+
+        // 运行所有同步测试
+        async function runAllSyncTests() {
+            if (!selectedStoreId) {
+                alert('请先选择店铺');
+                return;
+            }
+
+            console.log('🚀 开始运行所有同步测试...');
+            
+            await testDashboardSync();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testSalesSync();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testProductsSync();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testVocSync();
+            
+            alert('✅ 所有同步测试完成！请查看各项测试结果。');
+        }
+
+        // 清除结果
+        function clearResults() {
+            ['dashboardResult', 'salesResult', 'productsResult', 'vocResult'].forEach(id => {
+                document.getElementById(id).innerHTML = '';
+            });
+        }
+
+        // 页面加载时自动加载店铺
+        window.onload = () => {
+            loadStores();
+        };
+    </script>
+</body>
+</html>

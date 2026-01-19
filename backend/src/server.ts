@@ -28,7 +28,8 @@ app.use(requestLogger);
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // API Routes
-app.use('/api/store', storeRoutes);
+app.use('/api/store', storeRoutes);  // Legacy route for backward compatibility
+app.use('/api/stores', storeRoutes); // New plural route for enhanced API
 app.use('/api/products', productRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/dashboard', dashboardRoutes);

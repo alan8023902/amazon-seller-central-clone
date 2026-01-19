@@ -53,15 +53,23 @@ router.put('/snapshot/:storeId', asyncHandler(async (req, res) => {
   let snapshot = snapshots[0];
   
   if (!snapshot) {
-    // Create new snapshot
+    // Create new snapshot with default values
     snapshot = await dataService.create<SalesSnapshot>('sales_snapshots', {
       store_id: storeId,
-      ...updateData,
+      total_order_items: updateData.total_order_items || 0,
+      units_ordered: updateData.units_ordered || 0,
+      ordered_product_sales: updateData.ordered_product_sales || 0,
+      avg_units_per_order: updateData.avg_units_per_order || 0,
+      avg_sales_per_order: updateData.avg_sales_per_order || 0,
       snapshot_time: new Date().toISOString(),
     });
   } else {
     // Update existing snapshot
-    snapshot = await dataService.update<SalesSnapshot>('sales_snapshots', snapshot.id, updateData);
+    const updatedSnapshot = await dataService.update<SalesSnapshot>('sales_snapshots', snapshot.id, updateData);
+    if (!updatedSnapshot) {
+      throw createError('Failed to update sales snapshot', 500);
+    }
+    snapshot = updatedSnapshot;
   }
   
   if (!snapshot) {
@@ -80,7 +88,7 @@ router.put('/snapshot/:storeId', asyncHandler(async (req, res) => {
 // GET /api/sales/daily/:storeId - Get daily sales data
 router.get('/daily/:storeId', asyncHandler(async (req, res) => {
   const { storeId } = req.params;
-  const { startDate, endDate } = req.query as SalesDateRange;
+  const { startDate, endDate } = req.query as unknown as SalesDateRange;
   
   let dailySales = await dataService.findByStoreId<DailySales>('daily_sales', storeId);
   
@@ -162,7 +170,7 @@ router.post('/generate-daily/:storeId', asyncHandler(async (req, res) => {
 // GET /api/sales/chart-data/:storeId - Get formatted chart data
 router.get('/chart-data/:storeId', asyncHandler(async (req, res) => {
   const { storeId } = req.params;
-  const { startDate, endDate } = req.query as SalesDateRange;
+  const { startDate, endDate } = req.query as unknown as SalesDateRange;
   
   let dailySales = await dataService.findByStoreId<DailySales>('daily_sales', storeId);
   

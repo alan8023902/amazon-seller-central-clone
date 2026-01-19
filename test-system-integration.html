@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Integration Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .loading { background-color: #fff3cd; border-color: #ffeaa7; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .store-selector { margin: 10px 0; }
+        select { padding: 5px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Amazon Seller Central Clone - System Integration Test</h1>
+    
+    <div class="test-section">
+        <h2>Backend API Status</h2>
+        <button onclick="testBackendHealth()">Test Backend Health</button>
+        <div id="backend-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Store Management</h2>
+        <button onclick="testStores()">Load Stores</button>
+        <div class="store-selector">
+            <label>Select Store: </label>
+            <select id="store-selector" onchange="onStoreChange()">
+                <option value="">-- Select Store --</option>
+            </select>
+        </div>
+        <div id="stores-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Dashboard Data</h2>
+        <button onclick="testDashboard()">Load Dashboard Data</button>
+        <div id="dashboard-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Products Data</h2>
+        <button onclick="testProducts()">Load Products</button>
+        <div id="products-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Sales Data</h2>
+        <button onclick="testSales()">Load Sales Data</button>
+        <div id="sales-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>VOC Data</h2>
+        <button onclick="testVOC()">Load VOC Data</button>
+        <div id="voc-status"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3002/api';
+        let currentStoreId = null;
+        let stores = [];
+
+        function setStatus(elementId, message, type = 'loading') {
+            const element = document.getElementById(elementId);
+            element.className = `test-section ${type}`;
+            element.innerHTML = message;
+        }
+
+        async function testBackendHealth() {
+            setStatus('backend-status', 'Testing backend health...', 'loading');
+            try {
+                const response = await fetch('http://localhost:3002/health');
+                const data = await response.json();
+                setStatus('backend-status', `✅ Backend is healthy!<br><pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+            } catch (error) {
+                setStatus('backend-status', `❌ Backend health check failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testStores() {
+            setStatus('stores-status', 'Loading stores...', 'loading');
+            try {
+                const response = await fetch(`${API_BASE}/stores`);
+                const data = await response.json();
+                stores = data.data || [];
+                
+                // Populate store selector
+                const selector = document.getElementById('store-selector');
+                selector.innerHTML = '<option value="">-- Select Store --</option>';
+                stores.forEach(store => {
+                    const option = document.createElement('option');
+                    option.value = store.id;
+                    option.textContent = `${store.name} (${store.marketplace})`;
+                    selector.appendChild(option);
+                });
+
+                setStatus('stores-status', `✅ Loaded ${stores.length} stores<br><pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+            } catch (error) {
+                setStatus('stores-status', `❌ Failed to load stores: ${error.message}`, 'error');
+            }
+        }
+
+        function onStoreChange() {
+            const selector = document.getElementById('store-selector');
+            currentStoreId = selector.value;
+            if (currentStoreId) {
+                const selectedStore = stores.find(s => s.id === currentStoreId);
+                console.log('Selected store:', selectedStore);
+            }
+        }
+
+        async function testDashboard() {
+            if (!currentStoreId) {
+                setStatus('dashboard-status', '❌ Please select a store first', 'error');
+                return;
+            }
+
+            setStatus('dashboard-status', 'Loading dashboard data...', 'loading');
+            try {
+                const response = await fetch(`${API_BASE}/dashboard/${currentStoreId}`);
+                const data = await response.json();
+                setStatus('dashboard-status', `✅ Dashboard data loaded!<br><pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+            } catch (error) {
+                setStatus('dashboard-status', `❌ Failed to load dashboard: ${error.message}`, 'error');
+            }
+        }
+
+        async function testProducts() {
+            if (!currentStoreId) {
+                setStatus('products-status', '❌ Please select a store first', 'error');
+                return;
+            }
+
+            setStatus('products-status', 'Loading products...', 'loading');
+            try {
+                const response = await fetch(`${API_BASE}/products?store_id=${currentStoreId}`);
+                const data = await response.json();
+                setStatus('products-status', `✅ Loaded ${data.data.length} products<br><pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+            } catch (error) {
+                setStatus('products-status', `❌ Failed to load products: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSales() {
+            if (!currentStoreId) {
+                setStatus('sales-status', '❌ Please select a store first', 'error');
+                return;
+            }
+
+            setStatus('sales-status', 'Loading sales data...', 'loading');
+            try {
+                const [snapshotResponse, dailyResponse] = await Promise.all([
+                    fetch(`${API_BASE}/sales/snapshot/${currentStoreId}`),
+                    fetch(`${API_BASE}/sales/daily/${currentStoreId}`)
+                ]);
+                
+                const snapshotData = await snapshotResponse.json();
+                const dailyData = await dailyResponse.json();
+                
+                setStatus('sales-status', `✅ Sales data loaded!<br><h4>Snapshot:</h4><pre>${JSON.stringify(snapshotData, null, 2)}</pre><h4>Daily Sales (last 5):</h4><pre>${JSON.stringify(dailyData.data.slice(-5), null, 2)}</pre>`, 'success');
+            } catch (error) {
+                setStatus('sales-status', `❌ Failed to load sales data: ${error.message}`, 'error');
+            }
+        }
+
+        async function testVOC() {
+            if (!currentStoreId) {
+                setStatus('voc-status', '❌ Please select a store first', 'error');
+                return;
+            }
+
+            setStatus('voc-status', 'Loading VOC data...', 'loading');
+            try {
+                const response = await fetch(`${API_BASE}/voc/data/${currentStoreId}`);
+                const data = await response.json();
+                setStatus('voc-status', `✅ Loaded ${data.data.length} VOC items<br><pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+            } catch (error) {
+                setStatus('voc-status', `❌ Failed to load VOC data: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-test backend health on page load
+        window.onload = function() {
+            testBackendHealth();
+            testStores();
+        };
+    </script>
+</body>
+</html>

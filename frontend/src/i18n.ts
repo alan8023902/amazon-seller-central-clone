@@ -75,9 +75,6 @@ export const translations: Record<LangType, Record<string, string>> = {
     // 欢迎信息
     goodEvening: '晚上好，您的账户状态为',
     healthy: '健康',
-    // 欢迎信息
-    goodEvening: '晚上好，您的账户状态为',
-    healthy: '健康',
     // 按钮和其他文本
     publishDemo: '发布演示',
     learnMoreInfo: '了解更多信息',
@@ -254,9 +251,6 @@ export const translations: Record<LangType, Record<string, string>> = {
     recentlyAdded: 'Recently Added',
     allProducts: 'All Products',
     
-    // 欢迎信息
-    goodEvening: 'Good evening, your account status is',
-    healthy: 'Healthy',
     // 欢迎信息
     goodEvening: 'Good evening, your account status is',
     healthy: 'Healthy',

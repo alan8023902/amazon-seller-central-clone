@@ -1,0 +1,1082 @@
+[
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2025-12-20",
+    "sales_amount": 3981.97,
+    "units_sold": 16,
+    "orders_count": 11,
+    "created_at": "2026-01-18T09:50:04.481Z",
+    "updated_at": "2026-01-18T09:50:04.481Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2025-12-21",
+    "sales_amount": 3276.44,
+    "units_sold": 8,
+    "orders_count": 4,
+    "created_at": "2026-01-18T09:50:04.481Z",
+    "updated_at": "2026-01-18T09:50:04.481Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2025-12-22",
+    "sales_amount": 5639.82,
+    "units_sold": 23,
+    "orders_count": 14,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2025-12-23",
+    "sales_amount": 3391.27,
+    "units_sold": 23,
+    "orders_count": 20,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2025-12-24",
+    "sales_amount": 3296.08,
+    "units_sold": 23,
+    "orders_count": 15,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2025-12-25",
+    "sales_amount": 3492.17,
+    "units_sold": 18,
+    "orders_count": 13,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2025-12-26",
+    "sales_amount": 4738.59,
+    "units_sold": 23,
+    "orders_count": 19,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2025-12-27",
+    "sales_amount": 3218.75,
+    "units_sold": 16,
+    "orders_count": 15,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2025-12-28",
+    "sales_amount": 3427.33,
+    "units_sold": 9,
+    "orders_count": 8,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2025-12-29",
+    "sales_amount": 4194.41,
+    "units_sold": 19,
+    "orders_count": 13,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2025-12-30",
+    "sales_amount": 5756.69,
+    "units_sold": 20,
+    "orders_count": 14,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2025-12-31",
+    "sales_amount": 3045.51,
+    "units_sold": 14,
+    "orders_count": 11,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-01",
+    "sales_amount": 5519.26,
+    "units_sold": 22,
+    "orders_count": 17,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-02",
+    "sales_amount": 3340.25,
+    "units_sold": 17,
+    "orders_count": 14,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-03",
+    "sales_amount": 3127.29,
+    "units_sold": 13,
+    "orders_count": 10,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-04",
+    "sales_amount": 2751.43,
+    "units_sold": 15,
+    "orders_count": 10,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-05",
+    "sales_amount": 3447.71,
+    "units_sold": 13,
+    "orders_count": 11,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-06",
+    "sales_amount": 4718.39,
+    "units_sold": 16,
+    "orders_count": 12,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-07",
+    "sales_amount": 4564.19,
+    "units_sold": 21,
+    "orders_count": 15,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-08",
+    "sales_amount": 4931,
+    "units_sold": 21,
+    "orders_count": 13,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-09",
+    "sales_amount": 5606.73,
+    "units_sold": 18,
+    "orders_count": 16,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-10",
+    "sales_amount": 3591.55,
+    "units_sold": 15,
+    "orders_count": 10,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-11",
+    "sales_amount": 2893.4,
+    "units_sold": 13,
+    "orders_count": 10,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-12",
+    "sales_amount": 4687.01,
+    "units_sold": 12,
+    "orders_count": 8,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-13",
+    "sales_amount": 5116.74,
+    "units_sold": 23,
+    "orders_count": 15,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-14",
+    "sales_amount": 3626.76,
+    "units_sold": 23,
+    "orders_count": 17,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-15",
+    "sales_amount": 5308.36,
+    "units_sold": 22,
+    "orders_count": 20,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-16",
+    "sales_amount": 5339.77,
+    "units_sold": 23,
+    "orders_count": 19,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-17",
+    "sales_amount": 3648.94,
+    "units_sold": 16,
+    "orders_count": 14,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "date": "2026-01-18",
+    "sales_amount": 3208.15,
+    "units_sold": 15,
+    "orders_count": 9,
+    "created_at": "2026-01-18T09:50:04.482Z",
+    "updated_at": "2026-01-18T09:50:04.482Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2025-12-20",
+    "sales_amount": 4615.01,
+    "units_sold": 14,
+    "orders_count": 8,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2025-12-21",
+    "sales_amount": 5078.62,
+    "units_sold": 18,
+    "orders_count": 12,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2025-12-22",
+    "sales_amount": 6754.71,
+    "units_sold": 24,
+    "orders_count": 16,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2025-12-23",
+    "sales_amount": 6753.72,
+    "units_sold": 16,
+    "orders_count": 11,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2025-12-24",
+    "sales_amount": 5200.92,
+    "units_sold": 29,
+    "orders_count": 20,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2025-12-25",
+    "sales_amount": 3918.95,
+    "units_sold": 25,
+    "orders_count": 18,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2025-12-26",
+    "sales_amount": 6825.01,
+    "units_sold": 19,
+    "orders_count": 16,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2025-12-27",
+    "sales_amount": 4021.94,
+    "units_sold": 13,
+    "orders_count": 9,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2025-12-28",
+    "sales_amount": 2633.33,
+    "units_sold": 21,
+    "orders_count": 19,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2025-12-29",
+    "sales_amount": 5935.52,
+    "units_sold": 24,
+    "orders_count": 20,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2025-12-30",
+    "sales_amount": 5597.22,
+    "units_sold": 22,
+    "orders_count": 14,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2025-12-31",
+    "sales_amount": 3848.46,
+    "units_sold": 16,
+    "orders_count": 11,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-01",
+    "sales_amount": 4649.53,
+    "units_sold": 17,
+    "orders_count": 11,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-02",
+    "sales_amount": 3928.99,
+    "units_sold": 28,
+    "orders_count": 26,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-03",
+    "sales_amount": 4736.3,
+    "units_sold": 15,
+    "orders_count": 11,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-04",
+    "sales_amount": 2982.34,
+    "units_sold": 19,
+    "orders_count": 11,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-05",
+    "sales_amount": 7501.31,
+    "units_sold": 17,
+    "orders_count": 10,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-06",
+    "sales_amount": 3844.37,
+    "units_sold": 22,
+    "orders_count": 16,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-07",
+    "sales_amount": 6512,
+    "units_sold": 20,
+    "orders_count": 19,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-08",
+    "sales_amount": 5022.44,
+    "units_sold": 22,
+    "orders_count": 15,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-09",
+    "sales_amount": 7167,
+    "units_sold": 15,
+    "orders_count": 14,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-10",
+    "sales_amount": 3268.61,
+    "units_sold": 18,
+    "orders_count": 16,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-11",
+    "sales_amount": 4063.83,
+    "units_sold": 18,
+    "orders_count": 11,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-12",
+    "sales_amount": 3818.5,
+    "units_sold": 31,
+    "orders_count": 25,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-13",
+    "sales_amount": 7731.15,
+    "units_sold": 29,
+    "orders_count": 28,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-14",
+    "sales_amount": 4921.92,
+    "units_sold": 15,
+    "orders_count": 14,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-15",
+    "sales_amount": 4564.28,
+    "units_sold": 28,
+    "orders_count": 19,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-16",
+    "sales_amount": 6521.15,
+    "units_sold": 22,
+    "orders_count": 15,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-17",
+    "sales_amount": 5528.98,
+    "units_sold": 14,
+    "orders_count": 13,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "date": "2026-01-18",
+    "sales_amount": 4154.36,
+    "units_sold": 20,
+    "orders_count": 19,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2025-12-20",
+    "sales_amount": 4483.12,
+    "units_sold": 20,
+    "orders_count": 15,
+    "created_at": "2026-01-18T09:50:04.485Z",
+    "updated_at": "2026-01-18T09:50:04.485Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2025-12-21",
+    "sales_amount": 3972.98,
+    "units_sold": 14,
+    "orders_count": 9,
+    "created_at": "2026-01-18T09:50:04.485Z",
+    "updated_at": "2026-01-18T09:50:04.485Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2025-12-22",
+    "sales_amount": 3781.71,
+    "units_sold": 32,
+    "orders_count": 21,
+    "created_at": "2026-01-18T09:50:04.485Z",
+    "updated_at": "2026-01-18T09:50:04.485Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2025-12-23",
+    "sales_amount": 3562.21,
+    "units_sold": 24,
+    "orders_count": 19,
+    "created_at": "2026-01-18T09:50:04.485Z",
+    "updated_at": "2026-01-18T09:50:04.485Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2025-12-24",
+    "sales_amount": 3772.04,
+    "units_sold": 17,
+    "orders_count": 16,
+    "created_at": "2026-01-18T09:50:04.485Z",
+    "updated_at": "2026-01-18T09:50:04.485Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2025-12-25",
+    "sales_amount": 6337.41,
+    "units_sold": 32,
+    "orders_count": 25,
+    "created_at": "2026-01-18T09:50:04.485Z",
+    "updated_at": "2026-01-18T09:50:04.485Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2025-12-26",
+    "sales_amount": 6841.29,
+    "units_sold": 23,
+    "orders_count": 19,
+    "created_at": "2026-01-18T09:50:04.485Z",
+    "updated_at": "2026-01-18T09:50:04.485Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2025-12-27",
+    "sales_amount": 3679.66,
+    "units_sold": 18,
+    "orders_count": 14,
+    "created_at": "2026-01-18T09:50:04.485Z",
+    "updated_at": "2026-01-18T09:50:04.485Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2025-12-28",
+    "sales_amount": 2682.14,
+    "units_sold": 11,
+    "orders_count": 9,
+    "created_at": "2026-01-18T09:50:04.485Z",
+    "updated_at": "2026-01-18T09:50:04.485Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2025-12-29",
+    "sales_amount": 5344.57,
+    "units_sold": 19,
+    "orders_count": 15,
+    "created_at": "2026-01-18T09:50:04.485Z",
+    "updated_at": "2026-01-18T09:50:04.485Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2025-12-30",
+    "sales_amount": 6699.66,
+    "units_sold": 26,
+    "orders_count": 24,
+    "created_at": "2026-01-18T09:50:04.485Z",
+    "updated_at": "2026-01-18T09:50:04.485Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2025-12-31",
+    "sales_amount": 3874.69,
+    "units_sold": 32,
+    "orders_count": 31,
+    "created_at": "2026-01-18T09:50:04.485Z",
+    "updated_at": "2026-01-18T09:50:04.485Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-01",
+    "sales_amount": 4628.49,
+    "units_sold": 29,
+    "orders_count": 22,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-02",
+    "sales_amount": 3782.13,
+    "units_sold": 21,
+    "orders_count": 19,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-03",
+    "sales_amount": 3243,
+    "units_sold": 21,
+    "orders_count": 13,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-04",
+    "sales_amount": 3950.78,
+    "units_sold": 16,
+    "orders_count": 10,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-05",
+    "sales_amount": 5619.57,
+    "units_sold": 21,
+    "orders_count": 18,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-06",
+    "sales_amount": 4991.6,
+    "units_sold": 27,
+    "orders_count": 23,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-07",
+    "sales_amount": 6793.16,
+    "units_sold": 18,
+    "orders_count": 13,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-08",
+    "sales_amount": 3676.33,
+    "units_sold": 31,
+    "orders_count": 29,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-09",
+    "sales_amount": 3609.94,
+    "units_sold": 17,
+    "orders_count": 14,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-10",
+    "sales_amount": 4677.83,
+    "units_sold": 14,
+    "orders_count": 13,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-11",
+    "sales_amount": 4310.94,
+    "units_sold": 19,
+    "orders_count": 15,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-12",
+    "sales_amount": 5511.01,
+    "units_sold": 30,
+    "orders_count": 26,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-13",
+    "sales_amount": 6766.45,
+    "units_sold": 30,
+    "orders_count": 20,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-14",
+    "sales_amount": 6614.02,
+    "units_sold": 28,
+    "orders_count": 17,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-15",
+    "sales_amount": 4486.35,
+    "units_sold": 25,
+    "orders_count": 20,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-16",
+    "sales_amount": 5864.38,
+    "units_sold": 18,
+    "orders_count": 12,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-17",
+    "sales_amount": 3046.79,
+    "units_sold": 14,
+    "orders_count": 12,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "date": "2026-01-18",
+    "sales_amount": 4670.63,
+    "units_sold": 11,
+    "orders_count": 7,
+    "created_at": "2026-01-18T09:50:04.486Z",
+    "updated_at": "2026-01-18T09:50:04.486Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2025-12-20",
+    "sales_amount": 3001.38,
+    "units_sold": 11,
+    "orders_count": 8,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2025-12-21",
+    "sales_amount": 2829.43,
+    "units_sold": 12,
+    "orders_count": 11,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2025-12-22",
+    "sales_amount": 5470.68,
+    "units_sold": 11,
+    "orders_count": 10,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2025-12-23",
+    "sales_amount": 5975.28,
+    "units_sold": 16,
+    "orders_count": 12,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2025-12-24",
+    "sales_amount": 6045.13,
+    "units_sold": 19,
+    "orders_count": 15,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2025-12-25",
+    "sales_amount": 3290.77,
+    "units_sold": 22,
+    "orders_count": 18,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2025-12-26",
+    "sales_amount": 3026.71,
+    "units_sold": 21,
+    "orders_count": 15,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2025-12-27",
+    "sales_amount": 2732.82,
+    "units_sold": 11,
+    "orders_count": 9,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2025-12-28",
+    "sales_amount": 2938.05,
+    "units_sold": 15,
+    "orders_count": 11,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2025-12-29",
+    "sales_amount": 3241.97,
+    "units_sold": 11,
+    "orders_count": 6,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2025-12-30",
+    "sales_amount": 3311.08,
+    "units_sold": 16,
+    "orders_count": 11,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2025-12-31",
+    "sales_amount": 4249.88,
+    "units_sold": 20,
+    "orders_count": 13,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-01",
+    "sales_amount": 5240.69,
+    "units_sold": 19,
+    "orders_count": 12,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-02",
+    "sales_amount": 4586.1,
+    "units_sold": 17,
+    "orders_count": 11,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-03",
+    "sales_amount": 2298.48,
+    "units_sold": 7,
+    "orders_count": 6,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-04",
+    "sales_amount": 3413.68,
+    "units_sold": 15,
+    "orders_count": 9,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-05",
+    "sales_amount": 4367.05,
+    "units_sold": 16,
+    "orders_count": 14,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-06",
+    "sales_amount": 4972.88,
+    "units_sold": 18,
+    "orders_count": 16,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-07",
+    "sales_amount": 5085.68,
+    "units_sold": 22,
+    "orders_count": 17,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-08",
+    "sales_amount": 5303.71,
+    "units_sold": 21,
+    "orders_count": 17,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-09",
+    "sales_amount": 5703.53,
+    "units_sold": 17,
+    "orders_count": 11,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-10",
+    "sales_amount": 4390.59,
+    "units_sold": 8,
+    "orders_count": 5,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-11",
+    "sales_amount": 4219.68,
+    "units_sold": 11,
+    "orders_count": 9,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-12",
+    "sales_amount": 3095.65,
+    "units_sold": 19,
+    "orders_count": 17,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-13",
+    "sales_amount": 4685.43,
+    "units_sold": 15,
+    "orders_count": 13,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-14",
+    "sales_amount": 4199.36,
+    "units_sold": 12,
+    "orders_count": 7,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-15",
+    "sales_amount": 4055.3,
+    "units_sold": 19,
+    "orders_count": 12,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-16",
+    "sales_amount": 4093.25,
+    "units_sold": 14,
+    "orders_count": 10,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-17",
+    "sales_amount": 3092.42,
+    "units_sold": 14,
+    "orders_count": 9,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "date": "2026-01-18",
+    "sales_amount": 4024.35,
+    "units_sold": 10,
+    "orders_count": 9,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  }
+]

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Symbol Fix Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Currency Symbol Fix Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Backend API Test</h2>
+        <p>Testing if backend returns correct store data with currency symbols...</p>
+        <div id="backend-test">Loading...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Store Data Test</h2>
+        <p>Testing store data structure...</p>
+        <div id="store-test">Loading...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Dashboard Data Test</h2>
+        <p>Testing dashboard data for different stores...</p>
+        <div id="dashboard-test">Loading...</div>
+    </div>
+
+    <script>
+        async function testBackendAPI() {
+            try {
+                const response = await fetch('http://localhost:3002/api/stores');
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    const stores = data.data;
+                    let html = '<div class="success">✓ Backend API working</div>';
+                    html += '<h3>Available Stores:</h3><ul>';
+                    
+                    stores.forEach(store => {
+                        html += `<li><strong>${store.name}</strong> - ${store.marketplace} - Currency: <strong>${store.currency_symbol}</strong></li>`;
+                    });
+                    html += '</ul>';
+                    
+                    document.getElementById('backend-test').innerHTML = html;
+                    return stores;
+                } else {
+                    document.getElementById('backend-test').innerHTML = '<div class="error">✗ Backend API failed</div>';
+                    return [];
+                }
+            } catch (error) {
+                document.getElementById('backend-test').innerHTML = `<div class="error">✗ Error: ${error.message}</div>`;
+                return [];
+            }
+        }
+        
+        async function testStoreData(stores) {
+            let html = '';
+            
+            // Test different store types
+            const usStore = stores.find(s => s.marketplace === 'United States');
+            const jpStore = stores.find(s => s.marketplace === 'Japan');
+            
+            if (usStore) {
+                html += `<div class="info">US Store: ${usStore.name} - Currency: ${usStore.currency_symbol}</div>`;
+                if (usStore.currency_symbol === 'US$') {
+                    html += '<div class="success">✓ US store has correct currency symbol</div>';
+                } else {
+                    html += '<div class="error">✗ US store has incorrect currency symbol</div>';
+                }
+            }
+            
+            if (jpStore) {
+                html += `<div class="info">JP Store: ${jpStore.name} - Currency: ${jpStore.currency_symbol}</div>`;
+                if (jpStore.currency_symbol === '¥') {
+                    html += '<div class="success">✓ JP store has correct currency symbol</div>';
+                } else {
+                    html += '<div class="error">✗ JP store has incorrect currency symbol</div>';
+                }
+            }
+            
+            document.getElementById('store-test').innerHTML = html;
+        }
+        
+        async function testDashboardData(stores) {
+            let html = '';
+            
+            for (const store of stores.slice(0, 2)) { // Test first 2 stores
+                try {
+                    const response = await fetch(`http://localhost:3002/api/dashboard/${store.id}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        html += `<div class="info">Dashboard for ${store.name}:</div>`;
+                        html += `<ul>`;
+                        html += `<li>Sales Today: ${data.data.salesToday}</li>`;
+                        html += `<li>Open Orders: ${data.data.openOrders}</li>`;
+                        html += `<li>Messages: ${data.data.messages}</li>`;
+                        html += `<li>Expected Currency: ${store.currency_symbol}</li>`;
+                        html += `</ul>`;
+                        html += '<div class="success">✓ Dashboard data loaded successfully</div>';
+                    } else {
+                        html += `<div class="error">✗ Failed to load dashboard for ${store.name}</div>`;
+                    }
+                } catch (error) {
+                    html += `<div class="error">✗ Error loading dashboard for ${store.name}: ${error.message}</div>`;
+                }
+            }
+            
+            document.getElementById('dashboard-test').innerHTML = html;
+        }
+        
+        async function runTests() {
+            const stores = await testBackendAPI();
+            if (stores.length > 0) {
+                await testStoreData(stores);
+                await testDashboardData(stores);
+            }
+        }
+        
+        // Run tests when page loads
+        runTests();
+    </script>
+</body>
+</html>

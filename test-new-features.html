@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test New Features - Amazon Seller Central Clone</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            color: #232F3E;
+            margin-top: 0;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .loading { background-color: #fff3cd; color: #856404; }
+        button {
+            background-color: #FF9900;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #e68900;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .store-selector {
+            margin-bottom: 20px;
+        }
+        select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 New Features Test Suite</h1>
+        <p>Testing the newly implemented Account Health, Selling Applications, and Legal Entity features.</p>
+        
+        <div class="store-selector">
+            <label for="storeSelect">Select Store:</label>
+            <select id="storeSelect">
+                <option value="">Loading stores...</option>
+            </select>
+            <span id="storeStatus" class="status loading">Loading...</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🏥 Account Health API Tests</h2>
+        
+        <div class="test-section">
+            <h3>1. Get Account Health Data</h3>
+            <button onclick="testAccountHealth()">Test Account Health API</button>
+            <span id="accountHealthStatus" class="status"></span>
+            <div id="accountHealthResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Update Account Health Data</h3>
+            <button onclick="testUpdateAccountHealth()">Test Update Account Health</button>
+            <span id="updateAccountHealthStatus" class="status"></span>
+            <div id="updateAccountHealthResult" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📋 Selling Applications API Tests</h2>
+        
+        <div class="test-section">
+            <h3>1. Get Selling Applications</h3>
+            <button onclick="testSellingApplications()">Test Selling Applications API</button>
+            <span id="sellingAppsStatus" class="status"></span>
+            <div id="sellingAppsResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Create New Application</h3>
+            <button onclick="testCreateApplication()">Test Create Application</button>
+            <span id="createAppStatus" class="status"></span>
+            <div id="createAppResult" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🏢 Legal Entity API Tests</h2>
+        
+        <div class="test-section">
+            <h3>1. Get Legal Entity Data</h3>
+            <button onclick="testLegalEntity()">Test Legal Entity API</button>
+            <span id="legalEntityStatus" class="status"></span>
+            <div id="legalEntityResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Update Legal Entity Data</h3>
+            <button onclick="testUpdateLegalEntity()">Test Update Legal Entity</button>
+            <span id="updateLegalEntityStatus" class="status"></span>
+            <div id="updateLegalEntityResult" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🌐 Frontend Integration Tests</h2>
+        
+        <div class="test-section">
+            <h3>1. Frontend Pages Accessibility</h3>
+            <button onclick="testFrontendPages()">Test Frontend Pages</button>
+            <span id="frontendStatus" class="status"></span>
+            <div id="frontendResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Admin Panel Accessibility</h3>
+            <button onclick="testAdminPages()">Test Admin Panel</button>
+            <span id="adminStatus" class="status"></span>
+            <div id="adminResult" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3002';
+        const FRONTEND_BASE = 'http://localhost:3000';
+        const ADMIN_BASE = 'http://localhost:3001';
+        
+        let selectedStoreId = '';
+        let stores = [];
+
+        // Load stores on page load
+        window.onload = async function() {
+            await loadStores();
+        };
+
+        async function loadStores() {
+            try {
+                const response = await fetch(`${API_BASE}/api/stores`);
+                const data = await response.json();
+                stores = data.data || [];
+                
+                const select = document.getElementById('storeSelect');
+                select.innerHTML = '';
+                
+                stores.forEach(store => {
+                    const option = document.createElement('option');
+                    option.value = store.id;
+                    option.textContent = `${store.name} (${store.marketplace})`;
+                    select.appendChild(option);
+                });
+                
+                if (stores.length > 0) {
+                    selectedStoreId = stores[0].id;
+                    select.value = selectedStoreId;
+                    updateStatus('storeStatus', 'success', `Loaded ${stores.length} stores`);
+                } else {
+                    updateStatus('storeStatus', 'error', 'No stores found');
+                }
+                
+                select.onchange = function() {
+                    selectedStoreId = this.value;
+                };
+            } catch (error) {
+                updateStatus('storeStatus', 'error', 'Failed to load stores');
+                console.error('Error loading stores:', error);
+            }
+        }
+
+        function updateStatus(elementId, type, message) {
+            const element = document.getElementById(elementId);
+            element.className = `status ${type}`;
+            element.textContent = message;
+        }
+
+        function showResult(elementId, data) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function testAccountHealth() {
+            if (!selectedStoreId) {
+                updateStatus('accountHealthStatus', 'error', 'Please select a store first');
+                return;
+            }
+
+            updateStatus('accountHealthStatus', 'loading', 'Testing...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/account-health/${selectedStoreId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus('accountHealthStatus', 'success', 'API working correctly');
+                    showResult('accountHealthResult', data);
+                } else {
+                    updateStatus('accountHealthStatus', 'error', 'API returned error');
+                    showResult('accountHealthResult', data);
+                }
+            } catch (error) {
+                updateStatus('accountHealthStatus', 'error', 'Request failed');
+                showResult('accountHealthResult', { error: error.message });
+            }
+        }
+
+        async function testUpdateAccountHealth() {
+            if (!selectedStoreId) {
+                updateStatus('updateAccountHealthStatus', 'error', 'Please select a store first');
+                return;
+            }
+
+            updateStatus('updateAccountHealthStatus', 'loading', 'Testing...');
+            
+            const testData = {
+                accountHealthRating: 950,
+                orderDefectRate: {
+                    sellerFulfilled: 2,
+                    amazonFulfilled: 1,
+                    negativeFeedback: 0,
+                    atozClaims: 0,
+                    chargebackClaims: 0
+                },
+                policyCompliance: {
+                    status: "Healthy",
+                    issues: {
+                        productPolicyViolations: 0,
+                        listingPolicyViolations: 0,
+                        intellectualPropertyViolations: 0,
+                        customerProductReviews: 0,
+                        otherPolicyViolations: 0
+                    }
+                },
+                shippingPerformance: {
+                    lateShipmentRate: 1,
+                    preFulfillmentCancelRate: 0,
+                    validTrackingRate: 99,
+                    onTimeDeliveryRate: 96
+                }
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/account-health/${selectedStoreId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus('updateAccountHealthStatus', 'success', 'Update successful');
+                    showResult('updateAccountHealthResult', data);
+                } else {
+                    updateStatus('updateAccountHealthStatus', 'error', 'Update failed');
+                    showResult('updateAccountHealthResult', data);
+                }
+            } catch (error) {
+                updateStatus('updateAccountHealthStatus', 'error', 'Request failed');
+                showResult('updateAccountHealthResult', { error: error.message });
+            }
+        }
+
+        async function testSellingApplications() {
+            if (!selectedStoreId) {
+                updateStatus('sellingAppsStatus', 'error', 'Please select a store first');
+                return;
+            }
+
+            updateStatus('sellingAppsStatus', 'loading', 'Testing...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/selling-applications/${selectedStoreId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus('sellingAppsStatus', 'success', `Found ${data.data.length} applications`);
+                    showResult('sellingAppsResult', data);
+                } else {
+                    updateStatus('sellingAppsStatus', 'error', 'API returned error');
+                    showResult('sellingAppsResult', data);
+                }
+            } catch (error) {
+                updateStatus('sellingAppsStatus', 'error', 'Request failed');
+                showResult('sellingAppsResult', { error: error.message });
+            }
+        }
+
+        async function testCreateApplication() {
+            if (!selectedStoreId) {
+                updateStatus('createAppStatus', 'error', 'Please select a store first');
+                return;
+            }
+
+            updateStatus('createAppStatus', 'loading', 'Testing...');
+            
+            const testApp = {
+                store_id: selectedStoreId,
+                type: "Brand Registry",
+                brand: "Test Brand",
+                category: "Electronics",
+                status: "Pending",
+                submittedDate: new Date().toISOString().split('T')[0],
+                lastUpdated: new Date().toISOString().split('T')[0],
+                description: "Test application created by automated test",
+                documents: ["test_document.pdf"]
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/selling-applications`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testApp)
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus('createAppStatus', 'success', 'Application created successfully');
+                    showResult('createAppResult', data);
+                } else {
+                    updateStatus('createAppStatus', 'error', 'Creation failed');
+                    showResult('createAppResult', data);
+                }
+            } catch (error) {
+                updateStatus('createAppStatus', 'error', 'Request failed');
+                showResult('createAppResult', { error: error.message });
+            }
+        }
+
+        async function testLegalEntity() {
+            if (!selectedStoreId) {
+                updateStatus('legalEntityStatus', 'error', 'Please select a store first');
+                return;
+            }
+
+            updateStatus('legalEntityStatus', 'loading', 'Testing...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/legal-entity/${selectedStoreId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus('legalEntityStatus', 'success', 'API working correctly');
+                    showResult('legalEntityResult', data);
+                } else {
+                    updateStatus('legalEntityStatus', 'error', 'API returned error');
+                    showResult('legalEntityResult', data);
+                }
+            } catch (error) {
+                updateStatus('legalEntityStatus', 'error', 'Request failed');
+                showResult('legalEntityResult', { error: error.message });
+            }
+        }
+
+        async function testUpdateLegalEntity() {
+            if (!selectedStoreId) {
+                updateStatus('updateLegalEntityStatus', 'error', 'Please select a store first');
+                return;
+            }
+
+            updateStatus('updateLegalEntityStatus', 'loading', 'Testing...');
+            
+            const testData = {
+                legalBusinessName: "Updated Test Company LLC",
+                businessAddress: {
+                    street: "123 Updated Street",
+                    suite: "Suite 999",
+                    city: "Test City",
+                    state: "CA",
+                    zipCode: "90210",
+                    country: "United States"
+                },
+                taxInformation: {
+                    status: "Complete",
+                    taxId: "99-9999999",
+                    taxClassification: "LLC"
+                },
+                businessType: "Limited Liability Company",
+                registrationDate: "2023-01-01"
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/legal-entity/${selectedStoreId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus('updateLegalEntityStatus', 'success', 'Update successful');
+                    showResult('updateLegalEntityResult', data);
+                } else {
+                    updateStatus('updateLegalEntityStatus', 'error', 'Update failed');
+                    showResult('updateLegalEntityResult', data);
+                }
+            } catch (error) {
+                updateStatus('updateLegalEntityStatus', 'error', 'Request failed');
+                showResult('updateLegalEntityResult', { error: error.message });
+            }
+        }
+
+        async function testFrontendPages() {
+            updateStatus('frontendStatus', 'loading', 'Testing...');
+            
+            const pages = [
+                '/app/settings/account-health',
+                '/app/settings/selling-applications',
+                '/app/settings/legal-entity'
+            ];
+            
+            const results = [];
+            
+            for (const page of pages) {
+                try {
+                    const response = await fetch(`${FRONTEND_BASE}${page}`, { method: 'HEAD' });
+                    results.push({
+                        page,
+                        status: response.status,
+                        accessible: response.status === 200
+                    });
+                } catch (error) {
+                    results.push({
+                        page,
+                        status: 'ERROR',
+                        accessible: false,
+                        error: error.message
+                    });
+                }
+            }
+            
+            const allAccessible = results.every(r => r.accessible);
+            updateStatus('frontendStatus', allAccessible ? 'success' : 'error', 
+                        allAccessible ? 'All pages accessible' : 'Some pages not accessible');
+            showResult('frontendResult', results);
+        }
+
+        async function testAdminPages() {
+            updateStatus('adminStatus', 'loading', 'Testing...');
+            
+            try {
+                const response = await fetch(`${ADMIN_BASE}`, { method: 'HEAD' });
+                const accessible = response.status === 200;
+                
+                updateStatus('adminStatus', accessible ? 'success' : 'error', 
+                            accessible ? 'Admin panel accessible' : 'Admin panel not accessible');
+                showResult('adminResult', {
+                    adminPanel: {
+                        url: ADMIN_BASE,
+                        status: response.status,
+                        accessible
+                    },
+                    note: 'New admin pages: Selling Applications Config, Legal Entity Config'
+                });
+            } catch (error) {
+                updateStatus('adminStatus', 'error', 'Admin panel not accessible');
+                showResult('adminResult', { error: error.message });
+            }
+        }
+    </script>
+</body>
+</html>

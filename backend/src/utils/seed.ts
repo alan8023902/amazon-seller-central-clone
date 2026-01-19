@@ -16,7 +16,8 @@ async function seedStores() {
     {
       name: 'TYNBO Store',
       country: 'United States',
-      currency_symbol: 'US$',
+      currency_symbol: '$',
+      is_active: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }

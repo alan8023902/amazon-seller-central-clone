@@ -8,7 +8,8 @@ export const StoreSchema = z.object({
   id: z.string(),
   name: z.string(),
   country: z.string().default('United States'),
-  currency_symbol: z.string().default('US$'),
+  currency_symbol: z.string().default('$'),
+  is_active: z.boolean().default(true),
   created_at: z.string(),
   updated_at: z.string(),
 });
@@ -155,6 +156,28 @@ export const ForumPostSchema = z.object({
 });
 
 export type ForumPost = z.infer<typeof ForumPostSchema>;
+
+// Voice of Customer (VOC) Data Schema
+export const VocDataSchema = z.object({
+  id: z.string(),
+  store_id: z.string(),
+  product_name: z.string(),
+  asin: z.string(),
+  sku_status: z.enum(['Active', 'Inactive']).default('Active'),
+  fulfillment: z.string(),
+  dissatisfaction_rate: z.number(),
+  dissatisfaction_orders: z.number().int(),
+  total_orders: z.number().int(),
+  rating: z.number(),
+  return_rate: z.number(),
+  main_negative_reason: z.string(),
+  last_updated: z.string(),
+  satisfaction_status: z.enum(['Excellent', 'Good', 'Average', 'Poor', 'Very Poor']),
+  is_out_of_stock: z.boolean().default(false),
+  image: z.string().optional(),
+});
+
+export type VocData = z.infer<typeof VocDataSchema>;
 
 // API Response types
 export interface ApiResponse<T = any> {

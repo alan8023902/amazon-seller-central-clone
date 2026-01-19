@@ -1,0 +1,42 @@
+[
+  {
+    "store_id": "0f1850fa-65f8-4dce-a758-2beca1a8ae96",
+    "total_order_items": 462,
+    "units_ordered": 488,
+    "ordered_product_sales": 125032.79999999999,
+    "avg_units_per_order": 1.06,
+    "avg_sales_per_order": 270.63,
+    "created_at": "2026-01-18T09:50:04.479Z",
+    "updated_at": "2026-01-18T09:50:04.481Z"
+  },
+  {
+    "store_id": "9ae1f3a5-11c0-40f9-a7ce-091d536e5c95",
+    "total_order_items": 603,
+    "units_ordered": 634,
+    "ordered_product_sales": 159443.30000000002,
+    "avg_units_per_order": 1.05,
+    "avg_sales_per_order": 264.42,
+    "created_at": "2026-01-18T09:50:04.484Z",
+    "updated_at": "2026-01-18T09:50:04.484Z"
+  },
+  {
+    "store_id": "d30cc22e-344f-45cf-8c03-2a647b11066e",
+    "total_order_items": 702,
+    "units_ordered": 661,
+    "ordered_product_sales": 138079.8,
+    "avg_units_per_order": 0.94,
+    "avg_sales_per_order": 196.69,
+    "created_at": "2026-01-18T09:50:04.485Z",
+    "updated_at": "2026-01-18T09:50:04.485Z"
+  },
+  {
+    "store_id": "77c5c9da-5d24-4279-9dde-7a3e4091f68d",
+    "total_order_items": 532,
+    "units_ordered": 451,
+    "ordered_product_sales": 127624.61000000002,
+    "avg_units_per_order": 0.85,
+    "avg_sales_per_order": 239.9,
+    "created_at": "2026-01-18T09:50:04.499Z",
+    "updated_at": "2026-01-18T09:50:04.499Z"
+  }
+]

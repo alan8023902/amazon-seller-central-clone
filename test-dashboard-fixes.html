@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Fixes Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { padding: 8px 16px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Dashboard Fixes Test</h1>
+    <p>Testing the fixes for:</p>
+    <ul>
+        <li>Issue 8: Dashboard Product Count (should show all products, not limited to 3)</li>
+        <li>Issue 9: Currency Symbol Following Header (should use store's currency_symbol)</li>
+    </ul>
+
+    <div class="test-section info">
+        <h3>Test 1: Product Count Fix</h3>
+        <p>Testing if dashboard API returns all products for TechNestGo store...</p>
+        <button onclick="testProductCount()">Test Product Count</button>
+        <div id="productCountResult"></div>
+    </div>
+
+    <div class="test-section info">
+        <h3>Test 2: Currency Symbol Fix</h3>
+        <p>Testing if stores have proper currency symbols...</p>
+        <button onclick="testCurrencySymbols()">Test Currency Symbols</button>
+        <div id="currencyResult"></div>
+    </div>
+
+    <div class="test-section info">
+        <h3>Test 3: Dashboard Data Structure</h3>
+        <p>Testing complete dashboard data structure...</p>
+        <button onclick="testDashboardData()">Test Dashboard Data</button>
+        <div id="dashboardResult"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3002';
+        const TECHNESTGO_STORE_ID = '0f1850fa-65f8-4dce-a758-2beca1a8ae96';
+
+        async function testProductCount() {
+            const resultDiv = document.getElementById('productCountResult');
+            resultDiv.innerHTML = '<p>Testing...</p>';
+            
+            try {
+                // Test products API
+                const productsResponse = await fetch(`${API_BASE}/api/products?store_id=${TECHNESTGO_STORE_ID}`);
+                const productsData = await productsResponse.json();
+                
+                // Test dashboard API
+                const dashboardResponse = await fetch(`${API_BASE}/api/dashboard/${TECHNESTGO_STORE_ID}`);
+                const dashboardData = await dashboardResponse.json();
+                
+                const totalProducts = productsData.data.length;
+                const dashboardProducts = dashboardData.data.inventory.length;
+                
+                let html = `
+                    <h4>Results:</h4>
+                    <p><strong>Total products in store:</strong> ${totalProducts}</p>
+                    <p><strong>Products shown in dashboard:</strong> ${dashboardProducts}</p>
+                `;
+                
+                if (dashboardProducts === totalProducts) {
+                    html += `<p class="success" style="color: green; font-weight: bold;">✅ FIXED: Dashboard now shows all ${totalProducts} products!</p>`;
+                } else if (dashboardProducts === 3) {
+                    html += `<p class="error" style="color: red; font-weight: bold;">❌ ISSUE: Dashboard still limited to 3 products (old behavior)</p>`;
+                } else {
+                    html += `<p class="info" style="color: orange; font-weight: bold;">⚠️ PARTIAL: Dashboard shows ${dashboardProducts} products (expected ${totalProducts})</p>`;
+                }
+                
+                html += `<pre>${JSON.stringify({
+                    totalProducts,
+                    dashboardProducts,
+                    sampleDashboardProducts: dashboardData.data.inventory.slice(0, 3).map(p => ({
+                        name: p.name,
+                        sku: p.sku,
+                        status: p.status
+                    }))
+                }, null, 2)}</pre>`;
+                
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error" style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+
+        async function testCurrencySymbols() {
+            const resultDiv = document.getElementById('currencyResult');
+            resultDiv.innerHTML = '<p>Testing...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/stores`);
+                const data = await response.json();
+                
+                let html = '<h4>Store Currency Symbols:</h4><ul>';
+                let allHaveCurrency = true;
+                
+                data.data.forEach(store => {
+                    const hasCurrency = store.currency_symbol && store.currency_symbol !== '';
+                    if (!hasCurrency) allHaveCurrency = false;
+                    
+                    html += `<li><strong>${store.name}</strong> (${store.marketplace}): ${store.currency_symbol || 'MISSING'}</li>`;
+                });
+                
+                html += '</ul>';
+                
+                if (allHaveCurrency) {
+                    html += `<p class="success" style="color: green; font-weight: bold;">✅ FIXED: All stores have currency symbols!</p>`;
+                } else {
+                    html += `<p class="error" style="color: red; font-weight: bold;">❌ ISSUE: Some stores missing currency symbols</p>`;
+                }
+                
+                html += `<pre>${JSON.stringify(data.data.map(s => ({
+                    name: s.name,
+                    marketplace: s.marketplace,
+                    currency_symbol: s.currency_symbol
+                })), null, 2)}</pre>`;
+                
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error" style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+
+        async function testDashboardData() {
+            const resultDiv = document.getElementById('dashboardResult');
+            resultDiv.innerHTML = '<p>Testing...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/dashboard/${TECHNESTGO_STORE_ID}`);
+                const data = await response.json();
+                
+                const summary = {
+                    success: data.success,
+                    salesToday: data.data.salesToday,
+                    openOrders: data.data.openOrders,
+                    messages: data.data.messages,
+                    inventoryCount: data.data.inventory.length,
+                    salesSnapshotTotal: data.data.salesSnapshot.orderedProductSales,
+                    sampleProducts: data.data.inventory.slice(0, 3).map(p => p.name)
+                };
+                
+                let html = `
+                    <h4>Dashboard Data Summary:</h4>
+                    <ul>
+                        <li><strong>Sales Today:</strong> ${summary.salesToday}</li>
+                        <li><strong>Open Orders:</strong> ${summary.openOrders}</li>
+                        <li><strong>Messages:</strong> ${summary.messages}</li>
+                        <li><strong>Inventory Count:</strong> ${summary.inventoryCount}</li>
+                        <li><strong>Sales Snapshot Total:</strong> ${summary.salesSnapshotTotal}</li>
+                    </ul>
+                    <p><strong>Sample Products:</strong> ${summary.sampleProducts.join(', ')}</p>
+                `;
+                
+                if (summary.inventoryCount > 3) {
+                    html += `<p class="success" style="color: green; font-weight: bold;">✅ SUCCESS: Dashboard shows ${summary.inventoryCount} products (not limited to 3)</p>`;
+                } else {
+                    html += `<p class="error" style="color: red; font-weight: bold;">❌ ISSUE: Dashboard only shows ${summary.inventoryCount} products</p>`;
+                }
+                
+                html += `<pre>${JSON.stringify(summary, null, 2)}</pre>`;
+                
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error" style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+
+        // Auto-run tests on page load
+        window.onload = function() {
+            setTimeout(() => {
+                testProductCount();
+                testCurrencySymbols();
+                testDashboardData();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>
