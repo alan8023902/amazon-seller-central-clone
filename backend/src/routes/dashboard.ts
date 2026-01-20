@@ -5,7 +5,8 @@ import {
   type GlobalSnapshot, 
   type Product,
   type ForumPost,
-  type ApiResponse 
+  type ApiResponse,
+  type Store
 } from '../types/index';
 import { asyncHandler, createError } from '../middleware/errorHandler';
 
@@ -209,7 +210,7 @@ router.get('/config/:storeId', asyncHandler(async (req, res) => {
   
   // Get store information first
   const stores = await dataService.readData('stores');
-  const store = stores.find((s: any) => s.id === storeId);
+  const store = stores.find((s: any) => s.id === storeId) as Store;
   
   if (!store) {
     throw createError('Store not found', 404);
@@ -240,9 +241,55 @@ router.get('/config/:storeId', asyncHandler(async (req, res) => {
     });
   }
   
+  // Transform backend data to admin interface format
+  const globalSnapshot = {
+    sales: {
+      todaySoFar: snapshot.sales_amount,
+      currency: store.currency_symbol || 'US$'
+    },
+    orders: {
+      totalCount: snapshot.open_orders,
+      fbmUnshipped: snapshot.fbm_unshipped,
+      fbmPending: snapshot.fbm_pending,
+      fbaPending: snapshot.fba_pending
+    },
+    messages: {
+      casesRequiringAttention: snapshot.buyer_messages
+    },
+    featuredOffer: {
+      percentage: snapshot.featured_offer_percent,
+      daysAgo: 2 // This could be calculated or stored separately
+    },
+    feedback: {
+      rating: snapshot.seller_feedback_rating,
+      count: snapshot.seller_feedback_count
+    },
+    payments: {
+      totalBalance: snapshot.payments_balance,
+      currency: store.currency_symbol || 'US$'
+    },
+    ads: {
+      sales: snapshot.ad_sales,
+      impressions: snapshot.ad_impressions,
+      currency: store.currency_symbol || 'US$'
+    },
+    inventory: {
+      performanceIndex: snapshot.inventory_performance_index
+    }
+  };
+  
+  const welcomeBanner = {
+    greeting: 'Good evening',
+    healthStatus: 'Healthy',
+    healthColor: '#507F00',
+    showTour: true,
+    showLearnMore: true
+  };
+  
   const configData = {
     store: store,
-    snapshot: snapshot,
+    globalSnapshot: globalSnapshot,
+    welcomeBanner: welcomeBanner,
     lastUpdated: snapshot.updated_at,
   };
   
@@ -257,16 +304,31 @@ router.get('/config/:storeId', asyncHandler(async (req, res) => {
 // PUT /api/dashboard/config/:storeId - Update dashboard configuration
 router.put('/config/:storeId', asyncHandler(async (req, res) => {
   const { storeId } = req.params;
-  const { snapshot: snapshotData } = req.body;
+  const { globalSnapshot, welcomeBanner } = req.body;
   
-  if (!snapshotData) {
-    throw createError('Snapshot data is required', 400);
+  if (!globalSnapshot) {
+    throw createError('Global snapshot data is required', 400);
   }
   
-  const updateData = GlobalSnapshotSchema.partial().parse({
-    ...snapshotData,
+  // Transform admin interface data to backend format
+  const backendData = {
+    sales_amount: globalSnapshot.sales?.todaySoFar || 0,
+    open_orders: globalSnapshot.orders?.totalCount || 0,
+    buyer_messages: globalSnapshot.messages?.casesRequiringAttention || 0,
+    featured_offer_percent: globalSnapshot.featuredOffer?.percentage || 100,
+    seller_feedback_rating: globalSnapshot.feedback?.rating || 5.0,
+    seller_feedback_count: globalSnapshot.feedback?.count || 0,
+    payments_balance: globalSnapshot.payments?.totalBalance || 0,
+    fbm_unshipped: globalSnapshot.orders?.fbmUnshipped || 0,
+    fbm_pending: globalSnapshot.orders?.fbmPending || 0,
+    fba_pending: globalSnapshot.orders?.fbaPending || 0,
+    inventory_performance_index: globalSnapshot.inventory?.performanceIndex || 400,
+    ad_sales: globalSnapshot.ads?.sales || 0,
+    ad_impressions: globalSnapshot.ads?.impressions || 0,
     updated_at: new Date().toISOString(),
-  });
+  };
+  
+  const updateData = GlobalSnapshotSchema.partial().parse(backendData);
   
   let snapshots = await dataService.findByStoreId<GlobalSnapshot>('global_snapshots', storeId);
   let snapshot = snapshots[0];

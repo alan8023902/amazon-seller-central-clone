@@ -36,38 +36,59 @@ const Sidebar: React.FC<SidebarProps> = ({ config }) => {
     const isItemActive = isActive(item);
     const isSectionExpanded = expandedSections[item.id] || hasChildren && item.children.some(child => isActive(child));
 
+    if (item.isHeader) {
+      return (
+        <div
+          key={item.id}
+          className="mx-2 px-2 py-1 bg-[#E9EBEB] text-[13px] font-bold text-[#0F1111] mt-4 first:mt-0 leading-tight"
+        >
+          {t(item.label)}
+        </div>
+      );
+    }
+
+    if (item.className) {
+      return (
+        <div key={item.id} className={cn(item.className, "whitespace-normal leading-tight")}>
+          {t(item.label)}
+        </div>
+      );
+    }
+
     return (
       <div key={item.id}>
-        <div
-          className={cn(
-            'flex items-center justify-between px-4 py-2 text-sm cursor-pointer transition-all border-l-[3px]',
-            isItemActive
-              ? 'bg-white text-amazon-teal font-bold border-amazon-teal'
-              : 'text-gray-600 border-transparent hover:bg-gray-100 hover:text-amazon-link'
-          )}
-          style={{ paddingLeft: `${level * 16}px` }}
-        >
+        {hasChildren ? (
+          <div
+            className={cn(
+              "flex items-center justify-between px-4 py-2 text-[13px] cursor-pointer transition-colors whitespace-normal leading-tight",
+              isItemActive ? "bg-white text-[#007185] font-bold" : "text-[#007185] hover:bg-white/50",
+              level > 0 && "pl-8"
+            )}
+            onClick={() => toggleSection(item.id)}
+          >
+            <div className="flex items-center flex-1">
+              {item.icon && <span className="mr-3">{item.icon}</span>}
+              <span>{t(item.label)}</span>
+            </div>
+            {isSectionExpanded ? <ChevronDown size={14} className="ml-2 flex-shrink-0" /> : <ChevronRight size={14} className="ml-2 flex-shrink-0" />}
+          </div>
+        ) : (
           <Link
             to={item.path}
-            className="flex items-center gap-2 flex-1"
+            className={cn(
+              "flex items-center px-4 py-2 text-[13px] transition-colors whitespace-normal leading-tight",
+              isItemActive ? "bg-white text-[#007185] font-bold" : "text-[#007185] hover:bg-white/50",
+              level > 0 || !item.isHeader && item.id !== 'sales-dashboard' ? "pl-8" : "pl-4"
+            )}
           >
-            {item.icon && <span className="text-gray-400">{item.icon}</span>}
-            <span className={cn('truncate', isItemActive && 'font-bold')}>{t(item.label)}</span>
+            {item.icon && <span className="mr-3">{item.icon}</span>}
+            <span className="flex-1">{t(item.label)}</span>
           </Link>
-
-          {hasChildren && (
-            <button
-              onClick={() => toggleSection(item.id)}
-              className="text-gray-400 hover:text-amazon-teal"
-            >
-              {isSectionExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-            </button>
-          )}
-        </div>
+        )}
 
         {hasChildren && isSectionExpanded && (
-          <div>
-            {item.children?.map(child => renderMenuItem(child, level + 1))}
+          <div className="mt-0">
+            {item.children!.map(child => renderMenuItem(child, level + 1))}
           </div>
         )}
       </div>
@@ -75,16 +96,11 @@ const Sidebar: React.FC<SidebarProps> = ({ config }) => {
   };
 
   return (
-    <div className="bg-[#EEF0F3] border-r border-gray-200 overflow-hidden">
-      {/* 顶部关闭行 */}
-      <div className="px-4 py-3 border-b border-gray-200 flex items-center">
-        <button className="flex items-center gap-2 text-sm font-bold uppercase text-gray-700 hover:text-amazon-teal transition-colors">
-          <X size={14} />
-          <span>{t('closeReportsMenu')}</span>
-        </button>
+    <div className="w-full bg-[#EAEDED] h-full overflow-y-auto">
+      <div className="flex items-center space-x-2 px-4 py-4 bg-[#EAEDED] border-b border-[#D5D9D9]/50 text-[#007185]">
+        <X size={16} className="cursor-pointer" />
+        <span className="text-[13px] font-bold uppercase tracking-tight">{t('closeReportsMenu')}</span>
       </div>
-      
-      {/* 菜单内容 */}
       <div className="py-2">
         {config.items.map(item => renderMenuItem(item))}
       </div>

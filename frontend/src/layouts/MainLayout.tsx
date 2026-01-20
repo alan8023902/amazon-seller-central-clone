@@ -207,7 +207,7 @@ const MainLayout: React.FC = () => {
                 )}
               >
                 <span className="text-[11px] font-bold text-amazon-headerTeal truncate max-w-[120px] leading-none mb-[1.5px]">
-                  {session.store}
+                  {session.store?.name || 'Select Store'}
                 </span>
               </div>
 
@@ -220,15 +220,15 @@ const MainLayout: React.FC = () => {
                     <div
                       key={storeName}
                       onClick={() => {
-                        setStore(storeName);
+                        setStore({ id: storeName, name: storeName, marketplace: session.marketplace } as any);
                         setIsStoreOpen(false);
                       }}
                       className="px-4 py-3 hover:bg-blue-50 flex items-center justify-between cursor-pointer group border-b border-transparent hover:border-blue-100 last:mb-0"
                     >
-                      <span className={cn("text-[13px] text-amazon-text", session.store === storeName ? "font-bold" : "font-normal")}>
+                      <span className={cn("text-[13px] text-amazon-text", session.store?.name === storeName ? "font-bold" : "font-normal")}>
                         {storeName}
                       </span>
-                      {session.store === storeName && <Check size={16} className="text-amazon-teal" />}
+                      {session.store?.name === storeName && <Check size={16} className="text-amazon-teal" />}
                     </div>
                   ))}
                 </div>

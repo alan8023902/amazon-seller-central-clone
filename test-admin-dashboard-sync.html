@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard Synchronization Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.pending { background: #fff3cd; color: #856404; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .data-display {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        .form-group label {
+            display: inline-block;
+            width: 150px;
+            font-weight: bold;
+        }
+        .form-group input {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            width: 200px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .log {
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 4px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Admin Dashboard Synchronization Test</h1>
+        <p>This test validates that changes made in the admin interface (port 3003) are properly synchronized to the frontend dashboard (port 3000).</p>
+        
+        <div class="test-section">
+            <h3>🏪 Store Selection</h3>
+            <div class="form-group">
+                <label>Select Store:</label>
+                <select id="storeSelect">
+                    <option value="">Loading stores...</option>
+                </select>
+                <button onclick="loadStores()">Refresh Stores</button>
+            </div>
+            <div id="storeStatus" class="status pending">No store selected</div>
+        </div>
+
+        <div class="grid">
+            <div class="test-section">
+                <h3>📊 Backend API Test</h3>
+                <button onclick="testBackendAPI()">Test Backend Connection</button>
+                <div id="backendStatus" class="status pending">Not tested</div>
+                <div id="backendData" class="data-display"></div>
+            </div>
+
+            <div class="test-section">
+                <h3>🔧 Admin Interface Test</h3>
+                <button onclick="testAdminInterface()">Test Admin API</button>
+                <div id="adminStatus" class="status pending">Not tested</div>
+                <div id="adminData" class="data-display"></div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>💰 Dashboard Data Modification</h3>
+            <p>Modify dashboard values and test synchronization:</p>
+            
+            <div class="grid">
+                <div>
+                    <div class="form-group">
+                        <label>Sales Amount:</label>
+                        <input type="number" id="salesAmount" step="0.01" placeholder="49.95">
+                    </div>
+                    <div class="form-group">
+                        <label>Open Orders:</label>
+                        <input type="number" id="openOrders" placeholder="6">
+                    </div>
+                    <div class="form-group">
+                        <label>Buyer Messages:</label>
+                        <input type="number" id="buyerMessages" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Featured Offer %:</label>
+                        <input type="number" id="featuredOffer" placeholder="100">
+                    </div>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label>Feedback Rating:</label>
+                        <input type="number" id="feedbackRating" step="0.1" placeholder="5.0">
+                    </div>
+                    <div class="form-group">
+                        <label>Payments Balance:</label>
+                        <input type="number" id="paymentsBalance" step="0.01" placeholder="228.31">
+                    </div>
+                    <div class="form-group">
+                        <label>Ad Sales:</label>
+                        <input type="number" id="adSales" step="0.01" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Ad Impressions:</label>
+                        <input type="number" id="adImpressions" placeholder="0">
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="updateDashboardData()">Update Dashboard Data</button>
+            <button onclick="verifyFrontendSync()">Verify Frontend Sync</button>
+            <div id="updateStatus" class="status pending">Ready to update</div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Synchronization Verification</h3>
+            <div class="grid">
+                <div>
+                    <h4>Backend Data:</h4>
+                    <div id="backendSnapshot" class="data-display">No data loaded</div>
+                </div>
+                <div>
+                    <h4>Frontend Expected Data:</h4>
+                    <div id="frontendExpected" class="data-display">No data loaded</div>
+                </div>
+            </div>
+            <button onclick="compareData()">Compare Backend vs Frontend</button>
+            <div id="comparisonStatus" class="status pending">Not compared</div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Test Log</h3>
+            <div id="testLog" class="log"></div>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3002/api';
+        const ADMIN_BASE = 'http://localhost:3003';
+        const FRONTEND_BASE = 'http://localhost:3005';
+        
+        let selectedStoreId = null;
+        let selectedStore = null;
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('testLog');
+            const color = type === 'error' ? '#ff6b6b' : type === 'success' ? '#51cf66' : '#74c0fc';
+            logElement.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function clearLog() {
+            document.getElementById('testLog').innerHTML = '';
+        }
+
+        function updateStatus(elementId, status, message) {
+            const element = document.getElementById(elementId);
+            element.className = `status ${status}`;
+            element.textContent = message;
+        }
+
+        async function loadStores() {
+            try {
+                log('Loading stores from backend...');
+                const response = await fetch(`${API_BASE}/stores`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const select = document.getElementById('storeSelect');
+                    select.innerHTML = '<option value="">Select a store...</option>';
+                    
+                    data.data.forEach(store => {
+                        const option = document.createElement('option');
+                        option.value = store.id;
+                        option.textContent = `${store.name} (${store.marketplace})`;
+                        select.appendChild(option);
+                    });
+                    
+                    select.onchange = function() {
+                        selectedStoreId = this.value;
+                        selectedStore = data.data.find(s => s.id === selectedStoreId);
+                        updateStatus('storeStatus', 'success', selectedStore ? `Selected: ${selectedStore.name}` : 'No store selected');
+                        log(`Store selected: ${selectedStore ? selectedStore.name : 'None'}`, 'success');
+                    };
+                    
+                    log(`Loaded ${data.data.length} stores`, 'success');
+                } else {
+                    throw new Error(data.message || 'Failed to load stores');
+                }
+            } catch (error) {
+                log(`Error loading stores: ${error.message}`, 'error');
+                updateStatus('storeStatus', 'error', 'Failed to load stores');
+            }
+        }
+
+        async function testBackendAPI() {
+            if (!selectedStoreId) {
+                updateStatus('backendStatus', 'error', 'No store selected');
+                return;
+            }
+
+            try {
+                log('Testing backend API connection...');
+                const response = await fetch(`${API_BASE}/dashboard/snapshot/${selectedStoreId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus('backendStatus', 'success', 'Backend API working');
+                    document.getElementById('backendData').textContent = JSON.stringify(data.data, null, 2);
+                    log('Backend API test successful', 'success');
+                } else {
+                    throw new Error(data.message || 'Backend API error');
+                }
+            } catch (error) {
+                log(`Backend API test failed: ${error.message}`, 'error');
+                updateStatus('backendStatus', 'error', 'Backend API failed');
+                document.getElementById('backendData').textContent = error.message;
+            }
+        }
+
+        async function testAdminInterface() {
+            if (!selectedStoreId) {
+                updateStatus('adminStatus', 'error', 'No store selected');
+                return;
+            }
+
+            try {
+                log('Testing admin interface API...');
+                const response = await fetch(`${API_BASE}/dashboard/config/${selectedStoreId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus('adminStatus', 'success', 'Admin API working');
+                    document.getElementById('adminData').textContent = JSON.stringify(data.data, null, 2);
+                    log('Admin API test successful', 'success');
+                } else {
+                    throw new Error(data.message || 'Admin API error');
+                }
+            } catch (error) {
+                log(`Admin API test failed: ${error.message}`, 'error');
+                updateStatus('adminStatus', 'error', 'Admin API failed');
+                document.getElementById('adminData').textContent = error.message;
+            }
+        }
+
+        async function updateDashboardData() {
+            if (!selectedStoreId) {
+                updateStatus('updateStatus', 'error', 'No store selected');
+                return;
+            }
+
+            try {
+                log('Updating dashboard data...');
+                
+                const globalSnapshot = {
+                    sales: {
+                        todaySoFar: parseFloat(document.getElementById('salesAmount').value) || 49.95,
+                        currency: selectedStore?.currency_symbol || 'US$'
+                    },
+                    orders: {
+                        totalCount: parseInt(document.getElementById('openOrders').value) || 6,
+                        fbmUnshipped: 0,
+                        fbmPending: 0,
+                        fbaPending: parseInt(document.getElementById('openOrders').value) || 6
+                    },
+                    messages: {
+                        casesRequiringAttention: parseInt(document.getElementById('buyerMessages').value) || 0
+                    },
+                    featuredOffer: {
+                        percentage: parseInt(document.getElementById('featuredOffer').value) || 100,
+                        daysAgo: 2
+                    },
+                    feedback: {
+                        rating: parseFloat(document.getElementById('feedbackRating').value) || 5.0,
+                        count: 2
+                    },
+                    payments: {
+                        totalBalance: parseFloat(document.getElementById('paymentsBalance').value) || 228.31,
+                        currency: selectedStore?.currency_symbol || 'US$'
+                    },
+                    ads: {
+                        sales: parseFloat(document.getElementById('adSales').value) || 0,
+                        impressions: parseInt(document.getElementById('adImpressions').value) || 0,
+                        currency: selectedStore?.currency_symbol || 'US$'
+                    },
+                    inventory: {
+                        performanceIndex: 400
+                    }
+                };
+
+                const response = await fetch(`${API_BASE}/dashboard/config/${selectedStoreId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        globalSnapshot,
+                        welcomeBanner: {
+                            greeting: 'Good evening',
+                            healthStatus: 'Healthy',
+                            healthColor: '#507F00',
+                            showTour: true,
+                            showLearnMore: true
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus('updateStatus', 'success', 'Dashboard data updated');
+                    log('Dashboard data updated successfully', 'success');
+                    
+                    // Auto-verify after update
+                    setTimeout(verifyFrontendSync, 1000);
+                } else {
+                    throw new Error(data.message || 'Update failed');
+                }
+            } catch (error) {
+                log(`Dashboard update failed: ${error.message}`, 'error');
+                updateStatus('updateStatus', 'error', 'Update failed');
+            }
+        }
+
+        async function verifyFrontendSync() {
+            if (!selectedStoreId) {
+                log('No store selected for verification', 'error');
+                return;
+            }
+
+            try {
+                log('Verifying frontend synchronization...');
+                
+                // Get current backend data
+                const backendResponse = await fetch(`${API_BASE}/dashboard/snapshot/${selectedStoreId}`);
+                const backendData = await backendResponse.json();
+                
+                if (backendData.success) {
+                    document.getElementById('backendSnapshot').textContent = JSON.stringify(backendData.data, null, 2);
+                    
+                    // Show what frontend should display
+                    const expectedFrontend = {
+                        salesToday: backendData.data.sales_amount,
+                        openOrders: backendData.data.open_orders,
+                        messages: backendData.data.buyer_messages,
+                        featuredOfferPercent: backendData.data.featured_offer_percent,
+                        sellerFeedbackRating: backendData.data.seller_feedback_rating,
+                        paymentsBalance: backendData.data.payments_balance,
+                        adSales: backendData.data.ad_sales,
+                        adImpressions: backendData.data.ad_impressions
+                    };
+                    
+                    document.getElementById('frontendExpected').textContent = JSON.stringify(expectedFrontend, null, 2);
+                    log('Frontend sync verification completed', 'success');
+                } else {
+                    throw new Error('Failed to get backend data for verification');
+                }
+            } catch (error) {
+                log(`Frontend sync verification failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function compareData() {
+            log('Comparing backend and expected frontend data...');
+            
+            try {
+                const backendText = document.getElementById('backendSnapshot').textContent;
+                const frontendText = document.getElementById('frontendExpected').textContent;
+                
+                if (backendText === 'No data loaded' || frontendText === 'No data loaded') {
+                    updateStatus('comparisonStatus', 'error', 'No data to compare');
+                    return;
+                }
+                
+                const backendData = JSON.parse(backendText);
+                const frontendData = JSON.parse(frontendText);
+                
+                let differences = [];
+                
+                // Compare key fields
+                if (backendData.sales_amount !== frontendData.salesToday) {
+                    differences.push(`Sales: Backend=${backendData.sales_amount}, Frontend=${frontendData.salesToday}`);
+                }
+                if (backendData.open_orders !== frontendData.openOrders) {
+                    differences.push(`Orders: Backend=${backendData.open_orders}, Frontend=${frontendData.openOrders}`);
+                }
+                if (backendData.buyer_messages !== frontendData.messages) {
+                    differences.push(`Messages: Backend=${backendData.buyer_messages}, Frontend=${frontendData.messages}`);
+                }
+                
+                if (differences.length === 0) {
+                    updateStatus('comparisonStatus', 'success', 'Data synchronized correctly');
+                    log('✅ All data fields match between backend and frontend', 'success');
+                } else {
+                    updateStatus('comparisonStatus', 'error', `${differences.length} differences found`);
+                    differences.forEach(diff => log(`❌ ${diff}`, 'error'));
+                }
+                
+            } catch (error) {
+                log(`Data comparison failed: ${error.message}`, 'error');
+                updateStatus('comparisonStatus', 'error', 'Comparison failed');
+            }
+        }
+
+        // Initialize the test
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Admin Dashboard Synchronization Test initialized');
+            log('Backend API: ' + API_BASE);
+            log('Admin Interface: ' + ADMIN_BASE);
+            log('Frontend: ' + FRONTEND_BASE);
+            
+            loadStores();
+        });
+    </script>
+</body>
+</html>

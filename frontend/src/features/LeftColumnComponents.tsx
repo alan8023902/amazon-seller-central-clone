@@ -14,9 +14,18 @@ const kebabButton = "inline-flex h-8 w-8 items-center justify-center rounded-md 
 const divider = "border-t border-[#E3E6E6]";
 
 // ==================== ActionsCard Component ====================
-export function ActionsCard() {
+// ==================== ActionsCard Component ====================
+export function ActionsCard({ actions }: { actions?: any[] }) {
   const navigate = useNavigate();
   const { t } = useI18n();
+
+  // Use dynamic action if available, otherwise fallback to default
+  const primaryAction = actions?.[0] || {
+    id: "shipmentPerformance",
+    title: t('shipmentPerformance'),
+    description: t('outstandingShipmentProblems', { count: 0 }),
+    subtext: t('shipmentPerformanceSub')
+  };
 
   return (
     <div className={`${outerCard} ring-2 ring-[#007185] ring-offset-2 ring-offset-white`}>
@@ -26,7 +35,7 @@ export function ActionsCard() {
           <div className={cardTitleText}>{t('actions')}</div>
           <div className={infoIcon}>i</div>
         </div>
-        <div className={badgeCount}>1</div>
+        <div className={badgeCount}>{actions?.length || 1}</div>
       </div>
 
       {/* Body */}
@@ -36,15 +45,15 @@ export function ActionsCard() {
             onClick={() => navigate('/app/shipments')}
             className="text-[13px] font-semibold text-[#007185] hover:underline"
           >
-            {t('shipmentPerformance')}
+            {primaryAction.title || primaryAction.text}
           </button>
           <button className={kebabButton}>⋮</button>
         </div>
         <div className="mt-1 text-[12px] text-[#565959] leading-5">
-          {t('outstandingShipmentProblems', { count: 0 })}
+          {primaryAction.description || t('outstandingShipmentProblems', { count: 0 })}
         </div>
         <div className="text-[12px] text-[#565959] leading-5">
-          {t('shipmentPerformanceSub')}
+          {primaryAction.subtext || t('shipmentPerformanceSub')}
         </div>
       </div>
     </div>
@@ -72,57 +81,36 @@ const HeartIcon = () => (
 );
 
 // ==================== CommunicationsCard Component ====================
-export function CommunicationsCard() {
+export function CommunicationsCard({ communications }: { communications?: any[] }) {
   const { t } = useI18n();
 
-  // Mock data for Seller Forums
-  const sellerForums = [
-    {
-      id: 1,
-      title: "Is the Buy Box really open to everyone, or only to certain sellers?",
-      date: "Jan 5",
-      views: "172",
-      replies: "6"
-    },
-    {
-      id: 2,
-      title: "I really need help from someone who knows this process.",
-      date: "Jan 6",
-      views: "104",
-      replies: "3"
-    },
-    {
-      id: 3,
-      title: "Deposit Method Account Error",
-      date: "Jan 6",
-      views: "42",
-      replies: "5"
-    }
+  // Split communications into forums and news if dynamic data is present
+  const dynamicForums = communications?.filter(c => c.post_type === 'FORUM') || [];
+  const dynamicNews = communications?.filter(c => c.post_type === 'NEWS') || [];
+
+  // Mock data fallbacks for initial empty state
+  const sellerForums = dynamicForums.length > 0 ? dynamicForums.map(f => ({
+    id: f.id,
+    title: f.title,
+    date: f.post_date ? new Date(f.post_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Jan 5',
+    views: f.views?.toString() || '0',
+    replies: f.comments?.toString() || '0'
+  })) : [
+    { id: 1, title: "Is the Buy Box really open to everyone, or only to certain sellers?", date: "Jan 5", views: "172", replies: "6" },
+    { id: 2, title: "I really need help from someone who knows this process.", date: "Jan 6", views: "104", replies: "3" },
+    { id: 3, title: "Deposit Method Account Error", date: "Jan 6", views: "42", replies: "5" }
   ];
 
-  // Mock data for Seller News
-  const sellerNews = [
-    {
-      id: 1,
-      title: "Changes to review sharing across product variations starting Feb 12",
-      date: "Jan 7",
-      views: "4.3K",
-      comments: "22"
-    },
-    {
-      id: 2,
-      title: "Track Amazon Business customer patterns with new metrics",
-      date: "Jan 6",
-      views: "2.8K",
-      reactions: "12"
-    },
-    {
-      id: 3,
-      title: "Find VAT and EPR providers easily with new Service Hub",
-      date: "Jan 5",
-      views: "3.0K",
-      reactions: "9"
-    }
+  const sellerNews = dynamicNews.length > 0 ? dynamicNews.map(n => ({
+    id: n.id,
+    title: n.title,
+    date: n.post_date ? new Date(n.post_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Jan 6',
+    views: n.views?.toString() || '0',
+    reactions: n.likes?.toString() || '0'
+  })) : [
+    { id: 1, title: "Changes to review sharing across product variations starting Feb 12", date: "Jan 7", views: "4.3K", comments: "22" },
+    { id: 2, title: "Track Amazon Business customer patterns with new metrics", date: "Jan 6", views: "2.8K", reactions: "12" },
+    { id: 3, title: "Find VAT and EPR providers easily with new Service Hub", date: "Jan 5", views: "3.0K", reactions: "9" }
   ];
 
   return (

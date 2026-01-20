@@ -8,17 +8,13 @@ import {
   message, 
   Tabs, 
   Space,
-  Divider,
   Row,
   Col,
   Switch,
   Select
 } from 'antd';
 import { SaveOutlined, ReloadOutlined } from '@ant-design/icons';
-import { api, dashboardApi } from '../services/api';
-
-const { TabPane } = Tabs;
-const { TextArea } = Input;
+import { dashboardApi } from '../services/api';
 
 interface GlobalSnapshotData {
   sales: {
@@ -74,7 +70,6 @@ const DashboardConfig: React.FC<DashboardConfigProps> = ({
   selectedStoreId, 
   selectedStore 
 }) => {
-  const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [globalSnapshot, setGlobalSnapshot] = useState<GlobalSnapshotData>({
     sales: { todaySoFar: 49.95, currency: 'US$' },
@@ -211,285 +206,295 @@ const DashboardConfig: React.FC<DashboardConfigProps> = ({
           请先在页面顶部选择一个店铺
         </div>
       ) : (
-        <Tabs defaultActiveKey="globalSnapshot">
-        <TabPane tab="Global Snapshot" key="globalSnapshot">
-          <Card title="Global Snapshot 数据配置" extra={
-            <Space>
-              <Button icon={<ReloadOutlined />} onClick={resetToDefaults}>
-                重置默认值
-              </Button>
-              <Button 
-                type="primary" 
-                icon={<SaveOutlined />} 
-                loading={loading}
-                onClick={handleSaveGlobalSnapshot}
-              >
-                保存配置
-              </Button>
-            </Space>
-          }>
-            <Row gutter={24}>
-              <Col span={12}>
-                <Card size="small" title="Sales" style={{ marginBottom: 16 }}>
-                  <Form.Item label="Today so far">
-                    <InputNumber
-                      value={globalSnapshot.sales.todaySoFar}
-                      onChange={(value) => setGlobalSnapshot(prev => ({
-                        ...prev,
-                        sales: { ...prev.sales, todaySoFar: value || 0 }
-                      }))}
-                      precision={2}
-                      style={{ width: '100%' }}
-                    />
-                  </Form.Item>
-                  <Form.Item label="Currency">
-                    <Select
-                      value={globalSnapshot.sales.currency}
-                      onChange={(value) => setGlobalSnapshot(prev => ({
-                        ...prev,
-                        sales: { ...prev.sales, currency: value }
-                      }))}
+        <Tabs 
+          defaultActiveKey="globalSnapshot"
+          items={[
+            {
+              key: 'globalSnapshot',
+              label: 'Global Snapshot',
+              children: (
+                <Card title="Global Snapshot 数据配置" extra={
+                  <Space>
+                    <Button icon={<ReloadOutlined />} onClick={resetToDefaults}>
+                      重置默认值
+                    </Button>
+                    <Button 
+                      type="primary" 
+                      icon={<SaveOutlined />} 
+                      loading={loading}
+                      onClick={handleSaveGlobalSnapshot}
                     >
-                      <Select.Option value="US$">US$</Select.Option>
-                      <Select.Option value="¥">¥</Select.Option>
-                      <Select.Option value="£">£</Select.Option>
-                      <Select.Option value="€">€</Select.Option>
-                    </Select>
-                  </Form.Item>
-                </Card>
+                      保存配置
+                    </Button>
+                  </Space>
+                }>
+                  <Row gutter={24}>
+                    <Col span={12}>
+                      <Card size="small" title="Sales" style={{ marginBottom: 16 }}>
+                        <Form.Item label="Today so far">
+                          <InputNumber
+                            value={globalSnapshot.sales.todaySoFar}
+                            onChange={(value) => setGlobalSnapshot(prev => ({
+                              ...prev,
+                              sales: { ...prev.sales, todaySoFar: value || 0 }
+                            }))}
+                            precision={2}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                        <Form.Item label="Currency">
+                          <Select
+                            value={globalSnapshot.sales.currency}
+                            onChange={(value) => setGlobalSnapshot(prev => ({
+                              ...prev,
+                              sales: { ...prev.sales, currency: value }
+                            }))}
+                          >
+                            <Select.Option value="US$">US$</Select.Option>
+                            <Select.Option value="¥">¥</Select.Option>
+                            <Select.Option value="£">£</Select.Option>
+                            <Select.Option value="€">€</Select.Option>
+                          </Select>
+                        </Form.Item>
+                      </Card>
 
-                <Card size="small" title="Open Orders" style={{ marginBottom: 16 }}>
-                  <Form.Item label="Total Count">
-                    <InputNumber
-                      value={globalSnapshot.orders.totalCount}
-                      onChange={(value) => setGlobalSnapshot(prev => ({
-                        ...prev,
-                        orders: { ...prev.orders, totalCount: value || 0 }
-                      }))}
-                      style={{ width: '100%' }}
-                    />
-                  </Form.Item>
-                  <Form.Item label="FBM Unshipped">
-                    <InputNumber
-                      value={globalSnapshot.orders.fbmUnshipped}
-                      onChange={(value) => setGlobalSnapshot(prev => ({
-                        ...prev,
-                        orders: { ...prev.orders, fbmUnshipped: value || 0 }
-                      }))}
-                      style={{ width: '100%' }}
-                    />
-                  </Form.Item>
-                  <Form.Item label="FBM Pending">
-                    <InputNumber
-                      value={globalSnapshot.orders.fbmPending}
-                      onChange={(value) => setGlobalSnapshot(prev => ({
-                        ...prev,
-                        orders: { ...prev.orders, fbmPending: value || 0 }
-                      }))}
-                      style={{ width: '100%' }}
-                    />
-                  </Form.Item>
-                  <Form.Item label="FBA Pending">
-                    <InputNumber
-                      value={globalSnapshot.orders.fbaPending}
-                      onChange={(value) => setGlobalSnapshot(prev => ({
-                        ...prev,
-                        orders: { ...prev.orders, fbaPending: value || 0 }
-                      }))}
-                      style={{ width: '100%' }}
-                    />
-                  </Form.Item>
-                </Card>
+                      <Card size="small" title="Open Orders" style={{ marginBottom: 16 }}>
+                        <Form.Item label="Total Count">
+                          <InputNumber
+                            value={globalSnapshot.orders.totalCount}
+                            onChange={(value) => setGlobalSnapshot(prev => ({
+                              ...prev,
+                              orders: { ...prev.orders, totalCount: value || 0 }
+                            }))}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                        <Form.Item label="FBM Unshipped">
+                          <InputNumber
+                            value={globalSnapshot.orders.fbmUnshipped}
+                            onChange={(value) => setGlobalSnapshot(prev => ({
+                              ...prev,
+                              orders: { ...prev.orders, fbmUnshipped: value || 0 }
+                            }))}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                        <Form.Item label="FBM Pending">
+                          <InputNumber
+                            value={globalSnapshot.orders.fbmPending}
+                            onChange={(value) => setGlobalSnapshot(prev => ({
+                              ...prev,
+                              orders: { ...prev.orders, fbmPending: value || 0 }
+                            }))}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                        <Form.Item label="FBA Pending">
+                          <InputNumber
+                            value={globalSnapshot.orders.fbaPending}
+                            onChange={(value) => setGlobalSnapshot(prev => ({
+                              ...prev,
+                              orders: { ...prev.orders, fbaPending: value || 0 }
+                            }))}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                      </Card>
 
-                <Card size="small" title="Buyer Messages" style={{ marginBottom: 16 }}>
-                  <Form.Item label="Cases requiring attention">
-                    <InputNumber
-                      value={globalSnapshot.messages.casesRequiringAttention}
-                      onChange={(value) => setGlobalSnapshot(prev => ({
-                        ...prev,
-                        messages: { casesRequiringAttention: value || 0 }
-                      }))}
-                      style={{ width: '100%' }}
-                    />
-                  </Form.Item>
-                </Card>
-              </Col>
+                      <Card size="small" title="Buyer Messages" style={{ marginBottom: 16 }}>
+                        <Form.Item label="Cases requiring attention">
+                          <InputNumber
+                            value={globalSnapshot.messages.casesRequiringAttention}
+                            onChange={(value) => setGlobalSnapshot(prev => ({
+                              ...prev,
+                              messages: { casesRequiringAttention: value || 0 }
+                            }))}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                      </Card>
+                    </Col>
 
-              <Col span={12}>
-                <Card size="small" title="Featured Offer %" style={{ marginBottom: 16 }}>
-                  <Form.Item label="Percentage">
-                    <InputNumber
-                      value={globalSnapshot.featuredOffer.percentage}
-                      onChange={(value) => setGlobalSnapshot(prev => ({
-                        ...prev,
-                        featuredOffer: { ...prev.featuredOffer, percentage: value || 0 }
-                      }))}
-                      min={0}
-                      max={100}
-                      formatter={value => `${value}%`}
-                      parser={value => value!.replace('%', '')}
-                      style={{ width: '100%' }}
-                    />
-                  </Form.Item>
-                  <Form.Item label="Days ago">
-                    <InputNumber
-                      value={globalSnapshot.featuredOffer.daysAgo}
-                      onChange={(value) => setGlobalSnapshot(prev => ({
-                        ...prev,
-                        featuredOffer: { ...prev.featuredOffer, daysAgo: value || 0 }
-                      }))}
-                      style={{ width: '100%' }}
-                    />
-                  </Form.Item>
-                </Card>
+                    <Col span={12}>
+                      <Card size="small" title="Featured Offer %" style={{ marginBottom: 16 }}>
+                        <Form.Item label="Percentage">
+                          <InputNumber
+                            value={globalSnapshot.featuredOffer.percentage}
+                            onChange={(value) => setGlobalSnapshot(prev => ({
+                              ...prev,
+                              featuredOffer: { ...prev.featuredOffer, percentage: value || 0 }
+                            }))}
+                            min={0}
+                            max={100}
+                            formatter={value => `${value}%`}
+                            parser={(value) => Number(value!.replace('%', ''))}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                        <Form.Item label="Days ago">
+                          <InputNumber
+                            value={globalSnapshot.featuredOffer.daysAgo}
+                            onChange={(value) => setGlobalSnapshot(prev => ({
+                              ...prev,
+                              featuredOffer: { ...prev.featuredOffer, daysAgo: value || 0 }
+                            }))}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                      </Card>
 
-                <Card size="small" title="Seller Feedback" style={{ marginBottom: 16 }}>
-                  <Form.Item label="Rating">
-                    <InputNumber
-                      value={globalSnapshot.feedback.rating}
-                      onChange={(value) => setGlobalSnapshot(prev => ({
-                        ...prev,
-                        feedback: { ...prev.feedback, rating: value || 0 }
-                      }))}
-                      min={0}
-                      max={5}
-                      step={0.1}
-                      precision={1}
-                      style={{ width: '100%' }}
-                    />
-                  </Form.Item>
-                  <Form.Item label="Count">
-                    <InputNumber
-                      value={globalSnapshot.feedback.count}
-                      onChange={(value) => setGlobalSnapshot(prev => ({
-                        ...prev,
-                        feedback: { ...prev.feedback, count: value || 0 }
-                      }))}
-                      style={{ width: '100%' }}
-                    />
-                  </Form.Item>
-                </Card>
+                      <Card size="small" title="Seller Feedback" style={{ marginBottom: 16 }}>
+                        <Form.Item label="Rating">
+                          <InputNumber
+                            value={globalSnapshot.feedback.rating}
+                            onChange={(value) => setGlobalSnapshot(prev => ({
+                              ...prev,
+                              feedback: { ...prev.feedback, rating: value || 0 }
+                            }))}
+                            min={0}
+                            max={5}
+                            step={0.1}
+                            precision={1}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                        <Form.Item label="Count">
+                          <InputNumber
+                            value={globalSnapshot.feedback.count}
+                            onChange={(value) => setGlobalSnapshot(prev => ({
+                              ...prev,
+                              feedback: { ...prev.feedback, count: value || 0 }
+                            }))}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                      </Card>
 
-                <Card size="small" title="Payments" style={{ marginBottom: 16 }}>
-                  <Form.Item label="Total Balance">
-                    <InputNumber
-                      value={globalSnapshot.payments.totalBalance}
-                      onChange={(value) => setGlobalSnapshot(prev => ({
-                        ...prev,
-                        payments: { ...prev.payments, totalBalance: value || 0 }
-                      }))}
-                      precision={2}
-                      style={{ width: '100%' }}
-                    />
-                  </Form.Item>
-                </Card>
+                      <Card size="small" title="Payments" style={{ marginBottom: 16 }}>
+                        <Form.Item label="Total Balance">
+                          <InputNumber
+                            value={globalSnapshot.payments.totalBalance}
+                            onChange={(value) => setGlobalSnapshot(prev => ({
+                              ...prev,
+                              payments: { ...prev.payments, totalBalance: value || 0 }
+                            }))}
+                            precision={2}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                      </Card>
 
-                <Card size="small" title="Ads & Inventory">
-                  <Form.Item label="Ad Sales">
-                    <InputNumber
-                      value={globalSnapshot.ads.sales}
-                      onChange={(value) => setGlobalSnapshot(prev => ({
-                        ...prev,
-                        ads: { ...prev.ads, sales: value || 0 }
-                      }))}
-                      precision={2}
-                      style={{ width: '100%' }}
-                    />
-                  </Form.Item>
-                  <Form.Item label="Ad Impressions">
-                    <InputNumber
-                      value={globalSnapshot.ads.impressions}
-                      onChange={(value) => setGlobalSnapshot(prev => ({
-                        ...prev,
-                        ads: { ...prev.ads, impressions: value || 0 }
-                      }))}
-                      style={{ width: '100%' }}
-                    />
-                  </Form.Item>
-                  <Form.Item label="Inventory Performance Index">
-                    <InputNumber
-                      value={globalSnapshot.inventory.performanceIndex}
-                      onChange={(value) => setGlobalSnapshot(prev => ({
-                        ...prev,
-                        inventory: { performanceIndex: value || 0 }
-                      }))}
-                      style={{ width: '100%' }}
-                    />
-                  </Form.Item>
+                      <Card size="small" title="Ads & Inventory">
+                        <Form.Item label="Ad Sales">
+                          <InputNumber
+                            value={globalSnapshot.ads.sales}
+                            onChange={(value) => setGlobalSnapshot(prev => ({
+                              ...prev,
+                              ads: { ...prev.ads, sales: value || 0 }
+                            }))}
+                            precision={2}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                        <Form.Item label="Ad Impressions">
+                          <InputNumber
+                            value={globalSnapshot.ads.impressions}
+                            onChange={(value) => setGlobalSnapshot(prev => ({
+                              ...prev,
+                              ads: { ...prev.ads, impressions: value || 0 }
+                            }))}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                        <Form.Item label="Inventory Performance Index">
+                          <InputNumber
+                            value={globalSnapshot.inventory.performanceIndex}
+                            onChange={(value) => setGlobalSnapshot(prev => ({
+                              ...prev,
+                              inventory: { performanceIndex: value || 0 }
+                            }))}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                      </Card>
+                    </Col>
+                  </Row>
                 </Card>
-              </Col>
-            </Row>
-          </Card>
-        </TabPane>
-
-        <TabPane tab="欢迎横幅" key="welcomeBanner">
-          <Card title="欢迎横幅配置" extra={
-            <Button 
-              type="primary" 
-              icon={<SaveOutlined />} 
-              loading={loading}
-              onClick={handleSaveWelcomeBanner}
-            >
-              保存配置
-            </Button>
-          }>
-            <Row gutter={24}>
-              <Col span={12}>
-                <Form.Item label="问候语">
-                  <Input
-                    value={welcomeBanner.greeting}
-                    onChange={(e) => setWelcomeBanner(prev => ({
-                      ...prev,
-                      greeting: e.target.value
-                    }))}
-                    placeholder="Good evening"
-                  />
-                </Form.Item>
-                <Form.Item label="健康状态">
-                  <Input
-                    value={welcomeBanner.healthStatus}
-                    onChange={(e) => setWelcomeBanner(prev => ({
-                      ...prev,
-                      healthStatus: e.target.value
-                    }))}
-                    placeholder="Healthy"
-                  />
-                </Form.Item>
-                <Form.Item label="状态颜色">
-                  <Input
-                    value={welcomeBanner.healthColor}
-                    onChange={(e) => setWelcomeBanner(prev => ({
-                      ...prev,
-                      healthColor: e.target.value
-                    }))}
-                    placeholder="#507F00"
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item label="显示 Launch Tour 按钮">
-                  <Switch
-                    checked={welcomeBanner.showTour}
-                    onChange={(checked) => setWelcomeBanner(prev => ({
-                      ...prev,
-                      showTour: checked
-                    }))}
-                  />
-                </Form.Item>
-                <Form.Item label="显示 Learn More 按钮">
-                  <Switch
-                    checked={welcomeBanner.showLearnMore}
-                    onChange={(checked) => setWelcomeBanner(prev => ({
-                      ...prev,
-                      showLearnMore: checked
-                    }))}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Card>
-        </TabPane>
-      </Tabs>
+              )
+            },
+            {
+              key: 'welcomeBanner',
+              label: '欢迎横幅',
+              children: (
+                <Card title="欢迎横幅配置" extra={
+                  <Button 
+                    type="primary" 
+                    icon={<SaveOutlined />} 
+                    loading={loading}
+                    onClick={handleSaveWelcomeBanner}
+                  >
+                    保存配置
+                  </Button>
+                }>
+                  <Row gutter={24}>
+                    <Col span={12}>
+                      <Form.Item label="问候语">
+                        <Input
+                          value={welcomeBanner.greeting}
+                          onChange={(e) => setWelcomeBanner(prev => ({
+                            ...prev,
+                            greeting: e.target.value
+                          }))}
+                          placeholder="Good evening"
+                        />
+                      </Form.Item>
+                      <Form.Item label="健康状态">
+                        <Input
+                          value={welcomeBanner.healthStatus}
+                          onChange={(e) => setWelcomeBanner(prev => ({
+                            ...prev,
+                            healthStatus: e.target.value
+                          }))}
+                          placeholder="Healthy"
+                        />
+                      </Form.Item>
+                      <Form.Item label="状态颜色">
+                        <Input
+                          value={welcomeBanner.healthColor}
+                          onChange={(e) => setWelcomeBanner(prev => ({
+                            ...prev,
+                            healthColor: e.target.value
+                          }))}
+                          placeholder="#507F00"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item label="显示 Launch Tour 按钮">
+                        <Switch
+                          checked={welcomeBanner.showTour}
+                          onChange={(checked) => setWelcomeBanner(prev => ({
+                            ...prev,
+                            showTour: checked
+                          }))}
+                        />
+                      </Form.Item>
+                      <Form.Item label="显示 Learn More 按钮">
+                        <Switch
+                          checked={welcomeBanner.showLearnMore}
+                          onChange={(checked) => setWelcomeBanner(prev => ({
+                            ...prev,
+                            showLearnMore: checked
+                          }))}
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                </Card>
+              )
+            }
+          ]}
+        />
       )}
     </div>
   );

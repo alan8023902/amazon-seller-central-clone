@@ -11,7 +11,8 @@ import {
   Popconfirm,
   Switch,
   Tooltip,
-  Typography
+  Typography,
+  Select
 } from 'antd';
 import { 
   PlusOutlined, 
@@ -27,14 +28,16 @@ const { Text } = Typography;
 
 interface User {
   id: string;
-  username: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'user' | 'manager';
+  store_id?: string;
+  is_active: boolean;
+  last_login?: string;
   password: string;
-  email?: string;
-  phone?: string;
-  otpCode: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  otp_secret: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface UserManagementProps {
@@ -57,7 +60,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ selectedStoreId, select
   const loadUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3002/api/users');
+      const response = await fetch('http://localhost:3001/api/users');
       const result = await response.json();
       if (result.success) {
         setUsers(result.data);
@@ -74,8 +77,8 @@ const UserManagement: React.FC<UserManagementProps> = ({ selectedStoreId, select
     setLoading(true);
     try {
       const url = editingUser 
-        ? `http://localhost:3002/api/users/${editingUser.id}`
-        : 'http://localhost:3002/api/users';
+        ? `http://localhost:3001/api/users/${editingUser.id}`
+        : 'http://localhost:3001/api/users';
       
       const method = editingUser ? 'PUT' : 'POST';
       
@@ -108,7 +111,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ selectedStoreId, select
 
   const refreshOTP = async (userId: string) => {
     try {
-      const response = await fetch(`http://localhost:3002/api/users/${userId}/refresh-otp`, {
+      const response = await fetch(`http://localhost:3001/api/users/${userId}/refresh-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -129,6 +132,29 @@ const UserManagement: React.FC<UserManagementProps> = ({ selectedStoreId, select
     }
   };
 
+  const refreshPassword = async (userId: string) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/users/${userId}/refresh-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        message.success('密码已刷新！');
+        loadUsers(); // 重新加载用户列表
+      } else {
+        message.error(result.message || '刷新失败');
+      }
+    } catch (error) {
+      message.error('刷新失败，请重试');
+      console.error('Refresh password error:', error);
+    }
+  };
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
       message.success('验证码已复制到剪贴板');
@@ -140,7 +166,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ selectedStoreId, select
   const handleDelete = async (userId: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3002/api/users/${userId}`, {
+      const response = await fetch(`http://localhost:3001/api/users/${userId}`, {
         method: 'DELETE',
       });
 
@@ -163,10 +189,11 @@ const UserManagement: React.FC<UserManagementProps> = ({ selectedStoreId, select
   const handleEdit = (user: User) => {
     setEditingUser(user);
     form.setFieldsValue({
-      username: user.username,
+      name: user.name,
       email: user.email,
-      phone: user.phone,
-      isActive: user.isActive,
+      role: user.role,
+      store_id: user.store_id,
+      is_active: user.is_active,
     });
     setModalVisible(true);
   };
@@ -174,42 +201,62 @@ const UserManagement: React.FC<UserManagementProps> = ({ selectedStoreId, select
   const handleAdd = () => {
     setEditingUser(null);
     form.resetFields();
-    form.setFieldsValue({ isActive: true });
+    form.setFieldsValue({ is_active: true, role: 'user' });
     setModalVisible(true);
   };
 
   const columns = [
     {
-      title: '用户名 (邮箱/手机)',
-      dataIndex: 'username',
-      key: 'username',
-      render: (username: string, record: User) => (
+      title: '用户名 (邮箱)',
+      dataIndex: 'name',
+      key: 'name',
+      render: (name: string, record: User) => (
         <div>
-          <div className="font-medium">{username}</div>
-          <div className="text-xs text-gray-500">
-            {/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username) ? '邮箱' : '手机号'}
-          </div>
+          <div className="font-medium">{name}</div>
+          <div className="text-xs text-gray-500">{record.email}</div>
         </div>
       ),
     },
     {
-      title: '联系方式',
-      key: 'contact',
-      render: (_, record: User) => (
-        <div className="text-sm">
-          {record.email && <div>📧 {record.email}</div>}
-          {record.phone && <div>📱 {record.phone}</div>}
+      title: '角色',
+      dataIndex: 'role',
+      key: 'role',
+      render: (role: string) => (
+        <span style={{ 
+          color: role === 'admin' ? '#f50' : role === 'manager' ? '#108ee9' : '#87d068' 
+        }}>
+          {role === 'admin' ? '管理员' : role === 'manager' ? '经理' : '用户'}
+        </span>
+      ),
+    },
+    {
+      title: '密码',
+      dataIndex: 'password',
+      key: 'password',
+      render: (password: string, record: User) => (
+        <div className="flex items-center gap-2">
+          <Text code copyable={{ text: password, onCopy: () => message.success('密码已复制') }}>
+            {password}
+          </Text>
+          <Tooltip title="刷新密码">
+            <Button 
+              type="text" 
+              size="small"
+              icon={<ReloadOutlined />}
+              onClick={() => refreshPassword(record.id)}
+            />
+          </Tooltip>
         </div>
       ),
     },
     {
       title: '验证码',
-      dataIndex: 'otpCode',
-      key: 'otpCode',
-      render: (otpCode: string, record: User) => (
+      dataIndex: 'otp_secret',
+      key: 'otp_secret',
+      render: (otpSecret: string, record: User) => (
         <div className="flex items-center gap-2">
-          <Text code copyable={{ text: otpCode, onCopy: () => message.success('验证码已复制') }}>
-            {otpCode}
+          <Text code copyable={{ text: otpSecret, onCopy: () => message.success('验证码已复制') }}>
+            {otpSecret}
           </Text>
           <Tooltip title="刷新验证码">
             <Button 
@@ -224,8 +271,8 @@ const UserManagement: React.FC<UserManagementProps> = ({ selectedStoreId, select
     },
     {
       title: '状态',
-      dataIndex: 'isActive',
-      key: 'isActive',
+      dataIndex: 'is_active',
+      key: 'is_active',
       render: (isActive: boolean) => (
         <span style={{ color: isActive ? '#52c41a' : '#ff4d4f' }}>
           {isActive ? '启用' : '禁用'}
@@ -234,8 +281,8 @@ const UserManagement: React.FC<UserManagementProps> = ({ selectedStoreId, select
     },
     {
       title: '创建时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
+      dataIndex: 'created_at',
+      key: 'created_at',
       render: (date: string) => new Date(date).toLocaleString('zh-CN'),
     },
     {
@@ -274,7 +321,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ selectedStoreId, select
       <div style={{ marginBottom: 24 }}>
         <h2>前端用户管理</h2>
         <p style={{ color: '#666' }}>
-          管理前端登录用户的账号密码和验证码，用户可以使用这些账号登录前端系统。每个用户都有专属的6位数验证码，可以点击刷新按钮重新生成。
+          管理前端登录用户的账号密码和验证码，用户可以使用这些账号登录前端系统。每个用户都有专属的密码（1个英文字母+6位数字）和6位数验证码，可以点击刷新按钮重新生成。
         </p>
       </div>
 
@@ -319,61 +366,52 @@ const UserManagement: React.FC<UserManagementProps> = ({ selectedStoreId, select
           form={form}
           layout="vertical"
           onFinish={handleSave}
-          initialValues={{ isActive: true }}
+          initialValues={{ is_active: true, role: 'user' }}
         >
           <Form.Item
-            label="用户名 (邮箱或手机号)"
-            name="username"
+            label="姓名"
+            name="name"
             rules={[
-              { required: true, message: '请输入邮箱或手机号' },
-              {
-                pattern: /^([^\s@]+@[^\s@]+\.[^\s@]+|(\+\d{1,3}[- ]?)?\d{10,})$/,
-                message: '请输入有效的邮箱地址或手机号码'
-              }
+              { required: true, message: '请输入姓名' },
+              { min: 2, message: '姓名至少2个字符' }
             ]}
           >
-            <Input placeholder="请输入邮箱或手机号" />
+            <Input placeholder="请输入姓名" />
           </Form.Item>
 
           <Form.Item
-            label="密码"
-            name="password"
-            rules={[
-              { required: !editingUser, message: '请输入密码' },
-              { min: 6, message: '密码至少6个字符' },
-            ]}
-          >
-            <Input.Password 
-              placeholder={editingUser ? '留空则不修改密码' : '请输入密码'} 
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="备用邮箱"
+            label="邮箱"
             name="email"
             rules={[
-              { type: 'email', message: '请输入有效的邮箱地址' },
+              { required: true, message: '请输入邮箱' },
+              { type: 'email', message: '请输入有效的邮箱地址' }
             ]}
           >
-            <Input placeholder="备用邮箱（可选）" />
+            <Input placeholder="请输入邮箱地址" />
           </Form.Item>
 
           <Form.Item
-            label="备用手机号"
-            name="phone"
-            rules={[
-              {
-                pattern: /^(\+\d{1,3}[- ]?)?\d{10,}$/,
-                message: '请输入有效的手机号码'
-              }
-            ]}
+            label="角色"
+            name="role"
+            rules={[{ required: true, message: '请选择角色' }]}
           >
-            <Input placeholder="备用手机号（可选）" />
+            <Select placeholder="请选择角色">
+              <Select.Option value="admin">管理员</Select.Option>
+              <Select.Option value="manager">经理</Select.Option>
+              <Select.Option value="user">用户</Select.Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="关联店铺"
+            name="store_id"
+          >
+            <Input placeholder="店铺ID（可选）" />
           </Form.Item>
 
           <Form.Item
             label="状态"
-            name="isActive"
+            name="is_active"
             valuePropName="checked"
           >
             <Switch checkedChildren="启用" unCheckedChildren="禁用" />

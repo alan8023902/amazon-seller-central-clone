@@ -57,19 +57,36 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0
+  });
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
 
   // 获取产品列表 - 根据选中的店铺过滤
   const { data: productsResponse, isLoading } = useQuery({
-    queryKey: ['products', selectedStoreId, { search: searchText, status: statusFilter }],
+    queryKey: ['products', selectedStoreId, pagination.current, pagination.pageSize, searchText, statusFilter],
     queryFn: () => productApi.getProducts({ 
       store_id: selectedStoreId,
+      page: pagination.current,
+      limit: pagination.pageSize,
       search: searchText || undefined,
       status: statusFilter === 'All' ? undefined : statusFilter as any
     }),
     enabled: !!selectedStoreId, // 只有选择了店铺才执行查询
   });
+
+  // 更新分页信息
+  React.useEffect(() => {
+    if (productsResponse?.pagination) {
+      setPagination(prev => ({
+        ...prev,
+        total: productsResponse.pagination.total
+      }));
+    }
+  }, [productsResponse]);
 
   // 创建产品
   const createProductMutation = useMutation({
@@ -151,6 +168,17 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
     form.setFieldsValue({ image_url: undefined });
   };
 
+  // 处理搜索
+  const handleSearch = () => {
+    setPagination(prev => ({ ...prev, current: 1 })); // 搜索时重置到第一页
+  };
+
+  // 处理状态筛选
+  const handleStatusFilterChange = (value: string) => {
+    setStatusFilter(value);
+    setPagination(prev => ({ ...prev, current: 1 })); // 筛选时重置到第一页
+  };
+
   const columns = [
     {
       title: '图片',
@@ -198,7 +226,7 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
       title: '价格',
       dataIndex: 'price',
       key: 'price',
-      render: (price: number) => `$${price.toFixed(2)}`,
+      render: (price: number) => `${price.toFixed(2)}`,
     },
     {
       title: '库存',
@@ -219,7 +247,7 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
       title: '销售额',
       dataIndex: 'sales_amount',
       key: 'sales_amount',
-      render: (amount: number) => `$${amount.toFixed(2)}`,
+      render: (amount: number) => `${amount.toFixed(2)}`,
     },
     {
       title: '操作',
@@ -276,16 +304,17 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
         <>
           {/* 搜索和筛选 */}
           <div style={{ marginBottom: 16, display: 'flex', gap: 16 }}>
-            <Input
+            <Input.Search
               placeholder="搜索产品名称、SKU或ASIN"
-              prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
+              onSearch={handleSearch}
               style={{ width: 300 }}
+              enterButton
             />
             <Select
               value={statusFilter}
-              onChange={setStatusFilter}
+              onChange={handleStatusFilterChange}
               style={{ width: 120 }}
             >
               <Option value="All">全部状态</Option>
@@ -312,12 +341,19 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
             loading={isLoading}
             rowKey="id"
             pagination={{
-              total: productsResponse?.pagination?.total || 0,
-              pageSize: 10,
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
               showSizeChanger: true,
               showQuickJumper: true,
               showTotal: (total, range) => 
                 `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
+              onChange: (page, pageSize) => {
+                setPagination({ current: page, pageSize, total: pagination.total });
+              },
+              onShowSizeChange: (current, size) => {
+                setPagination({ current: 1, pageSize: size, total: pagination.total });
+              }
             }}
           />
         </>

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据同步验证测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { border-color: #4CAF50; background-color: #f1f8e9; }
+        .error { border-color: #f44336; background-color: #ffebee; }
+        .warning { border-color: #ff9800; background-color: #fff3e0; }
+        .info { border-color: #2196F3; background-color: #e3f2fd; }
+        
+        button {
+            background-color: #007185;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #005a6b;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .data-display {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online { background-color: #4CAF50; }
+        .status-offline { background-color: #f44336; }
+        .status-loading { background-color: #ff9800; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .iframe-container {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .log-container {
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+        }
+        .log-info { color: #61dafb; }
+        .log-success { color: #4CAF50; }
+        .log-error { color: #f44336; }
+        .log-warning { color: #ff9800; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Amazon Seller Central - 数据同步验证测试</h1>
+        <p>此页面用于测试管理后台(3001)和前端(3000)之间的数据同步功能</p>
+    </div>
+
+    <!-- 服务状态检查 -->
+    <div class="container">
+        <h2>🔍 服务状态检查</h2>
+        <div class="test-section info">
+            <h3>后端服务 (Port 3002)</h3>
+            <div id="backend-status">
+                <span class="status-indicator status-loading"></span>
+                <span>检查中...</span>
+            </div>
+            <button onclick="checkBackendStatus()">重新检查</button>
+        </div>
+        
+        <div class="test-section info">
+            <h3>前端服务 (Port 3000)</h3>
+            <div id="frontend-status">
+                <span class="status-indicator status-loading"></span>
+                <span>检查中...</span>
+            </div>
+            <button onclick="checkFrontendStatus()">重新检查</button>
+        </div>
+        
+        <div class="test-section info">
+            <h3>管理后台 (Port 3001)</h3>
+            <div id="admin-status">
+                <span class="status-indicator status-loading"></span>
+                <span>检查中...</span>
+            </div>
+            <button onclick="checkAdminStatus()">重新检查</button>
+        </div>
+    </div>
+
+    <!-- 店铺管理测试 -->
+    <div class="container">
+        <h2>🏪 店铺管理测试</h2>
+        <div class="test-section">
+            <h3>店铺列表</h3>
+            <button onclick="loadStores()">加载店铺列表</button>
+            <button onclick="createTestStore()">创建测试店铺</button>
+            <div id="stores-data" class="data-display">点击"加载店铺列表"查看数据</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>当前选中店铺</h3>
+            <select id="store-selector" onchange="switchStore()">
+                <option value="">选择店铺...</option>
+            </select>
+            <div id="current-store-data" class="data-display">请选择店铺</div>
+        </div>
+    </div>
+
+    <!-- 数据同步测试 -->
+    <div class="container">
+        <h2>🔄 数据同步测试</h2>
+        
+        <div class="test-section">
+            <h3>Dashboard 全局快照数据</h3>
+            <button onclick="loadDashboardData()">加载Dashboard数据</button>
+            <button onclick="updateDashboardData()">更新Dashboard数据</button>
+            <div id="dashboard-data" class="data-display">点击"加载Dashboard数据"查看</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>产品数据</h3>
+            <button onclick="loadProductsData()">加载产品数据</button>
+            <button onclick="createTestProduct()">创建测试产品</button>
+            <button onclick="updateTestProduct()">更新测试产品</button>
+            <div id="products-data" class="data-display">点击"加载产品数据"查看</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>销售数据</h3>
+            <button onclick="loadSalesData()">加载销售数据</button>
+            <button onclick="updateSalesData()">更新销售数据</button>
+            <div id="sales-data" class="data-display">点击"加载销售数据"查看</div>
+        </div>
+    </div>
+
+    <!-- 界面预览 -->
+    <div class="container">
+        <h2>🖥️ 界面预览</h2>
+        <div class="grid">
+            <div>
+                <h3>前端界面 (Port 3000)</h3>
+                <div class="iframe-container">
+                    <iframe src="http://localhost:3000" title="前端界面"></iframe>
+                </div>
+                <button onclick="refreshFrontend()">刷新前端</button>
+            </div>
+            <div>
+                <h3>管理后台 (Port 3001)</h3>
+                <div class="iframe-container">
+                    <iframe src="http://localhost:3001" title="管理后台"></iframe>
+                </div>
+                <button onclick="refreshAdmin()">刷新管理后台</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 测试日志 -->
+    <div class="container">
+        <h2>📋 测试日志</h2>
+        <button onclick="clearLogs()">清空日志</button>
+        <button onclick="runFullTest()">运行完整测试</button>
+        <div id="test-logs" class="log-container">
+            <div class="log-entry log-info">测试系统已初始化</div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let currentStoreId = null;
+        let testData = {
+            stores: [],
+            dashboard: null,
+            products: [],
+            sales: null
+        };
+
+        // 日志功能
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logContainer = document.getElementById('test-logs');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('test-logs').innerHTML = '<div class="log-entry log-info">日志已清空</div>';
+        }
+
+        // 服务状态检查
+        async function checkBackendStatus() {
+            try {
+                const response = await fetch('http://localhost:3002/api/health');
+                const data = await response.json();
+                updateStatus('backend-status', true, `后端服务正常 - ${data.status}`);
+                log('后端服务检查成功', 'success');
+            } catch (error) {
+                updateStatus('backend-status', false, '后端服务离线');
+                log(`后端服务检查失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkFrontendStatus() {
+            try {
+                const response = await fetch('http://localhost:3000');
+                if (response.ok) {
+                    updateStatus('frontend-status', true, '前端服务正常');
+                    log('前端服务检查成功', 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                updateStatus('frontend-status', false, '前端服务离线');
+                log(`前端服务检查失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkAdminStatus() {
+            try {
+                const response = await fetch('http://localhost:3001');
+                if (response.ok) {
+                    updateStatus('admin-status', true, '管理后台正常');
+                    log('管理后台检查成功', 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                updateStatus('admin-status', false, '管理后台离线');
+                log(`管理后台检查失败: ${error.message}`, 'error');
+            }
+        }
+
+        function updateStatus(elementId, isOnline, message) {
+            const element = document.getElementById(elementId);
+            const indicator = element.querySelector('.status-indicator');
+            const text = element.querySelector('span:last-child');
+            
+            indicator.className = `status-indicator ${isOnline ? 'status-online' : 'status-offline'}`;
+            text.textContent = message;
+        }
+
+        // 店铺管理
+        async function loadStores() {
+            try {
+                const response = await fetch('http://localhost:3002/api/stores');
+                const data = await response.json();
+                testData.stores = data.data || [];
+                
+                document.getElementById('stores-data').textContent = JSON.stringify(testData.stores, null, 2);
+                
+                // 更新店铺选择器
+                const selector = document.getElementById('store-selector');
+                selector.innerHTML = '<option value="">选择店铺...</option>';
+                testData.stores.forEach(store => {
+                    const option = document.createElement('option');
+                    option.value = store.id;
+                    option.textContent = `${store.name} (${store.marketplace})`;
+                    selector.appendChild(option);
+                });
+                
+                log(`加载了 ${testData.stores.length} 个店铺`, 'success');
+            } catch (error) {
+                log(`加载店铺失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function createTestStore() {
+            try {
+                const testStore = {
+                    name: `测试店铺_${Date.now()}`,
+                    marketplace: 'United States',
+                    currency_symbol: '$',
+                    country: 'United States',
+                    business_type: 'Business'
+                };
+                
+                const response = await fetch('http://localhost:3002/api/stores', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testStore)
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    log(`创建测试店铺成功: ${data.data.name}`, 'success');
+                    await loadStores(); // 重新加载店铺列表
+                } else {
+                    throw new Error(data.message || '创建失败');
+                }
+            } catch (error) {
+                log(`创建测试店铺失败: ${error.message}`, 'error');
+            }
+        }
+
+        function switchStore() {
+            const selector = document.getElementById('store-selector');
+            currentStoreId = selector.value;
+            
+            if (currentStoreId) {
+                const store = testData.stores.find(s => s.id === currentStoreId);
+                document.getElementById('current-store-data').textContent = JSON.stringify(store, null, 2);
+                log(`切换到店铺: ${store.name}`, 'info');
+            } else {
+                document.getElementById('current-store-data').textContent = '请选择店铺';
+                log('取消店铺选择', 'info');
+            }
+        }
+
+        // 数据同步测试
+        async function loadDashboardData() {
+            if (!currentStoreId) {
+                log('请先选择店铺', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`http://localhost:3002/api/dashboard/snapshot/${currentStoreId}`);
+                const data = await response.json();
+                testData.dashboard = data.data;
+                
+                document.getElementById('dashboard-data').textContent = JSON.stringify(testData.dashboard, null, 2);
+                log('Dashboard数据加载成功', 'success');
+            } catch (error) {
+                log(`Dashboard数据加载失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function updateDashboardData() {
+            if (!currentStoreId) {
+                log('请先选择店铺', 'warning');
+                return;
+            }
+            
+            try {
+                const updateData = {
+                    sales_amount: Math.round(Math.random() * 1000),
+                    open_orders: Math.round(Math.random() * 50),
+                    buyer_messages: Math.round(Math.random() * 10)
+                };
+                
+                const response = await fetch(`http://localhost:3002/api/dashboard/snapshot/${currentStoreId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    testData.dashboard = data.data;
+                    document.getElementById('dashboard-data').textContent = JSON.stringify(testData.dashboard, null, 2);
+                    log('Dashboard数据更新成功', 'success');
+                } else {
+                    throw new Error(data.message || '更新失败');
+                }
+            } catch (error) {
+                log(`Dashboard数据更新失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadProductsData() {
+            if (!currentStoreId) {
+                log('请先选择店铺', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`http://localhost:3002/api/products?store_id=${currentStoreId}&limit=5`);
+                const data = await response.json();
+                testData.products = data.data || [];
+                
+                document.getElementById('products-data').textContent = JSON.stringify(testData.products, null, 2);
+                log(`加载了 ${testData.products.length} 个产品`, 'success');
+            } catch (error) {
+                log(`产品数据加载失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function createTestProduct() {
+            if (!currentStoreId) {
+                log('请先选择店铺', 'warning');
+                return;
+            }
+            
+            try {
+                const testProduct = {
+                    store_id: currentStoreId,
+                    title: `测试产品_${Date.now()}`,
+                    sku: `TEST-SKU-${Date.now()}`,
+                    asin: `B0${Math.random().toString(36).substr(2, 8).toUpperCase()}`,
+                    price: Math.round(Math.random() * 100 * 100) / 100,
+                    inventory: Math.round(Math.random() * 100),
+                    status: 'Active'
+                };
+                
+                const response = await fetch('http://localhost:3002/api/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testProduct)
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    log(`创建测试产品成功: ${data.data.title}`, 'success');
+                    await loadProductsData(); // 重新加载产品列表
+                } else {
+                    throw new Error(data.message || '创建失败');
+                }
+            } catch (error) {
+                log(`创建测试产品失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function updateTestProduct() {
+            if (!currentStoreId || testData.products.length === 0) {
+                log('请先选择店铺并加载产品数据', 'warning');
+                return;
+            }
+            
+            try {
+                const product = testData.products[0]; // 更新第一个产品
+                const updateData = {
+                    price: Math.round(Math.random() * 100 * 100) / 100,
+                    inventory: Math.round(Math.random() * 100),
+                    sales_amount: Math.round(Math.random() * 500 * 100) / 100
+                };
+                
+                const response = await fetch(`http://localhost:3002/api/products/${product.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    log(`产品更新成功: ${product.title}`, 'success');
+                    await loadProductsData(); // 重新加载产品列表
+                } else {
+                    throw new Error(data.message || '更新失败');
+                }
+            } catch (error) {
+                log(`产品更新失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadSalesData() {
+            if (!currentStoreId) {
+                log('请先选择店铺', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`http://localhost:3002/api/sales/snapshot/${currentStoreId}`);
+                const data = await response.json();
+                testData.sales = data.data;
+                
+                document.getElementById('sales-data').textContent = JSON.stringify(testData.sales, null, 2);
+                log('销售数据加载成功', 'success');
+            } catch (error) {
+                log(`销售数据加载失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function updateSalesData() {
+            if (!currentStoreId) {
+                log('请先选择店铺', 'warning');
+                return;
+            }
+            
+            try {
+                const updateData = {
+                    total_order_items: Math.round(Math.random() * 500),
+                    units_ordered: Math.round(Math.random() * 10000),
+                    ordered_product_sales: Math.round(Math.random() * 50000 * 100) / 100
+                };
+                
+                const response = await fetch(`http://localhost:3002/api/sales/snapshot/${currentStoreId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    testData.sales = data.data;
+                    document.getElementById('sales-data').textContent = JSON.stringify(testData.sales, null, 2);
+                    log('销售数据更新成功', 'success');
+                } else {
+                    throw new Error(data.message || '更新失败');
+                }
+            } catch (error) {
+                log(`销售数据更新失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 界面刷新
+        function refreshFrontend() {
+            const iframe = document.querySelector('iframe[src="http://localhost:3000"]');
+            iframe.src = iframe.src;
+            log('前端界面已刷新', 'info');
+        }
+
+        function refreshAdmin() {
+            const iframe = document.querySelector('iframe[src="http://localhost:3001"]');
+            iframe.src = iframe.src;
+            log('管理后台界面已刷新', 'info');
+        }
+
+        // 完整测试
+        async function runFullTest() {
+            log('开始运行完整测试...', 'info');
+            
+            // 1. 检查服务状态
+            await checkBackendStatus();
+            await checkFrontendStatus();
+            await checkAdminStatus();
+            
+            // 2. 加载店铺数据
+            await loadStores();
+            
+            // 3. 如果有店铺，选择第一个进行测试
+            if (testData.stores.length > 0) {
+                const selector = document.getElementById('store-selector');
+                selector.value = testData.stores[0].id;
+                switchStore();
+                
+                // 4. 测试数据加载
+                await loadDashboardData();
+                await loadProductsData();
+                await loadSalesData();
+                
+                // 5. 测试数据更新
+                await updateDashboardData();
+                if (testData.products.length > 0) {
+                    await updateTestProduct();
+                }
+                await updateSalesData();
+                
+                log('完整测试完成！', 'success');
+            } else {
+                log('没有找到店铺，创建测试店铺...', 'warning');
+                await createTestStore();
+                log('请手动选择店铺继续测试', 'info');
+            }
+        }
+
+        // 页面加载时初始化
+        window.onload = function() {
+            log('页面加载完成，开始初始化检查...', 'info');
+            checkBackendStatus();
+            checkFrontendStatus();
+            checkAdminStatus();
+            loadStores();
+        };
+    </script>
+</body>
+</html>

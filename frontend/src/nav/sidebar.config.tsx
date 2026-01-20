@@ -9,6 +9,8 @@ export interface SidebarMenuItem {
   icon?: ReactNode;
   children?: SidebarMenuItem[];
   activePrefix?: string;
+  isHeader?: boolean;
+  className?: string;
 }
 
 // 定义侧边栏配置类型
@@ -24,85 +26,76 @@ export const reportsSidebar: SidebarConfig = {
   label: 'reports',
   items: [
     {
-      id: 'dashboards',
+      id: 'header-dashboards',
       label: 'dashboards',
-      path: '/app/business-reports',
-      icon: <Activity size={12} />,
-      children: [
-        {
-          id: 'sales-dashboard',
-          label: 'salesDashboard',
-          path: '/app/business-reports/sales-dashboard',
-          activePrefix: '/app/business-reports'
-        }
-      ]
+      path: '',
+      isHeader: true
     },
     {
-      id: 'business-reports',
+      id: 'sales-dashboard',
+      label: 'salesDashboard',
+      path: '/app/business-reports/sales-dashboard',
+      activePrefix: '/app/business-reports/sales-dashboard'
+    },
+    {
+      id: 'header-business-reports',
       label: 'businessReports',
-      path: '/app/business-reports/by-date',
-      icon: <FileText size={12} />,
-      children: [
-        {
-          id: 'by-date',
-          label: 'byDate',
-          path: '/app/business-reports/by-date'
-        }
-      ]
+      path: '',
+      isHeader: true
+    },
+    {
+      id: 'header-by-date',
+      label: 'byDate',
+      path: '',
+      isHeader: false,
+      className: 'text-[#0F1111] font-normal px-4 py-2 text-[13px] mt-2'
     },
     {
       id: 'sales-and-traffic',
       label: 'salesAndTraffic',
-      path: '/app/business-reports/sales-traffic',
-      icon: <Activity size={12} />,
-      children: [
-        {
-          id: 'detail-page-sales',
-          label: 'detailPageSales',
-          path: '/app/business-reports/by-date/detail-page-sales'
-        },
-        {
-          id: 'by-parent-item',
-          label: 'byParentItem',
-          path: '/app/business-reports/sales-traffic/by-parent-item'
-        },
-        {
-          id: 'by-child-item',
-          label: 'byChildItem',
-          path: '/app/business-reports/sales-traffic/by-child-item'
-        }
-      ]
+      path: '/app/business-reports/by-date/sales-traffic'
+    },
+    {
+      id: 'detail-page-sales',
+      label: 'detailPageSales',
+      path: '/app/business-reports/by-date/detail-page-sales'
     },
     {
       id: 'seller-performance',
       label: 'sellerPerformance',
-      path: '/app/business-reports/seller-performance',
-      icon: <Activity size={12} />
+      path: '/app/business-reports/by-date/seller-performance'
     },
     {
-      id: 'by-asin',
+      id: 'header-by-asin',
       label: 'byAsin',
-      path: '/app/business-reports/by-asin',
-      icon: <Tag size={12} />,
-      children: [
-        {
-          id: 'asin-detail-sales',
-          label: 'asinDetailSales',
-          path: '/app/business-reports/by-asin/detail-sales'
-        }
-      ]
+      path: '',
+      className: 'text-[#0F1111] font-normal px-4 py-2 text-[13px] mt-2'
     },
     {
-      id: 'other',
+      id: 'asin-detail-page-sales',
+      label: 'asinDetailSales',
+      path: '/app/business-reports/by-asin/detail-sales'
+    },
+    {
+      id: 'asin-parent-item',
+      label: 'asinParentItem',
+      path: '/app/business-reports/by-asin/parent'
+    },
+    {
+      id: 'asin-child-item',
+      label: 'asinChildItem',
+      path: '/app/business-reports/by-asin/child'
+    },
+    {
+      id: 'header-other',
       label: 'other',
-      path: '/app/business-reports/other',
-      icon: <FileText size={12} />
+      path: '',
+      className: 'text-[#0F1111] font-normal px-4 py-2 text-[13px] mt-2'
     },
     {
       id: 'sales-by-month',
       label: 'salesByMonth',
-      path: '/app/business-reports/sales-by-month',
-      icon: <FileText size={12} />
+      path: '/app/business-reports/other/sales-by-month'
     }
   ]
 };

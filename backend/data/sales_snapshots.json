@@ -18,5 +18,15 @@
     "avg_sales_per_order": 110.29,
     "snapshot_time": "2026-01-19T18:37:52.600Z",
     "id": "697eab43-0ea8-400b-b947-e566c8b38afb"
+  },
+  {
+    "store_id": "store-jp-main",
+    "total_order_items": 248,
+    "units_ordered": 192260,
+    "ordered_product_sales": 18657478,
+    "avg_units_per_order": 1.14,
+    "avg_sales_per_order": 110.29,
+    "snapshot_time": "2026-01-20T15:54:55.433Z",
+    "id": "a985b8b2-f556-4834-91fe-1676d5c02ddb"
   }
 ]

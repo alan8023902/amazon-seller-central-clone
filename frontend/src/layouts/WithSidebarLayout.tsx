@@ -12,13 +12,13 @@ const WithSidebarLayout: React.FC = () => {
     <div className="flex">
       {/* Sidebar - only show if config exists */}
       {sidebarConfig && (
-        <aside className="w-[220px] min-w-[220px] bg-[#EEF0F3] border-r border-gray-200 shrink-0 overflow-y-auto">
+        <aside className="w-[260px] min-w-[260px] bg-[#EEF0F3] border-r border-gray-200 shrink-0">
           <Sidebar config={sidebarConfig} />
         </aside>
       )}
-      
+
       {/* Main content */}
-      <main 
+      <main
         className={cn(
           "flex-1 p-6",
           sidebarConfig ? "" : "w-full"

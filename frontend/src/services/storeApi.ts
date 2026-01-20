@@ -1,5 +1,5 @@
 // Store-specific API service with caching
-const API_BASE_URL = 'http://localhost:3002/api';
+const API_BASE_URL = 'http://localhost:3001/api';
 
 // Simple in-memory cache
 class ApiCache {
@@ -62,21 +62,24 @@ export interface DashboardData {
   salesToday: number;
   openOrders: number;
   messages: number;
+  featuredOfferPercent: number;
+  sellerFeedbackRating: number;
+  sellerFeedbackCount: number;
+  paymentsBalance: number;
+  fbmUnshipped: number;
+  fbmPending: number;
+  fbaPending: number;
+  inventoryPerformanceIndex: number;
+  adSales: number;
+  adImpressions: number;
   salesHistory: Array<{
     time: string;
     today: number;
     lastYear: number;
   }>;
-  inventory: Array<{
-    id: string;
-    name: string;
-    sku: string;
-    asin: string;
-    status: string;
-    price: number;
-    units: number;
-    image: string;
-  }>;
+  inventory: Product[];
+  actions: any[];
+  communications: any[];
   orders: any[];
   salesSnapshot: {
     totalOrderItems: number;
@@ -134,7 +137,7 @@ class StoreApiService {
       }
       const result = await response.json();
       const stores = result.data || [];
-      
+
       // Cache for 5 minutes
       apiCache.set(cacheKey, stores, 5 * 60 * 1000);
       return stores;
@@ -159,16 +162,16 @@ class StoreApiService {
         },
         body: JSON.stringify(storeData),
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const result = await response.json();
-      
+
       // Invalidate stores cache
       apiCache.invalidate('stores:');
-      
+
       return result.data;
     } catch (error) {
       console.error('Failed to create store:', error);
@@ -186,17 +189,17 @@ class StoreApiService {
         },
         body: JSON.stringify(storeData),
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const result = await response.json();
-      
+
       // Invalidate related caches
       apiCache.invalidate('stores:');
       apiCache.invalidate(`store:${storeId}`);
-      
+
       return result.data;
     } catch (error) {
       console.error('Failed to update store:', error);
@@ -210,11 +213,11 @@ class StoreApiService {
       const response = await fetch(`${API_BASE_URL}/stores/${storeId}`, {
         method: 'DELETE',
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       // Invalidate related caches
       apiCache.invalidate('stores:');
       apiCache.invalidate(`store:${storeId}`);
@@ -239,7 +242,7 @@ class StoreApiService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const result = await response.json();
-      
+
       // Cache for 5 minutes
       apiCache.set(cacheKey, result.data, 5 * 60 * 1000);
       return result.data;
@@ -261,7 +264,7 @@ class StoreApiService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const result = await response.json();
-      
+
       // Cache for 2 minutes (more frequent updates for stats)
       apiCache.set(cacheKey, result.data, 2 * 60 * 1000);
       return result.data;
@@ -283,7 +286,7 @@ class StoreApiService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const result = await response.json();
-      
+
       // Cache for 1 minute (frequent updates for dashboard)
       apiCache.set(cacheKey, result.data, 1 * 60 * 1000);
       return result.data;
@@ -315,7 +318,7 @@ class StoreApiService {
       }
       const result = await response.json();
       const products = result.data || [];
-      
+
       // Cache for 2 minutes
       apiCache.set(cacheKey, products, 2 * 60 * 1000);
       return products;
@@ -338,7 +341,7 @@ class StoreApiService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const result = await response.json();
-      
+
       // Cache for 1 minute
       apiCache.set(cacheKey, result.data, 1 * 60 * 1000);
       return result.data;
@@ -361,7 +364,7 @@ class StoreApiService {
       }
       const result = await response.json();
       const dailySales = result.data || [];
-      
+
       // Cache for 5 minutes
       apiCache.set(cacheKey, dailySales, 5 * 60 * 1000);
       return dailySales;

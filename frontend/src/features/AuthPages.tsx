@@ -106,17 +106,17 @@ export const RegisterPage = () => {
         </h1>
 
         <div className="space-y-4">
-          <InputField 
-            label={browserLang === 'zh' ? '您的姓名' : 'Your name'} 
-            placeholder={browserLang === 'zh' ? '姓名' : 'First and last name'} 
-            autoComplete="name" 
-            className="amz-auth-field" 
+          <InputField
+            label={browserLang === 'zh' ? '您的姓名' : 'Your name'}
+            placeholder={browserLang === 'zh' ? '姓名' : 'First and last name'}
+            autoComplete="name"
+            className="amz-auth-field"
           />
-          <InputField 
-            label={browserTexts.emailAddress} 
-            placeholder={browserTexts.emailAddress} 
-            autoComplete="email" 
-            className="amz-auth-field" 
+          <InputField
+            label={browserTexts.emailAddress}
+            placeholder={browserTexts.emailAddress}
+            autoComplete="email"
+            className="amz-auth-field"
           />
           <InputField
             label={browserTexts.password}
@@ -131,12 +131,12 @@ export const RegisterPage = () => {
             }
             className="amz-auth-field"
           />
-          <InputField 
-            label={browserTexts.confirmPassword} 
-            type="password" 
-            placeholder={browserTexts.confirmPassword} 
-            autoComplete="new-password" 
-            className="amz-auth-field" 
+          <InputField
+            label={browserTexts.confirmPassword}
+            type="password"
+            placeholder={browserTexts.confirmPassword}
+            autoComplete="new-password"
+            className="amz-auth-field"
           />
           <Button className="mt-[50px]">
             {browserTexts.createAccountButton}
@@ -192,10 +192,10 @@ export const LoginPassword = () => {
   const onSubmit = async (data: any) => {
     setLoading(true);
     setError('');
-    
+
     try {
       // 调用后端API进行认证
-      const response = await fetch('http://localhost:3002/api/auth/login', {
+      const response = await fetch('http://localhost:3001/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -261,8 +261,8 @@ export const LoginPassword = () => {
             />
           </div>
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             className="mt-[6px]"
             disabled={loading}
           >
@@ -311,10 +311,10 @@ export const LoginOTP = () => {
   const onSubmit = async (data: any) => {
     setLoading(true);
     setError('');
-    
+
     try {
       // 调用后端API进行OTP验证
-      const response = await fetch('http://localhost:3002/api/auth/verify-otp', {
+      const response = await fetch('http://localhost:3001/api/auth/verify-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -350,8 +350,8 @@ export const LoginOTP = () => {
         </h1>
 
         <div className="text-[13px] mb-[10px] text-[#0F1111] leading-[18px]">
-          {browserLang === 'zh' 
-            ? '为了您的安全，我们需要验证您的身份。我们已向您发送了一个验证码。' 
+          {browserLang === 'zh'
+            ? '为了您的安全，我们需要验证您的身份。我们已向您发送了一个验证码。'
             : 'For your security, we need to verify your identity. We\'ve sent you a verification code.'
           }
         </div>
@@ -363,8 +363,8 @@ export const LoginOTP = () => {
         )}
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <InputField 
-            label={browserTexts.verificationCode} 
+          <InputField
+            label={browserTexts.verificationCode}
             placeholder={browserTexts.verificationCode}
             {...register("otp")}
             error={errors.otp?.message as string}
@@ -374,8 +374,8 @@ export const LoginOTP = () => {
           <div className="flex items-center gap-[8px] mb-[12px]">
             <input type="checkbox" id="no-otp" className="w-[14px] h-[14px]" />
             <label htmlFor="no-otp" className="text-[13px]">
-              {browserLang === 'zh' 
-                ? '不要在此设备上再次询问验证码' 
+              {browserLang === 'zh'
+                ? '不要在此设备上再次询问验证码'
                 : 'Don\'t ask for codes on this device'
               }
             </label>
@@ -391,8 +391,8 @@ export const LoginOTP = () => {
 
         <div className="mt-[14px] border-t border-[#E7E9EC] pt-[10px]">
           <a href="#" className="amz-link text-[13px]">
-            {browserLang === 'zh' 
-              ? '没有收到验证码？' 
+            {browserLang === 'zh'
+              ? '没有收到验证码？'
               : 'Didn\'t receive the code?'
             }
           </a>

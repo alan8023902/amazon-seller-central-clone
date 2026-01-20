@@ -7,17 +7,20 @@ import storeRoutes from './routes/store';
 import productRoutes from './routes/product';
 import salesRoutes from './routes/sales';
 import dashboardRoutes from './routes/dashboard';
+import userRoutes from './routes/users';
+import vocRoutes from './routes/voc';
+import authRoutes from './routes/auth';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
 
 const app = express();
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005'],
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -28,11 +31,14 @@ app.use(requestLogger);
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // API Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/store', storeRoutes);  // Legacy route for backward compatibility
 app.use('/api/stores', storeRoutes); // New plural route for enhanced API
 app.use('/api/products', productRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/voc', vocRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

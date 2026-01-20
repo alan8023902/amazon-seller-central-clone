@@ -192,67 +192,83 @@ export default function Dashboard() {
         setLoading(true);
         setError(null);
 
-        // Get current store data
-        const storeData = await storeApi.getCurrentStore();
-        setCurrentStore(storeData);
+        // Get current store from Zustand store
+        const { currentStore } = useStore.getState();
 
-        // Get dashboard data for the current store
-        if (storeData?.id) {
-          // Load dashboard components separately since backend has separate endpoints
-          const [snapshotResponse, productsResponse, actionsResponse, communicationsResponse] = await Promise.all([
-            fetch(`http://localhost:3002/api/dashboard/snapshot/${storeData.id}`).then(r => {
-              if (!r.ok) throw new Error(`Snapshot API error: ${r.status}`);
-              return r.json();
-            }),
-            fetch(`http://localhost:3002/api/dashboard/products/${storeData.id}`).then(r => {
-              if (!r.ok) throw new Error(`Products API error: ${r.status}`);
-              return r.json();
-            }),
-            fetch(`http://localhost:3002/api/dashboard/actions/${storeData.id}`).then(r => {
-              if (!r.ok) throw new Error(`Actions API error: ${r.status}`);
-              return r.json();
-            }),
-            fetch(`http://localhost:3002/api/dashboard/communications/${storeData.id}`).then(r => {
-              if (!r.ok) throw new Error(`Communications API error: ${r.status}`);
-              return r.json();
-            })
-          ]);
-
-          // Extract data from API responses (backend returns { success: true, data: ... })
-          const snapshot = snapshotResponse.data;
-          const products = productsResponse.data || [];
-          const actions = actionsResponse.data || [];
-          const communications = communicationsResponse.data || [];
-
-          // Transform data to match expected format
-          const dashboardData: DashboardData = {
-            salesToday: snapshot?.sales_amount || 0,
-            openOrders: snapshot?.open_orders || 0,
-            messages: snapshot?.buyer_messages || 0,
-            salesHistory: [], // Will be populated from sales API
-            inventory: products,
-            orders: [],
-            salesSnapshot: {
-              totalOrderItems: snapshot?.open_orders || 0,
-              unitsOrdered: 0,
-              orderedProductSales: snapshot?.sales_amount || 0,
-              avgUnitsOrderItem: 0,
-              avgSalesOrderItem: 0
-            }
-          };
-
-          setDashboardData(dashboardData);
+        if (!currentStore?.id) {
+          setError('No store selected. Please select a store to view dashboard data.');
+          setLoading(false);
+          return;
         }
+
+        setCurrentStore(currentStore);
+
+        // Load dashboard data from backend API
+        const [snapshotResponse, productsResponse, actionsResponse, communicationsResponse] = await Promise.all([
+          fetch(`http://localhost:3001/api/dashboard/snapshot/${currentStore.id}`).then(r => {
+            if (!r.ok) throw new Error(`Snapshot API error: ${r.status}`);
+            return r.json();
+          }),
+          fetch(`http://localhost:3001/api/products?store_id=${currentStore.id}&limit=10`).then(r => {
+            if (!r.ok) throw new Error(`Products API error: ${r.status}`);
+            return r.json();
+          }),
+          fetch(`http://localhost:3001/api/dashboard/actions/${currentStore.id}`).then(r => {
+            if (!r.ok) throw new Error(`Actions API error: ${r.status}`);
+            return r.json();
+          }),
+          fetch(`http://localhost:3001/api/dashboard/communications/${currentStore.id}`).then(r => {
+            if (!r.ok) throw new Error(`Communications API error: ${r.status}`);
+            return r.json();
+          })
+        ]);
+
+        // Extract data from API responses
+        const snapshot = snapshotResponse.data;
+        const products = productsResponse.data || [];
+        const actions = actionsResponse.data || [];
+        const communications = communicationsResponse.data || [];
+
+        // Transform data to match expected format
+        const dashboardData: DashboardData = {
+          salesToday: snapshot?.sales_amount || 0,
+          openOrders: snapshot?.open_orders || 0,
+          messages: snapshot?.buyer_messages || 0,
+          featuredOfferPercent: snapshot?.featured_offer_percent || 100,
+          sellerFeedbackRating: snapshot?.seller_feedback_rating || 5.0,
+          sellerFeedbackCount: snapshot?.seller_feedback_count || 0,
+          paymentsBalance: snapshot?.payments_balance || 0,
+          fbmUnshipped: snapshot?.fbm_unshipped || 0,
+          fbmPending: snapshot?.fbm_pending || 0,
+          fbaPending: snapshot?.fba_pending || 0,
+          inventoryPerformanceIndex: snapshot?.inventory_performance_index || 400,
+          adSales: snapshot?.ad_sales || 0,
+          adImpressions: snapshot?.ad_impressions || 0,
+          salesHistory: [], // Will be populated from sales API if needed
+          inventory: products,
+          actions: actions,
+          communications: communications,
+          orders: [],
+          salesSnapshot: {
+            totalOrderItems: snapshot?.open_orders || 0,
+            unitsOrdered: 0,
+            orderedProductSales: snapshot?.sales_amount || 0,
+            avgUnitsOrderItem: 0,
+            avgSalesOrderItem: 0
+          }
+        };
+
+        setDashboardData(dashboardData);
       } catch (err) {
         console.error('Failed to load dashboard data:', err);
-        setError('Failed to load dashboard data');
+        setError('Failed to load dashboard data. Please check if the backend server is running.');
       } finally {
         setLoading(false);
       }
     };
 
     loadDashboardData();
-  }, [session.marketplace]);
+  }, [session.marketplace, session.selectedStoreId]); // Re-load when store changes
 
   // Get currency symbol from current store or fallback to marketplace configs
   const marketplaceConfigs = {
@@ -269,22 +285,22 @@ export default function Dashboard() {
   const products = dashboardData?.inventory?.length > 0
     ? dashboardData.inventory.map(p => ({
       id: parseInt(p.id) || Math.random(),
-      title: p.name || 'Unknown Product', // Use 'name' instead of 'title'
+      title: p.title || 'Unknown Product',
       sku: `SKU: ${p.sku || 'N/A'}`,
       asin: `ASIN: ${p.asin || 'N/A'}`,
       listingStatus: p.status as 'Active' | 'Inactive' || 'Active',
-      sales: `${currencySymbol}${0}`, // Mock sales data since not available in inventory
-      unitsSold: 0, // Mock units sold since not available in inventory
-      pageViews: Math.floor(Math.random() * 500), // Mock page views
-      inventory: `${p.units || 0} ${t('availableQuantity')}`, // Use 'units' instead of 'inventory'
+      sales: `${currencySymbol}${p.sales_amount || 0}`,
+      unitsSold: p.units_sold || 0,
+      pageViews: p.page_views || Math.floor(Math.random() * 500),
+      inventory: `${p.inventory || 0} ${t('availableQuantity')}`,
       price: `${currencySymbol}${p.price || 0}`,
-      img: p.image || "https://m.media-amazon.com/images/I/71tJkM8vDVL._AC_UY218_.jpg", // Use 'image' instead of 'image_url'
+      img: p.image_url || "https://m.media-amazon.com/images/I/71tJkM8vDVL._AC_UY218_.jpg",
     }))
     : MOCK_PRODUCTS.map(p => ({
       ...p,
-      sales: p.sales.replace('US$', currencySymbol),
-      price: p.price.replace('US$', currencySymbol),
-      inventory: `${p.inventory} ${t('availableQuantity')}` // Add translation for inventory display
+      sales: p.sales.replace('$', currencySymbol),
+      price: p.price.replace('$', currencySymbol),
+      inventory: `${p.inventory} ${t('availableQuantity')}`
     }));
 
   const filteredProducts = useMemo(() => {
@@ -349,10 +365,10 @@ export default function Dashboard() {
         {/* ========== LEFT COLUMN (264px) ========== */}
         <div className="flex flex-col gap-4">
           {/* Actions Card */}
-          <ActionsCard />
+          <ActionsCard actions={dashboardData?.actions} />
 
           {/* Communications Card */}
-          <CommunicationsCard />
+          <CommunicationsCard communications={dashboardData?.communications} />
         </div>
 
         {/* ========== RIGHT COLUMN (Remaining Width) ========== */}
@@ -398,7 +414,7 @@ export default function Dashboard() {
                   {t('salesColumn')} <ChevronDown size={11} className="text-[#888C8C]" />
                 </div>
                 <div className="px-3 pt-1 pb-4 flex-grow">
-                  <div className="text-[16px] font-semibold text-amazon-headerTeal mb-0.5">{formatCurrency(dashboardData?.salesToday || 49.95)}</div>
+                  <div className="text-[16px] font-semibold text-amazon-headerTeal mb-0.5">{formatCurrency(dashboardData?.salesToday || 0)}</div>
                   <div className="text-[11px] text-[#565959]">{t('todaySoFar')}</div>
                   <div className="mt-2">
                     <TinySparkline strokeWidth={2.5} />
@@ -412,7 +428,7 @@ export default function Dashboard() {
                   {t('openOrdersColumn')} <ChevronDown size={11} className="text-[#888C8C]" />
                 </div>
                 <div className="px-3 pt-1 h-[60px]">
-                  <div className="text-[16px] font-semibold text-amazon-headerTeal mb-0.5">{dashboardData?.openOrders || 6}</div>
+                  <div className="text-[16px] font-semibold text-amazon-headerTeal mb-0.5">{dashboardData?.openOrders || 0}</div>
                   <div className="text-[11px] text-[#565959]">{t('totalCount')}</div>
                 </div>
 
@@ -422,15 +438,15 @@ export default function Dashboard() {
                     <div className="group space-y-1 text-[12px]">
                       <div className="flex justify-between items-center px-1">
                         <span className="text-[#565959]">{t('fbmUnshipped')}</span>
-                        <span className="text-amazon-headerTeal font-medium">0</span>
+                        <span className="text-amazon-headerTeal font-medium">{dashboardData?.fbmUnshipped || 0}</span>
                       </div>
                       <div className="flex justify-between items-center px-1">
                         <span className="text-[#565959]">{t('fbmPending')}</span>
-                        <span className="text-amazon-headerTeal font-medium">0</span>
+                        <span className="text-amazon-headerTeal font-medium">{dashboardData?.fbmPending || 0}</span>
                       </div>
                       <div className="flex justify-between items-center px-1">
                         <span className="text-[#565959]">{t('fbaPending')}</span>
-                        <span className="text-amazon-headerTeal font-medium">6</span>
+                        <span className="text-amazon-headerTeal font-medium">{dashboardData?.fbaPending || 0}</span>
                       </div>
                     </div>
                   </div>
@@ -455,7 +471,7 @@ export default function Dashboard() {
                         <ChevronDown size={11} className="text-[#888C8C]" />
                       </div>
                       <div className="text-right">
-                        <div className="text-[14px] font-bold text-amazon-headerTeal">400</div>
+                        <div className="text-[14px] font-bold text-amazon-headerTeal">{dashboardData?.inventoryPerformanceIndex || 400}</div>
                         <div className="text-[11px] text-[#565959]">{t('current')}</div>
                       </div>
                     </div>
@@ -470,7 +486,7 @@ export default function Dashboard() {
                 </div>
                 <div className="flex-grow flex flex-col">
                   <div className="px-3 pt-1 h-[60px]">
-                    <div className="text-[16px] font-semibold text-amazon-headerTeal mb-0.5">100%</div>
+                    <div className="text-[16px] font-semibold text-amazon-headerTeal mb-0.5">{dashboardData?.featuredOfferPercent || 100}%</div>
                     <div className="text-[11px] text-[#565959]">2 {t('daysAgo')}</div>
                   </div>
                   <div className="mt-auto flex flex-col h-[95px]">
@@ -492,9 +508,9 @@ export default function Dashboard() {
                 <div className="flex-grow flex flex-col">
                   <div className="px-3 pt-1 h-[60px]">
                     <div className="flex items-center mb-0.5">
-                      <StarRating rating={5} />
+                      <StarRating rating={dashboardData?.sellerFeedbackRating || 5} />
                     </div>
-                    <div className="text-[11px] text-[#565959] opacity-80">{t('pastYear')} (2)</div>
+                    <div className="text-[11px] text-[#565959] opacity-80">{t('pastYear')} ({dashboardData?.sellerFeedbackCount || 0})</div>
                   </div>
                   <div className="mt-auto flex flex-col h-[95px]">
                     <div className="border-t border-[#E3E6E6] w-full" />
@@ -503,7 +519,7 @@ export default function Dashboard() {
                         <div className="text-[12px] font-semibold text-amazon-headerTeal">{t('adSales')}</div>
                         <ChevronDown size={11} className="text-[#888C8C]" />
                       </div>
-                      <div className="text-[16px] font-semibold text-amazon-headerTeal mb-0.5">{formatCurrency(0)}</div>
+                      <div className="text-[16px] font-semibold text-amazon-headerTeal mb-0.5">{formatCurrency(dashboardData?.adSales || 0)}</div>
                       <div className="text-[11px] text-[#565959]">{t('todaySoFar')}</div>
                     </div>
                   </div>
@@ -517,7 +533,7 @@ export default function Dashboard() {
                 </div>
                 <div className="flex-grow flex flex-col">
                   <div className="px-3 pt-1 h-[60px]">
-                    <div className="text-[16px] font-semibold text-amazon-headerTeal mb-0.5">{currencySymbol}{dashboardData?.salesSnapshot?.orderedProductSales?.toFixed(2) || '49.95'}</div>
+                    <div className="text-[16px] font-semibold text-amazon-headerTeal mb-0.5">{currencySymbol}{dashboardData?.paymentsBalance?.toFixed(2) || '0.00'}</div>
                     <div className="text-[11px] text-[#565959]">{t('totalBalance')}</div>
                   </div>
                   <div className="mt-auto flex flex-col h-[95px]">
@@ -527,7 +543,7 @@ export default function Dashboard() {
                         <div className="text-[12px] font-semibold text-amazon-headerTeal">{t('adImpressions')}</div>
                         <ChevronDown size={11} className="text-[#888C8C]" />
                       </div>
-                      <div className="text-[16px] font-semibold text-amazon-headerTeal mb-0.5">0</div>
+                      <div className="text-[16px] font-semibold text-amazon-headerTeal mb-0.5">{dashboardData?.adImpressions || 0}</div>
                       <div className="text-[11px] text-[#565959]">{t('todaySoFar')}</div>
                     </div>
                   </div>

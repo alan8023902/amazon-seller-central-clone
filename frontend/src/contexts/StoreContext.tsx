@@ -28,22 +28,22 @@ export function StoreProvider({ children }: StoreProviderProps) {
     try {
       globalStore.setStoresLoading(true);
       globalStore.setStoresError(null);
-      
-      const response = await fetch('http://localhost:3002/api/stores');
+
+      const response = await fetch('http://localhost:3001/api/stores');
       if (!response.ok) {
         throw new Error(`Failed to fetch stores: ${response.statusText}`);
       }
-      
+
       const data = await response.json();
       const stores = data.data || [];
-      
+
       globalStore.setStores(stores);
-      
+
       // Set first active store as current if none selected
       if (!globalStore.currentStore && stores.length > 0) {
         const activeStore = stores.find((store: Store) => store.is_active) || stores[0];
         globalStore.setCurrentStore(activeStore);
-        
+
         // Persist current store selection
         localStorage.setItem('currentStoreId', activeStore.id);
       }
@@ -61,14 +61,14 @@ export function StoreProvider({ children }: StoreProviderProps) {
     try {
       globalStore.setStoresLoading(true);
       const store = globalStore.stores.find(s => s.id === storeId);
-      
+
       if (!store) {
         throw new Error('Store not found');
       }
 
       globalStore.setCurrentStore(store);
       localStorage.setItem('currentStoreId', storeId);
-      
+
       // Clear any previous errors
       globalStore.setStoresError(null);
     } catch (error) {
@@ -84,25 +84,25 @@ export function StoreProvider({ children }: StoreProviderProps) {
   const createStore = async (storeData: Omit<Store, 'id' | 'created_at' | 'updated_at'>): Promise<Store> => {
     try {
       globalStore.setStoresLoading(true);
-      
-      const response = await fetch('http://localhost:3002/api/stores', {
+
+      const response = await fetch('http://localhost:3001/api/stores', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(storeData),
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to create store: ${response.statusText}`);
       }
-      
+
       const result = await response.json();
       const newStore = result.data;
-      
+
       // Update global store state
       globalStore.setStores([...globalStore.stores, newStore]);
-      
+
       return newStore;
     } catch (error) {
       globalStore.setStoresError(
@@ -118,33 +118,33 @@ export function StoreProvider({ children }: StoreProviderProps) {
   const updateStore = async (storeId: string, storeData: Partial<Store>): Promise<Store> => {
     try {
       globalStore.setStoresLoading(true);
-      
-      const response = await fetch(`http://localhost:3002/api/stores/${storeId}`, {
+
+      const response = await fetch(`http://localhost:3001/api/stores/${storeId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(storeData),
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to update store: ${response.statusText}`);
       }
-      
+
       const result = await response.json();
       const updatedStore = result.data;
-      
+
       // Update global store state
-      const updatedStores = globalStore.stores.map(store => 
+      const updatedStores = globalStore.stores.map(store =>
         store.id === storeId ? updatedStore : store
       );
       globalStore.setStores(updatedStores);
-      
+
       // Update current store if it's the one being updated
       if (globalStore.currentStore?.id === storeId) {
         globalStore.setCurrentStore(updatedStore);
       }
-      
+
       return updatedStore;
     } catch (error) {
       globalStore.setStoresError(
@@ -160,24 +160,24 @@ export function StoreProvider({ children }: StoreProviderProps) {
   const deleteStore = async (storeId: string) => {
     try {
       globalStore.setStoresLoading(true);
-      
-      const response = await fetch(`http://localhost:3002/api/stores/${storeId}`, {
+
+      const response = await fetch(`http://localhost:3001/api/stores/${storeId}`, {
         method: 'DELETE',
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to delete store: ${response.statusText}`);
       }
-      
+
       // Update global store state
       const updatedStores = globalStore.stores.filter(store => store.id !== storeId);
       globalStore.setStores(updatedStores);
-      
+
       // Update current store if the deleted store was selected
       if (globalStore.currentStore?.id === storeId) {
         const newCurrentStore = updatedStores.length > 0 ? updatedStores[0] : null;
         globalStore.setCurrentStore(newCurrentStore);
-        
+
         if (newCurrentStore) {
           localStorage.setItem('currentStoreId', newCurrentStore.id);
         } else {
@@ -203,7 +203,7 @@ export function StoreProvider({ children }: StoreProviderProps) {
   useEffect(() => {
     const initializeStores = async () => {
       await loadStores();
-      
+
       // Try to restore previously selected store
       const savedStoreId = localStorage.getItem('currentStoreId');
       if (savedStoreId && globalStore.stores.length > 0) {
@@ -259,7 +259,7 @@ export function useCurrentStore() {
 export function useStores() {
   const globalStore = useGlobalStore();
   const actions = useStoreActions();
-  
+
   return {
     stores: globalStore.stores,
     isLoading: globalStore.storesLoading,

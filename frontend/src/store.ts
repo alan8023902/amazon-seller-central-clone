@@ -12,7 +12,7 @@ interface AppStore {
   currentStore: Store | null;
   storesLoading: boolean;
   storesError: string | null;
-  
+
   // Actions
   setSession: (session: Partial<UserSession>) => void;
   setMarketplace: (m: Marketplace) => void;
@@ -26,7 +26,7 @@ interface AppStore {
   importData: (data: Partial<DashboardState>) => void;
   updateDashboardByMarketplace: (m: Marketplace) => void;
   updateDashboardByStore: (store: Store) => void;
-  
+
   // Store context actions
   switchStore: (storeId: string) => void;
   refreshStoreData: () => Promise<void>;
@@ -74,18 +74,18 @@ export const useStore = create<AppStore>()(
         selectedStoreId: undefined,
       },
       dashboard: initialDashboard,
-      
+
       // Store management state
       stores: [],
       currentStore: null,
       storesLoading: false,
       storesError: null,
-      
+
       // Basic actions
-      setSession: (newSession) => set((state) => ({ 
-        session: { ...state.session, ...newSession } 
+      setSession: (newSession) => set((state) => ({
+        session: { ...state.session, ...newSession }
       })),
-      
+
       setMarketplace: (m) => set((state) => {
         // Update marketplace and refresh dashboard data
         const mktData = salesDashboardData[m] || salesDashboardData['United States'];
@@ -94,27 +94,27 @@ export const useStore = create<AppStore>()(
           dashboard: { ...state.dashboard, ...mktData }
         };
       }),
-      
+
       setLanguage: (l) => set((state) => {
         console.log('Language changed from', state.session.language, 'to:', l);
-        return { 
+        return {
           session: { ...state.session, language: l }
         };
       }),
-      
-      setStore: (store) => set((state) => ({ 
-        session: { 
-          ...state.session, 
+
+      setStore: (store) => set((state) => ({
+        session: {
+          ...state.session,
           store,
           selectedStoreId: store?.id,
           marketplace: store?.marketplace || state.session.marketplace
         },
         currentStore: store
       })),
-      
+
       // Store management actions
       setStores: (stores) => set({ stores }),
-      
+
       setCurrentStore: (store) => set((state) => ({
         currentStore: store,
         session: {
@@ -124,18 +124,18 @@ export const useStore = create<AppStore>()(
           marketplace: store?.marketplace || state.session.marketplace
         }
       })),
-      
+
       setStoresLoading: (loading) => set({ storesLoading: loading }),
-      
+
       setStoresError: (error) => set({ storesError: error }),
-      
-      logout: () => set({ 
-        session: { 
-          email: '', 
-          isLoggedIn: false, 
-          step: 'email', 
-          marketplace: 'United States', 
-          language: 'en-US', 
+
+      logout: () => set({
+        session: {
+          email: '',
+          isLoggedIn: false,
+          step: 'email',
+          marketplace: 'United States',
+          language: 'en-US',
           store: null,
           selectedStoreId: undefined
         },
@@ -143,18 +143,18 @@ export const useStore = create<AppStore>()(
         stores: [],
         storesError: null
       }),
-      
-      importData: (data) => set((state) => ({ 
-        dashboard: { ...state.dashboard, ...data } 
+
+      importData: (data) => set((state) => ({
+        dashboard: { ...state.dashboard, ...data }
       })),
-      
+
       updateDashboardByMarketplace: (m) => set((state) => {
         const mktData = salesDashboardData[m] || salesDashboardData['United States'];
         return {
           dashboard: { ...state.dashboard, ...mktData }
         };
       }),
-      
+
       updateDashboardByStore: (store) => set((state) => {
         // Update dashboard data based on store's marketplace
         const mktData = salesDashboardData[store.marketplace] || salesDashboardData['United States'];
@@ -166,7 +166,7 @@ export const useStore = create<AppStore>()(
           }
         };
       }),
-      
+
       // Store context actions
       switchStore: (storeId) => {
         const state = get();
@@ -181,32 +181,32 @@ export const useStore = create<AppStore>()(
               marketplace: store.marketplace
             }
           }));
-          
+
           // Update dashboard data for the new store
           get().updateDashboardByStore(store);
         }
       },
-      
+
       refreshStoreData: async () => {
         const state = get();
         set({ storesLoading: true, storesError: null });
-        
+
         try {
           // Fetch stores from API
-          const response = await fetch('http://localhost:3002/api/stores');
+          const response = await fetch('http://localhost:3001/api/stores');
           if (!response.ok) {
             throw new Error(`Failed to fetch stores: ${response.statusText}`);
           }
-          
+
           const data = await response.json();
           const stores = data.data || [];
-          
-          set({ 
+
+          set({
             stores,
             storesLoading: false,
             storesError: null
           });
-          
+
           // If no current store is selected, select the first active store
           if (!state.currentStore && stores.length > 0) {
             const firstActiveStore = stores.find((s: Store) => s.is_active) || stores[0];
@@ -214,17 +214,17 @@ export const useStore = create<AppStore>()(
               get().setCurrentStore(firstActiveStore);
             }
           }
-          
+
         } catch (error) {
           console.error('Failed to refresh store data:', error);
-          set({ 
-            storesLoading: false, 
+          set({
+            storesLoading: false,
             storesError: error instanceof Error ? error.message : 'Failed to load stores'
           });
         }
       },
     }),
-    { 
+    {
       name: 'amazon-seller-central-storage',
       // Only persist essential data, not loading states
       partialize: (state) => ({

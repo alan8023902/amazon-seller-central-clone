@@ -30,7 +30,7 @@ const StoreSelector: React.FC<StoreSelectorProps> = ({ value, onChange, style })
   const loadStores = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3002/api/stores');
+      const response = await fetch('http://localhost:3001/api/stores');
       const data = await response.json();
       
       if (data.success) {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Layout, Menu, Typography, Button, message, Space } from 'antd';
+import { Layout, Menu, Typography, Button, message, Space, App as AntApp } from 'antd';
 import { 
   DashboardOutlined, 
   ShopOutlined, 
@@ -103,7 +103,11 @@ function App() {
 
   // 如果未登录，显示登录页面
   if (!isLoggedIn) {
-    return <LoginForm onLogin={handleLogin} />;
+    return (
+      <AntApp>
+        <LoginForm onLogin={handleLogin} />
+      </AntApp>
+    );
   }
 
   const handleStoreChange = (storeId: string, store: any) => {
@@ -147,63 +151,65 @@ function App() {
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Header style={{ 
-        background: '#232F3E', 
-        padding: '0 24px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
-        <Title level={3} style={{ color: 'white', margin: 0 }}>
-          Amazon Seller Central - 数据管理后台
-        </Title>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <StoreSelector
-            value={selectedStoreId}
-            onChange={handleStoreChange}
-            style={{ minWidth: 250 }}
-          />
-          <span style={{ color: 'white' }}>
-            <UserOutlined /> {currentUser}
-          </span>
-          <Button 
-            type="text" 
-            icon={<LogoutOutlined />} 
-            onClick={handleLogout}
-            style={{ color: 'white' }}
-          >
-            退出
-          </Button>
-        </div>
-      </Header>
-      
-      <Layout>
-        <Sider width={250} style={{ background: '#fff' }}>
-          <Menu
-            mode="inline"
-            selectedKeys={[selectedKey]}
-            onClick={handleMenuClick}
-            style={{ height: '100%', borderRight: 0 }}
-            items={menuItems}
-          />
-        </Sider>
+    <AntApp>
+      <Layout style={{ minHeight: '100vh' }}>
+        <Header style={{ 
+          background: '#232F3E', 
+          padding: '0 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <Title level={3} style={{ color: 'white', margin: 0 }}>
+            Amazon Seller Central - 数据管理后台
+          </Title>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <StoreSelector
+              value={selectedStoreId}
+              onChange={handleStoreChange}
+              style={{ minWidth: 250 }}
+            />
+            <span style={{ color: 'white' }}>
+              <UserOutlined /> {currentUser}
+            </span>
+            <Button 
+              type="text" 
+              icon={<LogoutOutlined />} 
+              onClick={handleLogout}
+              style={{ color: 'white' }}
+            >
+              退出
+            </Button>
+          </div>
+        </Header>
         
-        <Layout style={{ padding: '24px' }}>
-          <Content
-            style={{
-              background: '#fff',
-              padding: 24,
-              margin: 0,
-              minHeight: 280,
-              borderRadius: 8,
-            }}
-          >
-            {renderContent()}
-          </Content>
+        <Layout>
+          <Sider width={250} style={{ background: '#fff' }}>
+            <Menu
+              mode="inline"
+              selectedKeys={[selectedKey]}
+              onClick={handleMenuClick}
+              style={{ height: '100%', borderRight: 0 }}
+              items={menuItems}
+            />
+          </Sider>
+          
+          <Layout style={{ padding: '24px' }}>
+            <Content
+              style={{
+                background: '#fff',
+                padding: 24,
+                margin: 0,
+                minHeight: 280,
+                borderRadius: 8,
+              }}
+            >
+              {renderContent()}
+            </Content>
+          </Layout>
         </Layout>
       </Layout>
-    </Layout>
+    </AntApp>
   );
 }
 

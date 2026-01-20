@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录修复验证测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        
+        .credential {
+            font-family: monospace;
+            background-color: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 3px;
+            margin: 0 5px;
+        }
+        
+        .copy-btn {
+            background-color: #28a745;
+            font-size: 12px;
+            padding: 2px 6px;
+        }
+        
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+            width: 200px;
+        }
+        
+        .login-form {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 登录修复验证测试</h1>
+        <p>测试前端登录系统和后端认证API的完整流程</p>
+        
+        <div class="test-section info">
+            <h3>📋 测试说明</h3>
+            <ul>
+                <li><strong>认证流程</strong>: 邮箱 → 密码验证 → OTP验证 → 登录成功</li>
+                <li><strong>API端点</strong>: /api/auth/login 和 /api/auth/verify-otp</li>
+                <li><strong>测试用户</strong>: alanlr (519798002@qq.com)</li>
+                <li><strong>密码</strong>: G149113</li>
+                <li><strong>验证码</strong>: 149113</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 API测试</h3>
+            <button onclick="testLoginAPI()">测试密码验证API</button>
+            <button onclick="testOTPAPI()">测试OTP验证API</button>
+            <button onclick="testFullFlow()">测试完整登录流程</button>
+            <div id="apiResults"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🎯 手动登录测试</h3>
+            <div class="login-form">
+                <h4>步骤1: 密码验证</h4>
+                <input type="email" id="loginEmail" placeholder="邮箱" value="519798002@qq.com">
+                <input type="password" id="loginPassword" placeholder="密码" value="G149113">
+                <button onclick="manualLogin()">验证密码</button>
+                <div id="loginResult"></div>
+            </div>
+            
+            <div class="login-form">
+                <h4>步骤2: OTP验证</h4>
+                <input type="text" id="otpCode" placeholder="6位验证码" value="149113" maxlength="6">
+                <button onclick="manualOTP()">验证OTP</button>
+                <div id="otpResult"></div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🌐 前端登录测试</h3>
+            <p>使用修复后的凭据测试前端登录:</p>
+            <div class="login-form">
+                <p><strong>前端地址:</strong> <a href="http://localhost:3000" target="_blank">http://localhost:3000</a></p>
+                <p><strong>邮箱:</strong> <span class="credential">519798002@qq.com</span> 
+                   <button class="copy-btn" onclick="copyToClipboard('519798002@qq.com')">复制</button></p>
+                <p><strong>密码:</strong> <span class="credential">G149113</span> 
+                   <button class="copy-btn" onclick="copyToClipboard('G149113')">复制</button></p>
+                <p><strong>验证码:</strong> <span class="credential">149113</span> 
+                   <button class="copy-btn" onclick="copyToClipboard('149113')">复制</button></p>
+                <button onclick="window.open('http://localhost:3000', '_blank')">打开前端登录</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>👥 其他用户凭据</h3>
+            <div id="allUsers"></div>
+            <button onclick="loadAllUsers()">加载所有用户</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 测试日志</h3>
+            <div id="testLog"></div>
+        </div>
+    </div>
+
+    <script>
+        let testLog = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            testLog.push({ message, type, timestamp });
+            updateTestLog();
+        }
+
+        function updateTestLog() {
+            const logDiv = document.getElementById('testLog');
+            let html = '';
+            testLog.slice(-10).forEach(entry => {
+                html += `<p class="${entry.type}">[${entry.timestamp}] ${entry.message}</p>`;
+            });
+            logDiv.innerHTML = html;
+        }
+
+        async function testLoginAPI() {
+            log('🔍 测试密码验证API...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: '519798002@qq.com',
+                        password: 'G149113'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    log('✅ 密码验证API测试成功', 'success');
+                    document.getElementById('apiResults').innerHTML += 
+                        `<div class="success"><h4>密码验证成功</h4><pre>${JSON.stringify(result, null, 2)}</pre></div>`;
+                } else {
+                    log('❌ 密码验证API测试失败: ' + result.message, 'error');
+                }
+            } catch (error) {
+                log('❌ 密码验证API请求失败: ' + error.message, 'error');
+            }
+        }
+
+        async function testOTPAPI() {
+            log('🔍 测试OTP验证API...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/auth/verify-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: '519798002@qq.com',
+                        otp: '149113'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    log('✅ OTP验证API测试成功', 'success');
+                    document.getElementById('apiResults').innerHTML += 
+                        `<div class="success"><h4>OTP验证成功</h4><pre>${JSON.stringify(result, null, 2)}</pre></div>`;
+                } else {
+                    log('❌ OTP验证API测试失败: ' + result.message, 'error');
+                }
+            } catch (error) {
+                log('❌ OTP验证API请求失败: ' + error.message, 'error');
+            }
+        }
+
+        async function testFullFlow() {
+            log('🔄 测试完整登录流程...', 'info');
+            
+            // 步骤1: 密码验证
+            try {
+                const loginResponse = await fetch('http://localhost:3001/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: '519798002@qq.com',
+                        password: 'G149113'
+                    })
+                });
+
+                const loginResult = await loginResponse.json();
+                
+                if (!loginResult.success) {
+                    log('❌ 完整流程测试失败: 密码验证失败', 'error');
+                    return;
+                }
+                
+                log('✅ 步骤1: 密码验证成功', 'success');
+
+                // 步骤2: OTP验证
+                const otpResponse = await fetch('http://localhost:3001/api/auth/verify-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: '519798002@qq.com',
+                        otp: '149113'
+                    })
+                });
+
+                const otpResult = await otpResponse.json();
+                
+                if (otpResult.success) {
+                    log('✅ 步骤2: OTP验证成功', 'success');
+                    log('🎉 完整登录流程测试成功！', 'success');
+                    
+                    document.getElementById('apiResults').innerHTML += 
+                        `<div class="success">
+                            <h4>完整登录流程成功</h4>
+                            <p><strong>用户:</strong> ${otpResult.data.user.name}</p>
+                            <p><strong>角色:</strong> ${otpResult.data.user.role}</p>
+                            <p><strong>Token:</strong> ${otpResult.data.token}</p>
+                        </div>`;
+                } else {
+                    log('❌ 步骤2: OTP验证失败', 'error');
+                }
+                
+            } catch (error) {
+                log('❌ 完整流程测试失败: ' + error.message, 'error');
+            }
+        }
+
+        async function manualLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            log(`🔍 手动测试密码验证: ${email}`, 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: email,
+                        password: password
+                    })
+                });
+
+                const result = await response.json();
+                const resultDiv = document.getElementById('loginResult');
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `<div class="success">✅ 密码验证成功！可以进行OTP验证</div>`;
+                    log('✅ 手动密码验证成功', 'success');
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ 密码验证失败: ${result.message}</div>`;
+                    log('❌ 手动密码验证失败', 'error');
+                }
+            } catch (error) {
+                document.getElementById('loginResult').innerHTML = 
+                    `<div class="error">❌ 请求失败: ${error.message}</div>`;
+                log('❌ 手动密码验证请求失败', 'error');
+            }
+        }
+
+        async function manualOTP() {
+            const email = document.getElementById('loginEmail').value;
+            const otp = document.getElementById('otpCode').value;
+            
+            log(`🔍 手动测试OTP验证: ${otp}`, 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/auth/verify-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: email,
+                        otp: otp
+                    })
+                });
+
+                const result = await response.json();
+                const resultDiv = document.getElementById('otpResult');
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ 登录成功！
+                            <br>用户: ${result.data.user.name}
+                            <br>角色: ${result.data.user.role}
+                            <br>Token: ${result.data.token}
+                        </div>`;
+                    log('✅ 手动OTP验证成功', 'success');
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ OTP验证失败: ${result.message}</div>`;
+                    log('❌ 手动OTP验证失败', 'error');
+                }
+            } catch (error) {
+                document.getElementById('otpResult').innerHTML = 
+                    `<div class="error">❌ 请求失败: ${error.message}</div>`;
+                log('❌ 手动OTP验证请求失败', 'error');
+            }
+        }
+
+        async function loadAllUsers() {
+            log('📋 加载所有用户凭据...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/users');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const usersDiv = document.getElementById('allUsers');
+                    let html = '<h4>所有用户登录凭据:</h4>';
+                    
+                    result.data.forEach(user => {
+                        html += `
+                            <div class="login-form">
+                                <h5>${user.name} (${user.role})</h5>
+                                <p><strong>邮箱:</strong> <span class="credential">${user.email}</span> 
+                                   <button class="copy-btn" onclick="copyToClipboard('${user.email}')">复制</button></p>
+                                <p><strong>密码:</strong> <span class="credential">${user.password}</span> 
+                                   <button class="copy-btn" onclick="copyToClipboard('${user.password}')">复制</button></p>
+                                <p><strong>验证码:</strong> <span class="credential">${user.otp_secret}</span> 
+                                   <button class="copy-btn" onclick="copyToClipboard('${user.otp_secret}')">复制</button></p>
+                                <p><strong>状态:</strong> ${user.is_active ? '启用' : '禁用'}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    usersDiv.innerHTML = html;
+                    log('✅ 用户列表加载成功', 'success');
+                } else {
+                    log('❌ 用户列表加载失败', 'error');
+                }
+            } catch (error) {
+                log('❌ 用户列表请求失败: ' + error.message, 'error');
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                log(`📋 已复制: ${text}`, 'info');
+            }).catch(err => {
+                log(`❌ 复制失败: ${err.message}`, 'error');
+            });
+        }
+
+        // 页面加载时自动运行基础测试
+        window.onload = function() {
+            log('🚀 登录修复验证测试页面已加载', 'info');
+            log('💡 提示: 先测试API，然后尝试前端登录', 'info');
+        };
+    </script>
+</body>
+</html>
