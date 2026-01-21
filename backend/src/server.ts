@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 
+// Import port configuration
+const { PORTS, CORS_ORIGINS } = require('../../config/ports');
+
 // Import routes
 import storeRoutes from './routes/store';
 import productRoutes from './routes/product';
@@ -17,11 +20,11 @@ import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || PORTS.BACKEND;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005'],
+  origin: CORS_ORIGINS,
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));

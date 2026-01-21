@@ -28,5 +28,25 @@
     "avg_sales_per_order": 110.29,
     "snapshot_time": "2026-01-20T15:54:55.433Z",
     "id": "a985b8b2-f556-4834-91fe-1676d5c02ddb"
+  },
+  {
+    "store_id": "store-uk-main",
+    "total_order_items": 248,
+    "units_ordered": 192260,
+    "ordered_product_sales": 18657478,
+    "avg_units_per_order": 1.14,
+    "avg_sales_per_order": 110.29,
+    "snapshot_time": "2026-01-21T15:17:25.601Z",
+    "id": "560dffc6-7b78-4b45-8635-2645379abe3c"
+  },
+  {
+    "store_id": "store-de-main",
+    "total_order_items": 248,
+    "units_ordered": 192260,
+    "ordered_product_sales": 18657478,
+    "avg_units_per_order": 1.14,
+    "avg_sales_per_order": 110.29,
+    "snapshot_time": "2026-01-21T15:17:30.450Z",
+    "id": "43cf36bd-1b38-4d90-a6d4-03a7ff2d1444"
   }
 ]

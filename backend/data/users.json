@@ -87,5 +87,16 @@
     "created_at": "2026-01-20T15:09:28.855Z",
     "updated_at": "2026-01-21T14:13:55.839Z",
     "last_login": "2026-01-21T14:13:55.839Z"
+  },
+  {
+    "id": "user-1769016944406-uqy1jxp",
+    "email": "alanliurong521@gmail.com",
+    "name": "刘荣",
+    "role": "admin",
+    "is_active": true,
+    "password": "E245317",
+    "otp_secret": "318770",
+    "created_at": "2026-01-21T17:35:44.406Z",
+    "updated_at": "2026-01-21T17:35:44.406Z"
   }
 ]

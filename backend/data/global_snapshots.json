@@ -3670,5 +3670,41 @@
     "ad_impressions": 0,
     "updated_at": "2026-01-20T15:55:15.417Z",
     "id": "52d29dff-12fc-46da-b65e-21c479793a21"
+  },
+  {
+    "store_id": "store-uk-main",
+    "sales_amount": 49.95,
+    "open_orders": 6,
+    "buyer_messages": 0,
+    "featured_offer_percent": 100,
+    "seller_feedback_rating": 5,
+    "seller_feedback_count": 2,
+    "payments_balance": 228.31,
+    "fbm_unshipped": 0,
+    "fbm_pending": 0,
+    "fba_pending": 6,
+    "inventory_performance_index": 400,
+    "ad_sales": 0,
+    "ad_impressions": 0,
+    "updated_at": "2026-01-21T15:17:25.601Z",
+    "id": "17f5ebb3-a560-4bc8-ae34-5c1003369a70"
+  },
+  {
+    "store_id": "store-de-main",
+    "sales_amount": 49.95,
+    "open_orders": 6,
+    "buyer_messages": 0,
+    "featured_offer_percent": 100,
+    "seller_feedback_rating": 5,
+    "seller_feedback_count": 2,
+    "payments_balance": 228.31,
+    "fbm_unshipped": 0,
+    "fbm_pending": 0,
+    "fba_pending": 6,
+    "inventory_performance_index": 400,
+    "ad_sales": 0,
+    "ad_impressions": 0,
+    "updated_at": "2026-01-21T15:17:30.449Z",
+    "id": "ac702d74-45ba-4926-9fb1-46758d2df104"
   }
 ]

@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 
-// 生成大数值（1万以上）
+// 生成大数值（1万以上）- 确保返回整数
 function generateLargeNumber(min: number = 10000, max: number = 100000): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -34,9 +34,9 @@ function generateSellerForums(storeId: string) {
     id: `forum-${storeId}-${index + 1}`,
     title: topic,
     author: `Seller${Math.floor(Math.random() * 1000)}`,
-    views: generateLargeNumber(15000, 80000) * storeMultiplier,
-    replies: generateLargeNumber(500, 5000) * storeMultiplier,
-    likes: generateLargeNumber(1000, 10000) * storeMultiplier,
+    views: Math.floor(generateLargeNumber(15000, 80000) * storeMultiplier),
+    replies: Math.floor(generateLargeNumber(500, 5000) * storeMultiplier),
+    likes: Math.floor(generateLargeNumber(1000, 10000) * storeMultiplier),
     category: ['General', 'FBA', 'Marketing', 'Technical'][Math.floor(Math.random() * 4)],
     created_at: generateRandomDate(60),
     last_activity: generateRandomDate(7),
@@ -66,9 +66,9 @@ function generateSellerNews(storeId: string) {
     id: `news-${storeId}-${index + 1}`,
     title,
     summary: `Important updates and information for Amazon sellers regarding ${title.toLowerCase()}.`,
-    views: generateLargeNumber(25000, 150000) * storeMultiplier,
-    comments: generateLargeNumber(200, 2000) * storeMultiplier,
-    likes: generateLargeNumber(500, 8000) * storeMultiplier,
+    views: Math.floor(generateLargeNumber(25000, 150000) * storeMultiplier),
+    comments: Math.floor(generateLargeNumber(200, 2000) * storeMultiplier),
+    likes: Math.floor(generateLargeNumber(500, 8000) * storeMultiplier),
     category: ['Policy', 'Features', 'Marketing', 'Operations'][Math.floor(Math.random() * 4)],
     published_at: generateRandomDate(30),
     is_featured: Math.random() > 0.7,
@@ -122,8 +122,8 @@ function generateSalesData(storeId: string) {
       revenue: Math.floor((1000 + Math.random() * 3000) * multiplier),
       orders: Math.floor((20 + Math.random() * 80) * multiplier),
       units_sold: Math.floor((50 + Math.random() * 200) * multiplier),
-      sessions: generateLargeNumber(5000, 20000) * multiplier,
-      page_views: generateLargeNumber(10000, 50000) * multiplier,
+      sessions: Math.floor(generateLargeNumber(5000, 20000) * multiplier),
+      page_views: Math.floor(generateLargeNumber(10000, 50000) * multiplier),
       conversion_rate: Math.round((1.5 + Math.random() * 2.5) * 100) / 100
     });
   }
@@ -157,9 +157,9 @@ function generateProductData(storeId: string) {
     price: Math.round((10 + Math.random() * 90) * 100) / 100,
     inventory: Math.floor((100 + Math.random() * 500) * multiplier),
     sales_rank: Math.floor((1000 + Math.random() * 50000) / multiplier),
-    reviews_count: generateLargeNumber(500, 5000) * multiplier,
+    reviews_count: Math.floor(generateLargeNumber(500, 5000) * multiplier),
     rating: Math.round((4.0 + Math.random() * 1.0) * 100) / 100,
-    units_sold: generateLargeNumber(1000, 10000) * multiplier,
+    units_sold: Math.floor(generateLargeNumber(1000, 10000) * multiplier),
     revenue: Math.floor((5000 + Math.random() * 20000) * multiplier),
     status: Math.random() > 0.1 ? 'Active' : 'Inactive',
     created_at: generateRandomDate(365),
@@ -178,7 +178,7 @@ function generateCommunicationsData() {
       seller_news: generateSellerNews(storeId),
       notifications: {
         unread_count: Math.floor(Math.random() * 20) + 5,
-        total_count: generateLargeNumber(100, 1000),
+        total_count: Math.floor(generateLargeNumber(100, 1000)),
         last_updated: new Date().toISOString()
       },
       messages: {

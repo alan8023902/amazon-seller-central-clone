@@ -38,7 +38,7 @@ const upload = multer({
 
 // GET /api/products - Get products with filtering and pagination
 router.get('/', asyncHandler(async (req, res) => {
-  const { status, search, page = 1, limit = 10, store_id } = req.query as ProductFilters & { store_id?: string };
+  const { status, search, page = 1, limit = 10, store_id } = req.query as any;
   
   let products = await dataService.readData<Product>('products');
   
@@ -47,13 +47,13 @@ router.get('/', asyncHandler(async (req, res) => {
     products = products.filter(p => p.store_id === store_id);
   }
   
-  // Filter by status
-  if (status && status !== 'All') {
+  // Filter by status (ignore if undefined, null, empty string, or "undefined")
+  if (status && status !== 'All' && status !== 'undefined' && status !== '') {
     products = products.filter(p => p.status === status);
   }
   
-  // Filter by search term
-  if (search) {
+  // Filter by search term (ignore if undefined, null, empty string, or "undefined")
+  if (search && search !== 'undefined' && search !== '') {
     const searchLower = search.toLowerCase();
     products = products.filter(p => 
       p.title.toLowerCase().includes(searchLower) ||

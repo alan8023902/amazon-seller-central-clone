@@ -186,6 +186,10 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   // Load store and dashboard data
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -336,6 +340,19 @@ export default function Dashboard() {
       return statusOk && queryOk;
     });
   }, [products, statusFilter, query, t]);
+
+  // Current page products
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredProducts.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredProducts, currentPage, itemsPerPage]);
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+
+  // Reset pagination when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, query]);
 
   if (loading) {
     return (
@@ -671,7 +688,7 @@ export default function Dashboard() {
 
             {/* Table Content */}
             <div className="divide-y divide-[#E3E6E6]">
-              {filteredProducts.map((product) => (
+              {paginatedProducts.map((product) => (
                 <div
                   key={product.id}
                   className="grid grid-cols-[1fr_repeat(6,90px)_1fr] hover:bg-[#F7F8F8] transition-colors border-b border-[#E3E6E6] last:border-b-0"
@@ -726,19 +743,39 @@ export default function Dashboard() {
             {/* Pagination / Footer (Centered) */}
             <div className="px-4 py-2 border-t border-[#E3E6E6] bg-[#F8F8F8] flex items-center relative min-h-[48px]">
               <div className="text-[12px] text-[#565959] absolute left-4">
-                {t('showItems', { from: 1, to: Math.min(5, filteredProducts.length), total: filteredProducts.length })}
+                {t('showItems', {
+                  from: filteredProducts.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1,
+                  to: Math.min(currentPage * itemsPerPage, filteredProducts.length),
+                  total: filteredProducts.length
+                })}
               </div>
               <div className="flex items-center gap-1 mx-auto">
-                <button className="p-1 text-[#007185] hover:bg-gray-100 disabled:opacity-50">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="p-1 text-[#007185] hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
                   <ChevronDown size={14} className="rotate-90" />
                 </button>
                 <div className="flex items-center gap-2 px-2 text-[13px]">
-                  <button className="font-bold text-[#565959]">1</button>
-                  <button className="text-[#007185] hover:underline">2</button>
-                  <button className="text-[#007185] hover:underline">3</button>
-                  <button className="text-[#007185] hover:underline">4</button>
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <button
+                      key={i + 1}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={cn(
+                        "hover:underline",
+                        currentPage === i + 1 ? "font-bold text-[#565959]" : "text-[#007185]"
+                      )}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
                 </div>
-                <button className="p-1 text-[#007185] hover:bg-gray-100 disabled:opacity-50">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages || totalPages === 0}
+                  className="p-1 text-[#007185] hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
                   <ChevronDown size={14} className="-rotate-90" />
                 </button>
               </div>

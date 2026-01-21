@@ -11,16 +11,12 @@ import {
   message,
   Popconfirm,
   Typography,
-  Tag,
-  Upload,
-  Image
+  Tag
 } from 'antd';
 import { 
   PlusOutlined, 
-  SearchOutlined, 
   EditOutlined, 
-  DeleteOutlined,
-  UploadOutlined
+  DeleteOutlined
 } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { productApi } from '../services/api';
@@ -39,7 +35,7 @@ interface Product {
   inventory: number;
   status: 'Active' | 'Inactive';
   image_url?: string;
-  sales_amount: number;
+  revenue: number;
   units_sold: number;
 }
 
@@ -66,17 +62,48 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
   const queryClient = useQueryClient();
 
   // 获取产品列表 - 根据选中的店铺过滤
-  const { data: productsResponse, isLoading } = useQuery({
+  const { data: productsResponse, isLoading, error } = useQuery({
     queryKey: ['products', selectedStoreId, pagination.current, pagination.pageSize, searchText, statusFilter],
-    queryFn: () => productApi.getProducts({ 
-      store_id: selectedStoreId,
-      page: pagination.current,
-      limit: pagination.pageSize,
-      search: searchText || undefined,
-      status: statusFilter === 'All' ? undefined : statusFilter as any
-    }),
+    queryFn: async () => {
+      if (!selectedStoreId) return null;
+      
+      console.log('Fetching products for store:', selectedStoreId);
+      
+      // Clean parameters to avoid sending undefined values
+      const params: any = {
+        store_id: selectedStoreId,
+        page: pagination.current,
+        limit: pagination.pageSize
+      };
+      
+      // Only add search and status if they have meaningful values
+      if (searchText && searchText.trim() !== '') {
+        params.search = searchText.trim();
+      }
+      
+      if (statusFilter && statusFilter !== 'All') {
+        params.status = statusFilter;
+      }
+      
+      const result = await productApi.getProducts(params);
+      console.log('Products API result:', result);
+      return result;
+    },
     enabled: !!selectedStoreId, // 只有选择了店铺才执行查询
   });
+
+  // Debug: 打印数据到控制台
+  React.useEffect(() => {
+    console.log('ProductManagement Debug:', {
+      selectedStoreId,
+      productsResponse,
+      isLoading,
+      error: error || 'No error',
+      searchText,
+      statusFilter,
+      pagination
+    });
+  }, [selectedStoreId, productsResponse, isLoading, error, searchText, statusFilter, pagination]);
 
   // 更新分页信息
   React.useEffect(() => {
@@ -158,7 +185,7 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
     }
   };
 
-  const handleImageUploaded = (imageUrl: string, imageData: { filename: string; size: number }) => {
+  const handleImageUploaded = (imageUrl: string) => {
     // Update form with image URL
     form.setFieldsValue({ image_url: imageUrl });
     message.success('图片上传成功！');
@@ -245,8 +272,8 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
     },
     {
       title: '销售额',
-      dataIndex: 'sales_amount',
-      key: 'sales_amount',
+      dataIndex: 'revenue',
+      key: 'revenue',
       render: (amount: number) => `${amount.toFixed(2)}`,
     },
     {
@@ -340,6 +367,9 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
             dataSource={productsResponse?.data || []}
             loading={isLoading}
             rowKey="id"
+            locale={{
+              emptyText: productsResponse ? '暂无数据' : '请选择店铺查看产品'
+            }}
             pagination={{
               current: pagination.current,
               pageSize: pagination.pageSize,
@@ -351,7 +381,7 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
               onChange: (page, pageSize) => {
                 setPagination({ current: page, pageSize, total: pagination.total });
               },
-              onShowSizeChange: (current, size) => {
+              onShowSizeChange: (page, size) => {
                 setPagination({ current: 1, pageSize: size, total: pagination.total });
               }
             }}
@@ -410,7 +440,6 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
               min={0}
               step={0.01}
               style={{ width: '100%' }}
-              prefix="$"
             />
           </Form.Item>
 

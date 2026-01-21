@@ -1,7 +1,12 @@
 // 管理后台API配置文件 - 统一管理所有API端点
+// 注意：由于config/ports.js是CommonJS模块，我们需要动态导入或使用硬编码的URL
+// 为了避免模块系统冲突，这里使用硬编码的URL配置
+
+const BACKEND_URL = 'http://localhost:3001';
+
 export const ADMIN_API_CONFIG = {
   // 后端API基础URL
-  BASE_URL: 'http://localhost:3001',
+  BASE_URL: BACKEND_URL,
   
   // API端点
   ENDPOINTS: {

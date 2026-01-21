@@ -92,7 +92,7 @@ class WebSocketClient {
   private reconnectInterval = 3000;
   
   connect() {
-    this.ws = new WebSocket('ws://localhost:3002');
+    this.ws = new WebSocket('ws://localhost:3003');
     this.setupEventHandlers();
   }
   

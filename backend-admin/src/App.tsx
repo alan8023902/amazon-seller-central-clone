@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Layout, Menu, Typography, Button, message, Space, App as AntApp } from 'antd';
+import { Layout, Menu, Typography, Button, Space, App as AntApp } from 'antd';
 import { 
   DashboardOutlined, 
   ShopOutlined, 
@@ -75,6 +75,15 @@ const menuItems = [
 ];
 
 function App() {
+  return (
+    <AntApp>
+      <AppContent />
+    </AntApp>
+  );
+}
+
+function AppContent() {
+  const { message } = AntApp.useApp();
   const [selectedKey, setSelectedKey] = React.useState('dashboard');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState('');
@@ -109,11 +118,7 @@ function App() {
 
   // 如果未登录，显示登录页面
   if (!isLoggedIn) {
-    return (
-      <AntApp>
-        <LoginForm onLogin={handleLogin} />
-      </AntApp>
-    );
+    return <LoginForm onLogin={handleLogin} />;
   }
 
   const handleStoreChange = (storeId: string, store: any) => {
@@ -159,65 +164,63 @@ function App() {
   };
 
   return (
-    <AntApp>
-      <Layout style={{ minHeight: '100vh' }}>
-        <Header style={{ 
-          background: '#232F3E', 
-          padding: '0 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-          <Title level={3} style={{ color: 'white', margin: 0 }}>
-            Amazon Seller Central - 数据管理后台
-          </Title>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <StoreSelector
-              value={selectedStoreId}
-              onChange={handleStoreChange}
-              style={{ minWidth: 250 }}
-            />
-            <span style={{ color: 'white' }}>
-              <UserOutlined /> {currentUser}
-            </span>
-            <Button 
-              type="text" 
-              icon={<LogoutOutlined />} 
-              onClick={handleLogout}
-              style={{ color: 'white' }}
-            >
-              退出
-            </Button>
-          </div>
-        </Header>
+    <Layout style={{ minHeight: '100vh' }}>
+      <Header style={{ 
+        background: '#232F3E', 
+        padding: '0 24px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <Title level={3} style={{ color: 'white', margin: 0 }}>
+          Amazon Seller Central - 数据管理后台
+        </Title>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <StoreSelector
+            value={selectedStoreId}
+            onChange={handleStoreChange}
+            style={{ minWidth: 250 }}
+          />
+          <span style={{ color: 'white' }}>
+            <UserOutlined /> {currentUser}
+          </span>
+          <Button 
+            type="text" 
+            icon={<LogoutOutlined />} 
+            onClick={handleLogout}
+            style={{ color: 'white' }}
+          >
+            退出
+          </Button>
+        </div>
+      </Header>
+      
+      <Layout>
+        <Sider width={250} style={{ background: '#fff' }}>
+          <Menu
+            mode="inline"
+            selectedKeys={[selectedKey]}
+            onClick={handleMenuClick}
+            style={{ height: '100%', borderRight: 0 }}
+            items={menuItems}
+          />
+        </Sider>
         
-        <Layout>
-          <Sider width={250} style={{ background: '#fff' }}>
-            <Menu
-              mode="inline"
-              selectedKeys={[selectedKey]}
-              onClick={handleMenuClick}
-              style={{ height: '100%', borderRight: 0 }}
-              items={menuItems}
-            />
-          </Sider>
-          
-          <Layout style={{ padding: '24px' }}>
-            <Content
-              style={{
-                background: '#fff',
-                padding: 24,
-                margin: 0,
-                minHeight: 280,
-                borderRadius: 8,
-              }}
-            >
-              {renderContent()}
-            </Content>
-          </Layout>
+        <Layout style={{ padding: '24px' }}>
+          <Content
+            style={{
+              background: '#fff',
+              padding: 24,
+              margin: 0,
+              minHeight: 280,
+              borderRadius: 8,
+            }}
+          >
+            {renderContent()}
+          </Content>
         </Layout>
       </Layout>
-    </AntApp>
+    </Layout>
   );
 }
 

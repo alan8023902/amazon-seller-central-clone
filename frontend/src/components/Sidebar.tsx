@@ -7,9 +7,10 @@ import { cn } from '../utils/cn';
 
 interface SidebarProps {
   config: SidebarConfig;
+  onClose?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ config }) => {
+const Sidebar: React.FC<SidebarProps> = ({ config, onClose }) => {
   const location = useLocation();
   const { t } = useI18n();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
@@ -97,8 +98,11 @@ const Sidebar: React.FC<SidebarProps> = ({ config }) => {
 
   return (
     <div className="w-full bg-[#EAEDED] h-full overflow-y-auto">
-      <div className="flex items-center space-x-2 px-4 py-4 bg-[#EAEDED] border-b border-[#D5D9D9]/50 text-[#007185]">
-        <X size={16} className="cursor-pointer" />
+      <div
+        className="flex items-center space-x-2 px-4 py-4 bg-[#EAEDED] border-b border-[#D5D9D9]/50 text-[#007185] cursor-pointer hover:bg-gray-200 transition-colors"
+        onClick={onClose}
+      >
+        <X size={16} />
         <span className="text-[13px] font-bold uppercase tracking-tight">{t('closeReportsMenu')}</span>
       </div>
       <div className="py-2">

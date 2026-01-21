@@ -3,6 +3,7 @@ import { Card, Row, Col, Statistic, Typography, Spin, Alert } from 'antd';
 import { ShopOutlined, ProductOutlined, BarChartOutlined, UserOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { productApi, dashboardApi, salesApi } from '../services/api';
+import { ADMIN_API_CONFIG } from '../config/api';
 
 const { Title } = Typography;
 
@@ -13,22 +14,28 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ selectedStoreId, selectedStore }) => {
+  // 如果没有选择店铺，使用默认店铺
+  const storeId = selectedStoreId || 'store-us-main';
+  
   // 获取产品统计
   const { data: productsData, isLoading: productsLoading, error: productsError } = useQuery({
-    queryKey: ['products-stats'],
-    queryFn: () => productApi.getProducts({ limit: 100 }),
+    queryKey: ['products-stats', storeId],
+    queryFn: () => productApi.getProducts({ store_id: storeId, limit: 100 }),
+    enabled: !!storeId,
   });
 
   // 获取仪表板快照
   const { data: dashboardData, isLoading: dashboardLoading, error: dashboardError } = useQuery({
-    queryKey: ['dashboard-snapshot'],
-    queryFn: () => dashboardApi.getSnapshot('1'),
+    queryKey: ['dashboard-snapshot', storeId],
+    queryFn: () => dashboardApi.getSnapshot(storeId),
+    enabled: !!storeId,
   });
 
   // 获取销售快照
   const { data: salesData, isLoading: salesLoading, error: salesError } = useQuery({
-    queryKey: ['sales-snapshot'],
-    queryFn: () => salesApi.getSalesSnapshot('1'),
+    queryKey: ['sales-snapshot', storeId],
+    queryFn: () => salesApi.getSalesSnapshot(storeId),
+    enabled: !!storeId,
   });
 
   const isLoading = productsLoading || dashboardLoading || salesLoading;
@@ -40,7 +47,7 @@ const Dashboard: React.FC<DashboardProps> = ({ selectedStoreId, selectedStore })
         <Title level={2}>管理后台概览</Title>
         <Alert
           message="API连接错误"
-          description="无法连接到后端API服务器。请确保后端服务器正在运行在 http://localhost:3001"
+          description={`无法连接到后端API服务器。请确保后端服务器正在运行在 ${ADMIN_API_CONFIG.BASE_URL}`}
           type="error"
           showIcon
         />
@@ -56,14 +63,19 @@ const Dashboard: React.FC<DashboardProps> = ({ selectedStoreId, selectedStore })
   return (
     <div>
       <Title level={2}>管理后台概览</Title>
+      {selectedStore && (
+        <div style={{ marginBottom: 16, padding: 12, background: '#f0f2f5', borderRadius: 6 }}>
+          <strong>当前店铺:</strong> {selectedStore.name} ({selectedStore.marketplace}) - {selectedStore.currency_symbol}
+        </div>
+      )}
       
       <Spin spinning={isLoading}>
         <Row gutter={16} style={{ marginBottom: 24 }}>
           <Col span={6}>
             <Card>
               <Statistic
-                title="店铺数量"
-                value={1}
+                title="当前店铺"
+                value={selectedStore?.name || '未选择'}
                 prefix={<ShopOutlined />}
                 valueStyle={{ color: '#3f8600' }}
               />
@@ -110,15 +122,18 @@ const Dashboard: React.FC<DashboardProps> = ({ selectedStoreId, selectedStore })
               <p>• 设置店铺基本信息</p>
               <p>• 调整账户健康指标</p>
               <p>• 生成测试数据</p>
+              <p>• 配置Communications数据</p>
             </Card>
           </Col>
           <Col span={12}>
             <Card title="系统状态" style={{ height: 300 }}>
-              <p>✅ 后端API服务正常 (http://localhost:3001)</p>
+              <p>✅ 后端API服务正常 ({ADMIN_API_CONFIG.BASE_URL})</p>
               <p>✅ 数据库连接正常 ({totalProducts} 产品已加载)</p>
               <p>✅ 销售数据正常 ({totalSales} 订单项)</p>
-              <p>✅ 前端应用正常</p>
+              <p>✅ 前端应用正常 (http://localhost:3000)</p>
+              <p>✅ 管理后台正常 (http://localhost:3002)</p>
               <div style={{ marginTop: 16, fontSize: '12px', color: '#666' }}>
+                店铺ID: {storeId}<br/>
                 最后更新: {new Date().toLocaleString()}
               </div>
             </Card>

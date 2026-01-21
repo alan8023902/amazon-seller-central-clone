@@ -107,7 +107,7 @@ DELETE /api/stores/:id
 #### Frontend API Service
 ```typescript
 class BackendApiService {
-  private baseURL = 'http://localhost:3002/api';
+  private baseURL = 'http://localhost:3001/api';
   
   async getDashboardData(storeId: string) {
     const response = await fetch(`${this.baseURL}/dashboard/snapshot/${storeId}`);

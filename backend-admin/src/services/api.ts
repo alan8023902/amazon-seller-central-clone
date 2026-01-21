@@ -50,7 +50,17 @@ export const storeApi = {
 // Product API - using unified config
 export const productApi = {
   getProducts: async (params?: any) => {
-    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    // Filter out undefined values to prevent "undefined" strings in URL
+    const cleanParams: any = {};
+    if (params) {
+      Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+          cleanParams[key] = params[key];
+        }
+      });
+    }
+    
+    const queryString = Object.keys(cleanParams).length > 0 ? `?${new URLSearchParams(cleanParams).toString()}` : '';
     return await adminApiGet(`${ADMIN_API_CONFIG.ENDPOINTS.PRODUCTS.LIST}${queryString}`);
   },
   
