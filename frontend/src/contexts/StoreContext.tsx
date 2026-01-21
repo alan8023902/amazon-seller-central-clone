@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useStore as useGlobalStore } from '../store';
 import { Store } from '../types';
-import { storeApi } from '../services/storeApi';
+import { API_CONFIG, apiGet, apiPost, apiPut, apiDelete } from '../config/api';
 
 // Context for store-specific operations that don't need global state
 const StoreContext = createContext<{
@@ -29,12 +29,7 @@ export function StoreProvider({ children }: StoreProviderProps) {
       globalStore.setStoresLoading(true);
       globalStore.setStoresError(null);
 
-      const response = await fetch('http://localhost:3001/api/stores');
-      if (!response.ok) {
-        throw new Error(`Failed to fetch stores: ${response.statusText}`);
-      }
-
-      const data = await response.json();
+      const data = await apiGet(API_CONFIG.ENDPOINTS.STORES.LIST);
       const stores = data.data || [];
 
       globalStore.setStores(stores);
@@ -85,19 +80,7 @@ export function StoreProvider({ children }: StoreProviderProps) {
     try {
       globalStore.setStoresLoading(true);
 
-      const response = await fetch('http://localhost:3001/api/stores', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(storeData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to create store: ${response.statusText}`);
-      }
-
-      const result = await response.json();
+      const result = await apiPost(API_CONFIG.ENDPOINTS.STORES.CREATE, storeData);
       const newStore = result.data;
 
       // Update global store state
@@ -119,19 +102,7 @@ export function StoreProvider({ children }: StoreProviderProps) {
     try {
       globalStore.setStoresLoading(true);
 
-      const response = await fetch(`http://localhost:3001/api/stores/${storeId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(storeData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to update store: ${response.statusText}`);
-      }
-
-      const result = await response.json();
+      const result = await apiPut(API_CONFIG.ENDPOINTS.STORES.UPDATE(storeId), storeData);
       const updatedStore = result.data;
 
       // Update global store state
@@ -161,13 +132,7 @@ export function StoreProvider({ children }: StoreProviderProps) {
     try {
       globalStore.setStoresLoading(true);
 
-      const response = await fetch(`http://localhost:3001/api/stores/${storeId}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to delete store: ${response.statusText}`);
-      }
+      await apiDelete(API_CONFIG.ENDPOINTS.STORES.DELETE(storeId));
 
       // Update global store state
       const updatedStores = globalStore.stores.filter(store => store.id !== storeId);

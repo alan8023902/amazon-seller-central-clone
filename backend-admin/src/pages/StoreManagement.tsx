@@ -26,6 +26,7 @@ import {
   ProductOutlined
 } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ADMIN_API_CONFIG, adminApiGet, adminApiPost, adminApiPut, adminApiDelete } from '../config/api';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -69,52 +70,23 @@ const storeApi = {
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     
-    const response = await fetch(`http://localhost:3002/api/stores?${queryParams}`);
-    if (!response.ok) throw new Error('Failed to fetch stores');
-    return response.json();
+    return await adminApiGet(`${ADMIN_API_CONFIG.ENDPOINTS.STORES.LIST}?${queryParams}`);
   },
   
   createStore: async (data: any) => {
-    const response = await fetch('http://localhost:3002/api/stores', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to create store');
-    }
-    return response.json();
+    return await adminApiPost(ADMIN_API_CONFIG.ENDPOINTS.STORES.CREATE, data);
   },
   
   updateStore: async (id: string, data: any) => {
-    const response = await fetch(`http://localhost:3002/api/stores/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to update store');
-    }
-    return response.json();
+    return await adminApiPut(ADMIN_API_CONFIG.ENDPOINTS.STORES.UPDATE(id), data);
   },
   
   deleteStore: async (id: string) => {
-    const response = await fetch(`http://localhost:3002/api/stores/${id}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to delete store');
-    }
-    return response.json();
+    return await adminApiDelete(ADMIN_API_CONFIG.ENDPOINTS.STORES.DELETE(id));
   },
   
   getStoreSummary: async (id: string) => {
-    const response = await fetch(`http://localhost:3002/api/stores/${id}/summary`);
-    if (!response.ok) throw new Error('Failed to fetch store summary');
-    return response.json();
+    return await adminApiGet(`/api/stores/${id}/summary`);
   },
 };
 

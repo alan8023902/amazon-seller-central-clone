@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>统一API系统测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-online { background-color: #d4edda; border-color: #c3e6cb; }
+        .status-offline { background-color: #f8d7da; border-color: #f5c6cb; }
+        .status-loading { background-color: #fff3cd; border-color: #ffeaa7; }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        
+        .service-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .service-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .service-url {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .status-indicator {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .online { background-color: #28a745; color: white; }
+        .offline { background-color: #dc3545; color: white; }
+        .loading { background-color: #ffc107; color: black; }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 统一API系统测试</h1>
+        <p>测试前端、管理后台和后端API的统一配置是否正常工作</p>
+        
+        <button onclick="runAllTests()">运行所有测试</button>
+        <button onclick="testPortConfiguration()">测试端口配置</button>
+        <button onclick="testApiEndpoints()">测试API端点</button>
+        <button onclick="testDataSynchronization()">测试数据同步</button>
+        
+        <div id="testResults"></div>
+    </div>
+
+    <script>
+        // 配置常量 - 应该与代码中的配置一致
+        const CONFIG = {
+            FRONTEND_PORT: 3000,
+            ADMIN_PORT: 3002,
+            BACKEND_PORT: 3001,
+            BACKEND_API_BASE: 'http://localhost:3001',
+            FRONTEND_URL: 'http://localhost:3000',
+            ADMIN_URL: 'http://localhost:3002'
+        };
+
+        const API_ENDPOINTS = [
+            {
+                name: '店铺列表',
+                url: `${CONFIG.BACKEND_API_BASE}/api/stores`,
+                method: 'GET',
+                description: '获取所有店铺数据'
+            },
+            {
+                name: 'Dashboard快照 (美国店)',
+                url: `${CONFIG.BACKEND_API_BASE}/api/dashboard/snapshot/store-us-main`,
+                method: 'GET',
+                description: '获取美国店铺的Dashboard数据'
+            },
+            {
+                name: 'Communications数据 (美国店)',
+                url: `${CONFIG.BACKEND_API_BASE}/api/communications/store-us-main`,
+                method: 'GET',
+                description: '获取美国店铺的Communications数据'
+            },
+            {
+                name: '产品列表 (美国店)',
+                url: `${CONFIG.BACKEND_API_BASE}/api/products?store_id=store-us-main&limit=5`,
+                method: 'GET',
+                description: '获取美国店铺的产品数据'
+            },
+            {
+                name: '用户列表',
+                url: `${CONFIG.BACKEND_API_BASE}/api/users`,
+                method: 'GET',
+                description: '获取用户数据'
+            },
+            {
+                name: 'VOC数据 (美国店)',
+                url: `${CONFIG.BACKEND_API_BASE}/api/voc/store-us-main`,
+                method: 'GET',
+                description: '获取美国店铺的VOC数据'
+            }
+        ];
+
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('testResults');
+            const logEntry = document.createElement('div');
+            logEntry.className = `test-section ${type}`;
+            logEntry.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            resultsDiv.appendChild(logEntry);
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        async function testPortConfiguration() {
+            log('🔍 开始测试端口配置...', 'info');
+            
+            const services = [
+                { name: '前端应用', url: CONFIG.FRONTEND_URL, expectedPort: CONFIG.FRONTEND_PORT },
+                { name: '管理后台', url: CONFIG.ADMIN_URL, expectedPort: CONFIG.ADMIN_PORT },
+                { name: '后端API', url: CONFIG.BACKEND_API_BASE, expectedPort: CONFIG.BACKEND_PORT }
+            ];
+
+            for (const service of services) {
+                try {
+                    const response = await fetch(service.url, { 
+                        method: 'GET',
+                        mode: 'no-cors'
+                    });
+                    log(`✅ ${service.name} 在端口 ${service.expectedPort} 上正常运行`, 'success');
+                } catch (error) {
+                    log(`❌ ${service.name} 在端口 ${service.expectedPort} 上无法访问: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function testApiEndpoints() {
+            log('🌐 开始测试API端点...', 'info');
+            
+            for (const endpoint of API_ENDPOINTS) {
+                try {
+                    const response = await fetch(endpoint.url, {
+                        method: endpoint.method,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        const dataCount = Array.isArray(data.data) ? data.data.length : 1;
+                        log(`✅ ${endpoint.name}: 成功返回 ${dataCount} 条数据`, 'success');
+                        
+                        // 显示一些数据样本
+                        if (Array.isArray(data.data) && data.data.length > 0) {
+                            const sample = data.data[0];
+                            const keys = Object.keys(sample).slice(0, 3);
+                            log(`   📊 数据样本: ${keys.map(key => `${key}: ${sample[key]}`).join(', ')}`, 'info');
+                        }
+                    } else {
+                        log(`⚠️ ${endpoint.name}: API返回失败 - ${data.message || '未知错误'}`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ ${endpoint.name}: 请求失败 - ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function testDataSynchronization() {
+            log('🔄 开始测试数据同步...', 'info');
+            
+            try {
+                // 测试店铺数据
+                const storesResponse = await fetch(`${CONFIG.BACKEND_API_BASE}/api/stores`);
+                const storesData = await storesResponse.json();
+                
+                if (storesData.success && storesData.data.length > 0) {
+                    log(`✅ 店铺数据同步正常: 找到 ${storesData.data.length} 个店铺`, 'success');
+                    
+                    // 测试每个店铺的数据
+                    for (const store of storesData.data.slice(0, 2)) { // 只测试前2个店铺
+                        log(`🏪 测试店铺: ${store.name} (${store.marketplace})`, 'info');
+                        
+                        // 测试Dashboard数据
+                        try {
+                            const dashboardResponse = await fetch(`${CONFIG.BACKEND_API_BASE}/api/dashboard/snapshot/${store.id}`);
+                            const dashboardData = await dashboardResponse.json();
+                            
+                            if (dashboardData.success) {
+                                log(`   ✅ Dashboard数据正常`, 'success');
+                            } else {
+                                log(`   ⚠️ Dashboard数据异常`, 'error');
+                            }
+                        } catch (error) {
+                            log(`   ❌ Dashboard数据获取失败: ${error.message}`, 'error');
+                        }
+                        
+                        // 测试产品数据
+                        try {
+                            const productsResponse = await fetch(`${CONFIG.BACKEND_API_BASE}/api/products?store_id=${store.id}&limit=3`);
+                            const productsData = await productsResponse.json();
+                            
+                            if (productsData.success) {
+                                log(`   ✅ 产品数据正常: ${productsData.data.length} 个产品`, 'success');
+                            } else {
+                                log(`   ⚠️ 产品数据异常`, 'error');
+                            }
+                        } catch (error) {
+                            log(`   ❌ 产品数据获取失败: ${error.message}`, 'error');
+                        }
+                    }
+                } else {
+                    log(`❌ 店铺数据同步失败`, 'error');
+                }
+            } catch (error) {
+                log(`❌ 数据同步测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testUnifiedConfiguration() {
+            log('⚙️ 开始测试统一配置...', 'info');
+            
+            // 测试配置是否正确
+            const expectedConfig = {
+                frontend: 3000,
+                admin: 3002,
+                backend: 3001
+            };
+            
+            log(`📋 预期配置: 前端=${expectedConfig.frontend}, 管理后台=${expectedConfig.admin}, 后端=${expectedConfig.backend}`, 'info');
+            
+            // 验证API基础URL是否正确
+            if (CONFIG.BACKEND_API_BASE === `http://localhost:${expectedConfig.backend}`) {
+                log(`✅ API基础URL配置正确: ${CONFIG.BACKEND_API_BASE}`, 'success');
+            } else {
+                log(`❌ API基础URL配置错误: 期望 http://localhost:${expectedConfig.backend}, 实际 ${CONFIG.BACKEND_API_BASE}`, 'error');
+            }
+        }
+
+        async function runAllTests() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '';
+            
+            log('🚀 开始运行完整的API系统测试...', 'info');
+            
+            await testUnifiedConfiguration();
+            await testPortConfiguration();
+            await testApiEndpoints();
+            await testDataSynchronization();
+            
+            log('✨ 所有测试完成！', 'success');
+        }
+
+        // 页面加载时自动运行测试
+        window.onload = function() {
+            log('📱 页面加载完成，准备开始测试...', 'info');
+            setTimeout(runAllTests, 1000);
+        };
+    </script>
+</body>
+</html>

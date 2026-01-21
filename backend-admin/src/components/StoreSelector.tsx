@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Select, message, Button } from 'antd';
 import { ShopOutlined, PlusOutlined } from '@ant-design/icons';
-import { storeApi } from '../services/api';
 import AddStoreModal from './AddStoreModal';
+import { ADMIN_API_CONFIG, adminApiGet } from '../config/api';
 
 const { Option } = Select;
 
@@ -30,8 +30,7 @@ const StoreSelector: React.FC<StoreSelectorProps> = ({ value, onChange, style })
   const loadStores = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3001/api/stores');
-      const data = await response.json();
+      const data = await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.STORES.LIST);
       
       if (data.success) {
         setStores(data.data || []);

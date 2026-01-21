@@ -22,7 +22,7 @@ import {
   ReloadOutlined,
   CopyOutlined 
 } from '@ant-design/icons';
-import { api } from '../services/api';
+import { ADMIN_API_CONFIG, adminApiGet, adminApiPost, adminApiPut, adminApiDelete } from '../config/api';
 
 const { Text } = Typography;
 
@@ -60,8 +60,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ selectedStoreId, select
   const loadUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/users');
-      const result = await response.json();
+      const result = await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.USERS.LIST);
       if (result.success) {
         setUsers(result.data);
       }
@@ -76,21 +75,12 @@ const UserManagement: React.FC<UserManagementProps> = ({ selectedStoreId, select
   const handleSave = async (values: any) => {
     setLoading(true);
     try {
-      const url = editingUser 
-        ? `http://localhost:3001/api/users/${editingUser.id}`
-        : 'http://localhost:3001/api/users';
-      
-      const method = editingUser ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
-      });
-
-      const result = await response.json();
+      let result;
+      if (editingUser) {
+        result = await adminApiPut(ADMIN_API_CONFIG.ENDPOINTS.USERS.UPDATE(editingUser.id), values);
+      } else {
+        result = await adminApiPost(ADMIN_API_CONFIG.ENDPOINTS.USERS.CREATE, values);
+      }
       
       if (result.success) {
         message.success(editingUser ? '用户更新成功！' : '用户创建成功！');
@@ -111,14 +101,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ selectedStoreId, select
 
   const refreshOTP = async (userId: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/users/${userId}/refresh-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const result = await response.json();
+      const result = await adminApiPost(ADMIN_API_CONFIG.ENDPOINTS.USERS.REFRESH_OTP(userId));
       
       if (result.success) {
         message.success('验证码已刷新！');
@@ -134,14 +117,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ selectedStoreId, select
 
   const refreshPassword = async (userId: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/users/${userId}/refresh-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const result = await response.json();
+      const result = await adminApiPost(ADMIN_API_CONFIG.ENDPOINTS.USERS.REFRESH_PASSWORD(userId));
       
       if (result.success) {
         message.success('密码已刷新！');
@@ -166,11 +142,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ selectedStoreId, select
   const handleDelete = async (userId: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/users/${userId}`, {
-        method: 'DELETE',
-      });
-
-      const result = await response.json();
+      const result = await adminApiDelete(ADMIN_API_CONFIG.ENDPOINTS.USERS.DELETE(userId));
       
       if (result.success) {
         message.success('用户删除成功！');

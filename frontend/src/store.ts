@@ -192,8 +192,11 @@ export const useStore = create<AppStore>()(
         set({ storesLoading: true, storesError: null });
 
         try {
+          // Import API config dynamically to avoid circular imports
+          const { API_CONFIG } = await import('./config/api');
+          
           // Fetch stores from API
-          const response = await fetch('http://localhost:3001/api/stores');
+          const response = await fetch(`${API_CONFIG.BASE_URL}/api/stores`);
           if (!response.ok) {
             throw new Error(`Failed to fetch stores: ${response.statusText}`);
           }
@@ -225,13 +228,18 @@ export const useStore = create<AppStore>()(
       },
     }),
     {
-      name: 'amazon-seller-central-storage',
+      name: 'amazon-seller-central-storage-v2', // Change storage key to force reset
+      version: 2, // Increment version
       // Only persist essential data, not loading states
       partialize: (state) => ({
-        session: state.session,
+        session: {
+          ...state.session,
+          store: null, // Don't persist old store data
+          selectedStoreId: undefined, // Don't persist old store ID
+        },
         dashboard: state.dashboard,
-        stores: state.stores,
-        currentStore: state.currentStore,
+        stores: [], // Don't persist stores, always load fresh
+        currentStore: null, // Don't persist current store
       })
     }
   )

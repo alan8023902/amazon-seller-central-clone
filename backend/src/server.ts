@@ -10,6 +10,7 @@ import dashboardRoutes from './routes/dashboard';
 import userRoutes from './routes/users';
 import vocRoutes from './routes/voc';
 import authRoutes from './routes/auth';
+import communicationsRoutes from './routes/communications';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -39,6 +40,7 @@ app.use('/api/sales', salesRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/voc', vocRoutes);
+app.use('/api/communications', communicationsRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

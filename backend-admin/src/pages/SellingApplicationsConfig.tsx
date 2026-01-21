@@ -18,6 +18,7 @@ import {
 } from 'antd';
 import { SaveOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ADMIN_API_CONFIG, adminApiGet, adminApiPost, adminApiPut } from '../config/api';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -49,8 +50,7 @@ const SellingApplicationsConfig: React.FC = () => {
   const { data: stores = [] } = useQuery({
     queryKey: ['stores'],
     queryFn: async () => {
-      const response = await fetch('http://localhost:3002/api/stores');
-      const data = await response.json();
+      const data = await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.STORES.LIST);
       return data.data || [];
     },
   });
@@ -60,8 +60,7 @@ const SellingApplicationsConfig: React.FC = () => {
     queryKey: ['selling-applications', selectedStoreId],
     queryFn: async () => {
       if (!selectedStoreId) return [];
-      const response = await fetch(`http://localhost:3002/api/selling-applications/${selectedStoreId}`);
-      const data = await response.json();
+      const data = await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.SELLING_APPLICATIONS.BY_STORE(selectedStoreId));
       return data.data || [];
     },
     enabled: !!selectedStoreId,
@@ -87,26 +86,18 @@ const SellingApplicationsConfig: React.FC = () => {
 
       if (editingApplication) {
         // 更新现有申请
-        const response = await fetch(`http://localhost:3002/api/selling-applications/${editingApplication.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(applicationData)
-        });
+        const result = await adminApiPut(`/api/selling-applications/${editingApplication.id}`, applicationData);
         
-        if (response.ok) {
+        if (result.success) {
           message.success('销售申请更新成功！');
         } else {
           throw new Error('Failed to update application');
         }
       } else {
         // 创建新申请
-        const response = await fetch('http://localhost:3002/api/selling-applications', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(applicationData)
-        });
+        const result = await adminApiPost('/api/selling-applications', applicationData);
         
-        if (response.ok) {
+        if (result.success) {
           message.success('销售申请创建成功！');
         } else {
           throw new Error('Failed to create application');

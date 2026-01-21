@@ -78,7 +78,7 @@ const Sidebar: React.FC<SidebarProps> = ({ config }) => {
             className={cn(
               "flex items-center px-4 py-2 text-[13px] transition-colors whitespace-normal leading-tight",
               isItemActive ? "bg-white text-[#007185] font-bold" : "text-[#007185] hover:bg-white/50",
-              level > 0 || !item.isHeader && item.id !== 'sales-dashboard' ? "pl-8" : "pl-4"
+              level > 0 || (!item.isHeader && item.id !== 'sales-dashboard' && !item.children) ? "pl-8" : "pl-4"
             )}
           >
             {item.icon && <span className="mr-3">{item.icon}</span>}

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test with Correct Store IDs</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+        button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>API Test with Correct Store IDs</h1>
+    
+    <div class="test-section">
+        <h2>1. Get All Stores</h2>
+        <button onclick="getStores()">Get Stores</button>
+        <div id="storesResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test APIs with Correct Store IDs</h2>
+        <button onclick="testAllAPIs()">Test All APIs</button>
+        <div id="apiResults"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+        let availableStores = [];
+
+        async function getStores() {
+            const resultDiv = document.getElementById('storesResult');
+            resultDiv.innerHTML = '<div class="info">Loading stores...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/stores`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    availableStores = data.data;
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ Found ${availableStores.length} stores:</div>
+                        <pre>${JSON.stringify(availableStores, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Failed to get stores: ${JSON.stringify(data)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testAllAPIs() {
+            const resultDiv = document.getElementById('apiResults');
+            
+            if (availableStores.length === 0) {
+                resultDiv.innerHTML = '<div class="error">❌ No stores available. Please get stores first.</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="info">Testing APIs with correct store IDs...</div>';
+            
+            const results = [];
+            
+            for (const store of availableStores) {
+                results.push(`<h3>Testing Store: ${store.name} (ID: ${store.id})</h3>`);
+                
+                // Test Dashboard API
+                try {
+                    const dashResponse = await fetch(`${API_BASE}/api/dashboard/snapshot/${store.id}`);
+                    const dashData = await dashResponse.json();
+                    
+                    if (dashResponse.ok) {
+                        results.push(`<div class="success">✅ Dashboard API: OK</div>`);
+                    } else {
+                        results.push(`<div class="error">❌ Dashboard API: ${dashResponse.status}</div>`);
+                    }
+                } catch (error) {
+                    results.push(`<div class="error">❌ Dashboard API Error: ${error.message}</div>`);
+                }
+                
+                // Test Products API
+                try {
+                    const prodResponse = await fetch(`${API_BASE}/api/products?store_id=${store.id}&limit=5`);
+                    const prodData = await prodResponse.json();
+                    
+                    if (prodResponse.ok) {
+                        results.push(`<div class="success">✅ Products API: OK (${prodData.data?.length || 0} products)</div>`);
+                    } else {
+                        results.push(`<div class="error">❌ Products API: ${prodResponse.status}</div>`);
+                    }
+                } catch (error) {
+                    results.push(`<div class="error">❌ Products API Error: ${error.message}</div>`);
+                }
+                
+                // Test Communications API
+                try {
+                    const commResponse = await fetch(`${API_BASE}/api/communications/${store.id}`);
+                    const commData = await commResponse.json();
+                    
+                    if (commResponse.ok) {
+                        results.push(`<div class="success">✅ Communications API: OK</div>`);
+                    } else {
+                        results.push(`<div class="error">❌ Communications API: ${commResponse.status}</div>`);
+                    }
+                } catch (error) {
+                    results.push(`<div class="error">❌ Communications API Error: ${error.message}</div>`);
+                }
+                
+                results.push('<hr>');
+            }
+            
+            resultDiv.innerHTML = results.join('');
+        }
+
+        // Auto-run on page load
+        window.onload = function() {
+            setTimeout(getStores, 500);
+        };
+    </script>
+</body>
+</html>

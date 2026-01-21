@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Upload, message, Button, Image } from 'antd';
 import { PlusOutlined, LoadingOutlined, DeleteOutlined } from '@ant-design/icons';
+import { ADMIN_API_CONFIG } from '../config/api';
 import type { UploadProps, UploadFile } from 'antd';
 
 interface ImageUploadProps {
@@ -48,7 +49,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     formData.append('image', file);
 
     try {
-      const response = await fetch(`http://localhost:3002/api/products/${productId}/image`, {
+      const response = await fetch(`${ADMIN_API_CONFIG.BASE_URL}/api/products/${productId}/image`, {
         method: 'POST',
         body: formData,
       });
@@ -59,7 +60,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       }
 
       const result = await response.json();
-      const fullImageUrl = `http://localhost:3002${result.data.imageUrl}`;
+      const fullImageUrl = `${ADMIN_API_CONFIG.BASE_URL}${result.data.imageUrl}`;
       
       setImageUrl(fullImageUrl);
       onImageUploaded(fullImageUrl, {

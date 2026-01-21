@@ -14,6 +14,7 @@ import { useI18n } from '../hooks/useI18n';
 import { cn } from '../utils/cn';
 import { ActionsCard, CommunicationsCard } from './LeftColumnComponents';
 import { storeApi, type StoreData, type DashboardData } from '../services/storeApi';
+import { API_CONFIG, apiGet } from '../config/api';
 
 // ==================== Mock Data ====================
 const ACTIONS = [
@@ -193,41 +194,61 @@ export default function Dashboard() {
         setError(null);
 
         // Get current store from Zustand store
-        const { currentStore } = useStore.getState();
+        const { session, stores, refreshStoreData, currentStore: zustandCurrentStore } = useStore.getState();
+
+        // If no stores are loaded, load them first
+        if (stores.length === 0) {
+          console.log('No stores loaded, refreshing store data...');
+          await refreshStoreData();
+        }
+
+        // Get updated state after refreshing stores
+        const updatedState = useStore.getState();
+        let currentStore = updatedState.currentStore;
+
+        // If no current store is set, try to find one based on session
+        if (!currentStore && updatedState.stores.length > 0) {
+          console.log('No current store set, finding appropriate store...');
+          console.log('Available stores:', updatedState.stores.map(s => ({ id: s.id, name: s.name })));
+          console.log('Session selectedStoreId:', session.selectedStoreId);
+          console.log('Session store name:', session.store?.name);
+
+          // Try to find store by ID first, then by name as fallback
+          currentStore = updatedState.stores.find(s => s.id === session.selectedStoreId) ||
+            updatedState.stores.find(s => s.name === session.store?.name) ||
+            updatedState.stores.find(s => s.is_active) ||
+            updatedState.stores[0];
+
+          if (currentStore) {
+            console.log('Selected store:', { id: currentStore.id, name: currentStore.name });
+            // Update the store in Zustand
+            useStore.getState().setCurrentStore(currentStore);
+          }
+        }
 
         if (!currentStore?.id) {
+          console.error('No valid store found');
           setError('No store selected. Please select a store to view dashboard data.');
           setLoading(false);
           return;
         }
 
+        console.log('Using store for API calls:', { id: currentStore.id, name: currentStore.name });
         setCurrentStore(currentStore);
 
-        // Load dashboard data from backend API
+        // Load dashboard data from backend API using unified API config
         const [snapshotResponse, productsResponse, actionsResponse, communicationsResponse] = await Promise.all([
-          fetch(`http://localhost:3001/api/dashboard/snapshot/${currentStore.id}`).then(r => {
-            if (!r.ok) throw new Error(`Snapshot API error: ${r.status}`);
-            return r.json();
-          }),
-          fetch(`http://localhost:3001/api/products?store_id=${currentStore.id}&limit=10`).then(r => {
-            if (!r.ok) throw new Error(`Products API error: ${r.status}`);
-            return r.json();
-          }),
-          fetch(`http://localhost:3001/api/dashboard/actions/${currentStore.id}`).then(r => {
-            if (!r.ok) throw new Error(`Actions API error: ${r.status}`);
-            return r.json();
-          }),
-          fetch(`http://localhost:3001/api/dashboard/communications/${currentStore.id}`).then(r => {
-            if (!r.ok) throw new Error(`Communications API error: ${r.status}`);
-            return r.json();
-          })
+          apiGet(API_CONFIG.ENDPOINTS.DASHBOARD.SNAPSHOT(currentStore.id)),
+          apiGet(API_CONFIG.ENDPOINTS.PRODUCTS.BY_STORE(currentStore.id) + '&limit=10'),
+          apiGet(API_CONFIG.ENDPOINTS.DASHBOARD.ACTIONS(currentStore.id)),
+          apiGet(API_CONFIG.ENDPOINTS.COMMUNICATIONS.BY_STORE(currentStore.id))
         ]);
 
         // Extract data from API responses
         const snapshot = snapshotResponse.data;
-        const products = productsResponse.data || [];
-        const actions = actionsResponse.data || [];
-        const communications = communicationsResponse.data || [];
+        const products = Array.isArray(productsResponse.data) ? productsResponse.data : [];
+        const actions = Array.isArray(actionsResponse.data) ? actionsResponse.data : [];
+        const communications = Array.isArray(communicationsResponse.data) ? communicationsResponse.data : [];
 
         // Transform data to match expected format
         const dashboardData: DashboardData = {

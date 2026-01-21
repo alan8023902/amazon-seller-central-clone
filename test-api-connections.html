@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API连接测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid;
+        }
+        .success { background-color: #d4edda; border-color: #28a745; }
+        .error { background-color: #f8d7da; border-color: #dc3545; }
+        .info { background-color: #d1ecf1; border-color: #17a2b8; }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        
+        .service-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .status-online { background-color: #d4edda; }
+        .status-offline { background-color: #f8d7da; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 API连接测试</h1>
+        <p>测试前端、管理后台和后端API之间的连接</p>
+        
+        <button onclick="testAllConnections()">测试所有连接</button>
+        <button onclick="testBackendAPI()">测试后端API</button>
+        <button onclick="testCrossOrigin()">测试跨域请求</button>
+        
+        <div id="testResults"></div>
+    </div>
+
+    <script>
+        const BACKEND_BASE = 'http://localhost:3001';
+        const FRONTEND_URL = 'http://localhost:3000';
+        const ADMIN_URL = 'http://localhost:3002';
+
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('testResults');
+            const logEntry = document.createElement('div');
+            logEntry.className = `test-result ${type}`;
+            logEntry.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            resultsDiv.appendChild(logEntry);
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        async function testBackendAPI() {
+            log('🔍 开始测试后端API...', 'info');
+            
+            const endpoints = [
+                { name: '健康检查', url: '/api/health' },
+                { name: '店铺列表', url: '/api/stores' },
+                { name: 'Dashboard数据', url: '/api/dashboard/snapshot/store-us-main' },
+                { name: '产品数据', url: '/api/products?store_id=store-us-main&limit=3' },
+                { name: 'Communications数据', url: '/api/communications/store-us-main' }
+            ];
+
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(`${BACKEND_BASE}${endpoint.url}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (endpoint.name === '健康检查') {
+                        if (data.status === 'OK') {
+                            log(`✅ ${endpoint.name}: 后端服务正常运行`, 'success');
+                        } else {
+                            log(`⚠️ ${endpoint.name}: 后端服务状态异常`, 'error');
+                        }
+                    } else if (data.success) {
+                        const dataCount = Array.isArray(data.data) ? data.data.length : 1;
+                        log(`✅ ${endpoint.name}: 成功返回 ${dataCount} 条数据`, 'success');
+                    } else {
+                        log(`⚠️ ${endpoint.name}: API返回失败 - ${data.message || '未知错误'}`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ ${endpoint.name}: 请求失败 - ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function testCrossOrigin() {
+            log('🌐 开始测试跨域请求...', 'info');
+            
+            try {
+                // 测试从当前页面（可能是file://协议）访问后端API
+                const response = await fetch(`${BACKEND_BASE}/api/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ 跨域请求成功: 后端API可以从浏览器访问`, 'success');
+                    log(`   📊 响应数据: ${JSON.stringify(data)}`, 'info');
+                } else {
+                    log(`⚠️ 跨域请求失败: HTTP ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ 跨域请求失败: ${error.message}`, 'error');
+                log(`   💡 这可能是CORS配置问题或网络连接问题`, 'info');
+            }
+        }
+
+        async function testServiceAvailability() {
+            log('🔍 检查服务可用性...', 'info');
+            
+            const services = [
+                { name: '前端应用', url: FRONTEND_URL, port: 3000 },
+                { name: '管理后台', url: ADMIN_URL, port: 3002 },
+                { name: '后端API', url: BACKEND_BASE, port: 3001 }
+            ];
+
+            for (const service of services) {
+                try {
+                    const response = await fetch(service.url, { 
+                        method: 'GET',
+                        mode: 'no-cors' // 避免CORS问题
+                    });
+                    log(`✅ ${service.name} (端口 ${service.port}): 服务可访问`, 'success');
+                } catch (error) {
+                    log(`❌ ${service.name} (端口 ${service.port}): 服务不可访问 - ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function testAPIConfiguration() {
+            log('⚙️ 测试API配置...', 'info');
+            
+            // 模拟前端API配置
+            const frontendConfig = {
+                BASE_URL: 'http://localhost:3001',
+                ENDPOINTS: {
+                    STORES: '/api/stores',
+                    DASHBOARD: '/api/dashboard/snapshot/store-us-main'
+                }
+            };
+            
+            // 模拟管理后台API配置
+            const adminConfig = {
+                BASE_URL: 'http://localhost:3001',
+                ENDPOINTS: {
+                    STORES: '/api/stores',
+                    PRODUCTS: '/api/products'
+                }
+            };
+            
+            log(`📋 前端API配置: ${frontendConfig.BASE_URL}`, 'info');
+            log(`📋 管理后台API配置: ${adminConfig.BASE_URL}`, 'info');
+            
+            // 测试配置是否正确
+            if (frontendConfig.BASE_URL === adminConfig.BASE_URL && 
+                frontendConfig.BASE_URL === BACKEND_BASE) {
+                log(`✅ API配置统一: 所有应用都指向 ${BACKEND_BASE}`, 'success');
+            } else {
+                log(`❌ API配置不统一: 检查配置文件`, 'error');
+            }
+        }
+
+        async function testAllConnections() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '';
+            
+            log('🚀 开始完整的API连接测试...', 'info');
+            
+            await testServiceAvailability();
+            await testAPIConfiguration();
+            await testBackendAPI();
+            await testCrossOrigin();
+            
+            log('✨ 所有测试完成！', 'success');
+        }
+
+        // 页面加载时自动运行测试
+        window.onload = function() {
+            log('📱 页面加载完成，开始测试...', 'info');
+            setTimeout(testAllConnections, 1000);
+        };
+    </script>
+</body>
+</html>

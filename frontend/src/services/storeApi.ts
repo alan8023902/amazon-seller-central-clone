@@ -1,5 +1,5 @@
 // Store-specific API service with caching
-const API_BASE_URL = 'http://localhost:3001/api';
+import { API_CONFIG } from '../config/api';
 
 // Simple in-memory cache
 class ApiCache {
@@ -131,7 +131,7 @@ class StoreApiService {
     if (cached) return cached;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/stores`);
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/stores`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -155,7 +155,7 @@ class StoreApiService {
   // Create a new store
   async createStore(storeData: Omit<StoreData, 'id' | 'created_at' | 'updated_at'>): Promise<StoreData> {
     try {
-      const response = await fetch(`${API_BASE_URL}/stores`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/stores`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -182,7 +182,7 @@ class StoreApiService {
   // Update an existing store
   async updateStore(storeId: string, storeData: Partial<StoreData>): Promise<StoreData> {
     try {
-      const response = await fetch(`${API_BASE_URL}/stores/${storeId}`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/stores/${storeId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -210,7 +210,7 @@ class StoreApiService {
   // Delete a store
   async deleteStore(storeId: string): Promise<void> {
     try {
-      const response = await fetch(`${API_BASE_URL}/stores/${storeId}`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/stores/${storeId}`, {
         method: 'DELETE',
       });
 
@@ -236,7 +236,7 @@ class StoreApiService {
     if (cached) return cached;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/stores/${storeId}`);
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/stores/${storeId}`);
       if (!response.ok) {
         if (response.status === 404) return null;
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -259,7 +259,7 @@ class StoreApiService {
     if (cached) return cached;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/stores/${storeId}/summary`);
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/stores/${storeId}/summary`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -281,7 +281,7 @@ class StoreApiService {
     if (cached) return cached;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/dashboard/${storeId}`);
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/dashboard/${storeId}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -312,7 +312,7 @@ class StoreApiService {
         params.append('search', filters.search);
       }
 
-      const response = await fetch(`${API_BASE_URL}/products?${params}`);
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/products?${params}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -335,7 +335,7 @@ class StoreApiService {
     if (cached) return cached;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/sales/snapshot/${storeId}`);
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/sales/snapshot/${storeId}`);
       if (!response.ok) {
         if (response.status === 404) return null;
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -358,7 +358,7 @@ class StoreApiService {
     if (cached) return cached;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/sales/daily/${storeId}`);
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/sales/daily/${storeId}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

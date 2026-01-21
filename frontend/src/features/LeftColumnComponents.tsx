@@ -85,8 +85,9 @@ export function CommunicationsCard({ communications }: { communications?: any[] 
   const { t } = useI18n();
 
   // Split communications into forums and news if dynamic data is present
-  const dynamicForums = communications?.filter(c => c.post_type === 'FORUM') || [];
-  const dynamicNews = communications?.filter(c => c.post_type === 'NEWS') || [];
+  const isCommArray = Array.isArray(communications);
+  const dynamicForums = isCommArray ? communications.filter(c => c.post_type === 'FORUM') : [];
+  const dynamicNews = isCommArray ? communications.filter(c => c.post_type === 'NEWS') : [];
 
   // Mock data fallbacks for initial empty state
   const sellerForums = dynamicForums.length > 0 ? dynamicForums.map(f => ({

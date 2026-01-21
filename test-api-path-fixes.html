@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API路径修复验证</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid;
+        }
+        .success { background-color: #d4edda; border-color: #28a745; }
+        .error { background-color: #f8d7da; border-color: #dc3545; }
+        .info { background-color: #d1ecf1; border-color: #17a2b8; }
+        .warning { background-color: #fff3cd; border-color: #ffc107; }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        
+        .api-test {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        
+        .api-url {
+            font-family: monospace;
+            background-color: #f8f9fa;
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 API路径修复验证</h1>
+        <p>验证前端API调用路径修复是否正确</p>
+        
+        <button onclick="testAllAPIs()">测试所有API</button>
+        <button onclick="testDashboardAPI()">测试Dashboard API</button>
+        <button onclick="testProductsAPI()">测试Products API</button>
+        <button onclick="testStoresAPI()">测试Stores API</button>
+        
+        <div id="testResults"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+        const STORE_ID = 'store-us-main';
+
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('testResults');
+            const logEntry = document.createElement('div');
+            logEntry.className = `test-result ${type}`;
+            logEntry.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            resultsDiv.appendChild(logEntry);
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function showApiTest(name, url, method = 'GET') {
+            const testDiv = document.createElement('div');
+            testDiv.className = 'api-test';
+            testDiv.innerHTML = `
+                <strong>${name}</strong><br>
+                <span class="api-url">${method} ${url}</span>
+            `;
+            document.getElementById('testResults').appendChild(testDiv);
+        }
+
+        async function testAPI(name, url, method = 'GET') {
+            showApiTest(name, url, method);
+            
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const dataInfo = Array.isArray(data.data) 
+                        ? `${data.data.length} 条记录` 
+                        : '1 条记录';
+                    log(`✅ ${name}: 成功 - ${dataInfo}`, 'success');
+                    
+                    // 显示数据样本
+                    if (data.data) {
+                        const sample = Array.isArray(data.data) ? data.data[0] : data.data;
+                        if (sample) {
+                            const keys = Object.keys(sample).slice(0, 3);
+                            log(`   📊 数据样本: ${keys.map(key => `${key}: ${sample[key]}`).join(', ')}`, 'info');
+                        }
+                    }
+                } else {
+                    log(`⚠️ ${name}: API返回失败 - ${data.message || '未知错误'}`, 'warning');
+                }
+            } catch (error) {
+                log(`❌ ${name}: 请求失败 - ${error.message}`, 'error');
+            }
+        }
+
+        async function testDashboardAPI() {
+            log('🎯 测试Dashboard API...', 'info');
+            
+            // 测试修复后的路径
+            await testAPI('Dashboard快照', `${API_BASE}/api/dashboard/snapshot/${STORE_ID}`);
+            await testAPI('Dashboard配置', `${API_BASE}/api/dashboard/config/${STORE_ID}`);
+            await testAPI('Dashboard产品', `${API_BASE}/api/dashboard/products/${STORE_ID}`);
+            await testAPI('Dashboard操作', `${API_BASE}/api/dashboard/actions/${STORE_ID}`);
+            await testAPI('Dashboard通信', `${API_BASE}/api/dashboard/communications/${STORE_ID}`);
+            await testAPI('Dashboard健康', `${API_BASE}/api/dashboard/health/${STORE_ID}`);
+        }
+
+        async function testProductsAPI() {
+            log('📦 测试Products API...', 'info');
+            
+            // 测试修复后的路径
+            await testAPI('产品列表 (按店铺)', `${API_BASE}/api/products?store_id=${STORE_ID}&limit=5`);
+            await testAPI('所有产品', `${API_BASE}/api/products?limit=10`);
+        }
+
+        async function testStoresAPI() {
+            log('🏪 测试Stores API...', 'info');
+            
+            await testAPI('店铺列表', `${API_BASE}/api/stores`);
+            await testAPI('单个店铺', `${API_BASE}/api/stores/${STORE_ID}`);
+        }
+
+        async function testSalesAPI() {
+            log('💰 测试Sales API...', 'info');
+            
+            await testAPI('销售快照', `${API_BASE}/api/sales/snapshot/${STORE_ID}`);
+            await testAPI('每日销售', `${API_BASE}/api/sales/daily/${STORE_ID}`);
+        }
+
+        async function testCommunicationsAPI() {
+            log('💬 测试Communications API...', 'info');
+            
+            await testAPI('通信数据', `${API_BASE}/api/communications/${STORE_ID}`);
+            await testAPI('论坛数据', `${API_BASE}/api/communications/${STORE_ID}/forums`);
+            await testAPI('新闻数据', `${API_BASE}/api/communications/${STORE_ID}/news`);
+        }
+
+        async function testVOCAPI() {
+            log('🗣️ 测试VOC API...', 'info');
+            
+            await testAPI('VOC数据', `${API_BASE}/api/voc/${STORE_ID}`);
+        }
+
+        async function testUsersAPI() {
+            log('👥 测试Users API...', 'info');
+            
+            await testAPI('用户列表', `${API_BASE}/api/users`);
+        }
+
+        async function testHealthAPI() {
+            log('🏥 测试Health API...', 'info');
+            
+            await testAPI('健康检查', `${API_BASE}/api/health`);
+        }
+
+        async function testAllAPIs() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '';
+            
+            log('🚀 开始完整的API路径验证测试...', 'info');
+            
+            await testHealthAPI();
+            await testStoresAPI();
+            await testDashboardAPI();
+            await testProductsAPI();
+            await testSalesAPI();
+            await testCommunicationsAPI();
+            await testVOCAPI();
+            await testUsersAPI();
+            
+            log('✨ 所有API测试完成！', 'success');
+        }
+
+        // 页面加载时自动运行测试
+        window.onload = function() {
+            log('📱 页面加载完成，开始API路径验证...', 'info');
+            setTimeout(testAllAPIs, 1000);
+        };
+    </script>
+</body>
+</html>

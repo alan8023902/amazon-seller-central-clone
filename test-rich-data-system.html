@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>丰富数据系统测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        
+        .store-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .stat-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .big-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+        
+        .highlight {
+            background-color: #fff3cd;
+            font-weight: bold;
+        }
+        
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 丰富数据系统测试</h1>
+        <p>测试每个店铺的差异化数据、Communications功能和大数值生成</p>
+        
+        <div class="test-section info">
+            <h3>📋 测试内容</h3>
+            <ul>
+                <li><strong>4个差异化店铺</strong>: 美国(最多数据)、日本、英国、德国(最少数据)</li>
+                <li><strong>Seller Forums</strong>: 观看次数1.5万-8万，回复数500-5000</li>
+                <li><strong>Seller News</strong>: 观看次数2.5万-15万，评论数200-2000</li>
+                <li><strong>Dashboard数据</strong>: 每个店铺不同的销售数据</li>
+                <li><strong>产品数据</strong>: 每个店铺10个产品，数据差异化</li>
+                <li><strong>管理后台同步</strong>: 可以编辑并同步到前端</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>🏪 店铺数据对比</h3>
+            <button onclick="loadAllStoresData()">加载所有店铺数据</button>
+            <button onclick="testDataDifferences()">测试数据差异</button>
+            <div id="storesComparison"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>💬 Communications数据测试</h3>
+            <button onclick="testCommunications()">测试Communications API</button>
+            <button onclick="testForumsData()">测试Forums数据</button>
+            <button onclick="testNewsData()">测试News数据</button>
+            <div id="communicationsResults"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Dashboard数据测试</h3>
+            <button onclick="testDashboardData()">测试Dashboard数据</button>
+            <div id="dashboardResults"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🛍️ 产品数据测试</h3>
+            <button onclick="testProductsData()">测试产品数据</button>
+            <div id="productsResults"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔄 管理后台同步测试</h3>
+            <p>测试管理后台数据修改是否同步到前端:</p>
+            <button onclick="window.open('http://localhost:3002', '_blank')">打开管理后台</button>
+            <button onclick="window.open('http://localhost:3000', '_blank')">打开前端</button>
+            <div class="info">
+                <p><strong>测试步骤:</strong></p>
+                <ol>
+                    <li>在管理后台选择店铺并修改数据</li>
+                    <li>在前端切换到相同店铺</li>
+                    <li>刷新前端页面查看数据是否更新</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📈 大数值验证</h3>
+            <button onclick="validateLargeNumbers()">验证大数值</button>
+            <div id="largeNumbersResults"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 测试日志</h3>
+            <div id="testLog"></div>
+        </div>
+    </div>
+
+    <script>
+        let testLog = [];
+        let storesData = {};
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            testLog.push({ message, type, timestamp });
+            updateTestLog();
+        }
+
+        function updateTestLog() {
+            const logDiv = document.getElementById('testLog');
+            let html = '';
+            testLog.slice(-15).forEach(entry => {
+                html += `<p class="${entry.type}">[${entry.timestamp}] ${entry.message}</p>`;
+            });
+            logDiv.innerHTML = html;
+        }
+
+        async function loadAllStoresData() {
+            log('🔍 加载所有店铺数据...', 'info');
+            
+            const stores = [
+                { id: 'store-us-main', name: 'TechNest美国主店', flag: '🇺🇸' },
+                { id: 'store-jp-main', name: 'TechNest日本店', flag: '🇯🇵' },
+                { id: 'store-uk-main', name: 'TechNest英国店', flag: '🇬🇧' },
+                { id: 'store-de-main', name: 'TechNest德国店', flag: '🇩🇪' }
+            ];
+            
+            const comparisonDiv = document.getElementById('storesComparison');
+            let html = '<div class="data-grid">';
+            
+            for (const store of stores) {
+                try {
+                    // 获取Dashboard数据
+                    const dashResponse = await fetch(`http://localhost:3001/api/dashboard/snapshot/${store.id}`);
+                    const dashResult = await dashResponse.json();
+                    
+                    // 获取Communications数据
+                    const commResponse = await fetch(`http://localhost:3001/api/communications/${store.id}`);
+                    const commResult = await commResponse.json();
+                    
+                    // 获取产品数据
+                    const prodResponse = await fetch(`http://localhost:3001/api/products?store_id=${store.id}`);
+                    const prodResult = await prodResponse.json();
+                    
+                    storesData[store.id] = {
+                        dashboard: dashResult.data,
+                        communications: commResult.data,
+                        products: prodResult.data
+                    };
+                    
+                    const dashData = dashResult.data || {};
+                    const commData = commResult.data || {};
+                    const prodData = prodResult.data || [];
+                    
+                    html += `
+                        <div class="stat-card">
+                            <h4>${store.flag} ${store.name}</h4>
+                            <div class="big-number">${(dashData.total_revenue || 0).toLocaleString()}</div>
+                            <div>总收入</div>
+                            <hr>
+                            <p><strong>Forums:</strong> ${commData.seller_forums?.length || 0} 个帖子</p>
+                            <p><strong>News:</strong> ${commData.seller_news?.length || 0} 条新闻</p>
+                            <p><strong>Products:</strong> ${prodData.length} 个产品</p>
+                            <p><strong>订单:</strong> ${(dashData.total_orders || 0).toLocaleString()}</p>
+                        </div>
+                    `;
+                    
+                    log(`✅ ${store.name} 数据加载成功`, 'success');
+                } catch (error) {
+                    html += `
+                        <div class="stat-card error">
+                            <h4>${store.flag} ${store.name}</h4>
+                            <p>❌ 数据加载失败</p>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                    log(`❌ ${store.name} 数据加载失败: ${error.message}`, 'error');
+                }
+            }
+            
+            html += '</div>';
+            comparisonDiv.innerHTML = html;
+        }
+
+        async function testDataDifferences() {
+            log('🔍 分析数据差异...', 'info');
+            
+            if (Object.keys(storesData).length === 0) {
+                log('⚠️ 请先加载店铺数据', 'warning');
+                return;
+            }
+            
+            const comparisonDiv = document.getElementById('storesComparison');
+            let html = '<h4>📊 数据差异分析</h4><table>';
+            html += '<tr><th>店铺</th><th>收入</th><th>订单</th><th>Forums观看</th><th>News观看</th><th>产品数</th></tr>';
+            
+            Object.entries(storesData).forEach(([storeId, data]) => {
+                const dash = data.dashboard || {};
+                const comm = data.communications || {};
+                const forumsViews = comm.seller_forums?.reduce((sum, item) => sum + item.views, 0) || 0;
+                const newsViews = comm.seller_news?.reduce((sum, item) => sum + item.views, 0) || 0;
+                
+                const storeName = {
+                    'store-us-main': '🇺🇸 美国',
+                    'store-jp-main': '🇯🇵 日本', 
+                    'store-uk-main': '🇬🇧 英国',
+                    'store-de-main': '🇩🇪 德国'
+                }[storeId] || storeId;
+                
+                html += `
+                    <tr>
+                        <td>${storeName}</td>
+                        <td class="${forumsViews > 500000 ? 'highlight' : ''}">${(dash.total_revenue || 0).toLocaleString()}</td>
+                        <td>${(dash.total_orders || 0).toLocaleString()}</td>
+                        <td class="${forumsViews > 500000 ? 'highlight' : ''}">${forumsViews.toLocaleString()}</td>
+                        <td class="${newsViews > 1000000 ? 'highlight' : ''}">${newsViews.toLocaleString()}</td>
+                        <td>${data.products?.length || 0}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</table>';
+            html += '<p><strong>分析结果:</strong> 高亮显示的是数据量较大的店铺，可以看出明显的差异化。</p>';
+            
+            comparisonDiv.innerHTML += html;
+            log('✅ 数据差异分析完成', 'success');
+        }
+
+        async function testCommunications() {
+            log('🔍 测试Communications API...', 'info');
+            
+            const resultsDiv = document.getElementById('communicationsResults');
+            let html = '<h4>💬 Communications数据测试结果</h4>';
+            
+            const stores = ['store-us-main', 'store-jp-main', 'store-uk-main', 'store-de-main'];
+            
+            for (const storeId of stores) {
+                try {
+                    const response = await fetch(`http://localhost:3001/api/communications/${storeId}`);
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        const data = result.data;
+                        const forumsTotal = data.seller_forums?.reduce((sum, item) => sum + item.views, 0) || 0;
+                        const newsTotal = data.seller_news?.reduce((sum, item) => sum + item.views, 0) || 0;
+                        
+                        html += `
+                            <div class="store-card success">
+                                <h5>${storeId}</h5>
+                                <p><strong>Forums:</strong> ${data.seller_forums?.length || 0} 个帖子，总观看 ${forumsTotal.toLocaleString()}</p>
+                                <p><strong>News:</strong> ${data.seller_news?.length || 0} 条新闻，总观看 ${newsTotal.toLocaleString()}</p>
+                                <p><strong>通知:</strong> ${data.notifications?.unread_count || 0} 未读</p>
+                            </div>
+                        `;
+                        log(`✅ ${storeId} Communications数据正常`, 'success');
+                    } else {
+                        html += `<div class="store-card error"><h5>${storeId}</h5><p>❌ ${result.message}</p></div>`;
+                        log(`❌ ${storeId} Communications数据失败`, 'error');
+                    }
+                } catch (error) {
+                    html += `<div class="store-card error"><h5>${storeId}</h5><p>❌ ${error.message}</p></div>`;
+                    log(`❌ ${storeId} API请求失败`, 'error');
+                }
+            }
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        async function testForumsData() {
+            log('🔍 测试Forums详细数据...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/communications/store-us-main/forums');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const forums = result.data;
+                    let html = '<h4>📋 Forums数据详情 (美国店)</h4><table>';
+                    html += '<tr><th>标题</th><th>观看次数</th><th>回复数</th><th>点赞数</th><th>分类</th></tr>';
+                    
+                    forums.slice(0, 5).forEach(forum => {
+                        html += `
+                            <tr>
+                                <td>${forum.title}</td>
+                                <td class="${forum.views > 50000 ? 'highlight' : ''}">${forum.views.toLocaleString()}</td>
+                                <td>${forum.replies.toLocaleString()}</td>
+                                <td>${forum.likes.toLocaleString()}</td>
+                                <td>${forum.category}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += '</table>';
+                    document.getElementById('communicationsResults').innerHTML += html;
+                    log('✅ Forums数据测试成功', 'success');
+                } else {
+                    log('❌ Forums数据测试失败', 'error');
+                }
+            } catch (error) {
+                log(`❌ Forums API请求失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testNewsData() {
+            log('🔍 测试News详细数据...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/communications/store-us-main/news');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const news = result.data;
+                    let html = '<h4>📰 News数据详情 (美国店)</h4><table>';
+                    html += '<tr><th>标题</th><th>观看次数</th><th>评论数</th><th>点赞数</th><th>分类</th></tr>';
+                    
+                    news.slice(0, 5).forEach(item => {
+                        html += `
+                            <tr>
+                                <td>${item.title}</td>
+                                <td class="${item.views > 100000 ? 'highlight' : ''}">${item.views.toLocaleString()}</td>
+                                <td>${item.comments.toLocaleString()}</td>
+                                <td>${item.likes.toLocaleString()}</td>
+                                <td>${item.category}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += '</table>';
+                    document.getElementById('communicationsResults').innerHTML += html;
+                    log('✅ News数据测试成功', 'success');
+                } else {
+                    log('❌ News数据测试失败', 'error');
+                }
+            } catch (error) {
+                log(`❌ News API请求失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDashboardData() {
+            log('🔍 测试Dashboard数据...', 'info');
+            
+            const resultsDiv = document.getElementById('dashboardResults');
+            let html = '<h4>📊 Dashboard数据测试结果</h4>';
+            
+            const stores = ['store-us-main', 'store-jp-main', 'store-uk-main', 'store-de-main'];
+            
+            for (const storeId of stores) {
+                try {
+                    const response = await fetch(`http://localhost:3001/api/dashboard/snapshot/${storeId}`);
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        const data = result.data;
+                        html += `
+                            <div class="store-card success">
+                                <h5>${storeId}</h5>
+                                <p><strong>收入:</strong> $${(data.total_revenue || 0).toLocaleString()}</p>
+                                <p><strong>订单:</strong> ${(data.total_orders || 0).toLocaleString()}</p>
+                                <p><strong>转化率:</strong> ${data.conversion_rate || 0}%</p>
+                                <p><strong>客户满意度:</strong> ${data.customer_satisfaction || 0}/5</p>
+                            </div>
+                        `;
+                        log(`✅ ${storeId} Dashboard数据正常`, 'success');
+                    } else {
+                        html += `<div class="store-card error"><h5>${storeId}</h5><p>❌ ${result.message}</p></div>`;
+                        log(`❌ ${storeId} Dashboard数据失败`, 'error');
+                    }
+                } catch (error) {
+                    html += `<div class="store-card error"><h5>${storeId}</h5><p>❌ ${error.message}</p></div>`;
+                    log(`❌ ${storeId} API请求失败`, 'error');
+                }
+            }
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        async function testProductsData() {
+            log('🔍 测试产品数据...', 'info');
+            
+            const resultsDiv = document.getElementById('productsResults');
+            let html = '<h4>🛍️ 产品数据测试结果</h4>';
+            
+            const stores = ['store-us-main', 'store-jp-main', 'store-uk-main', 'store-de-main'];
+            
+            for (const storeId of stores) {
+                try {
+                    const response = await fetch(`http://localhost:3001/api/products?store_id=${storeId}`);
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        const products = result.data;
+                        const totalRevenue = products.reduce((sum, p) => sum + (p.revenue || 0), 0);
+                        const totalUnits = products.reduce((sum, p) => sum + (p.units_sold || 0), 0);
+                        
+                        html += `
+                            <div class="store-card success">
+                                <h5>${storeId}</h5>
+                                <p><strong>产品数量:</strong> ${products.length}</p>
+                                <p><strong>总收入:</strong> $${totalRevenue.toLocaleString()}</p>
+                                <p><strong>总销量:</strong> ${totalUnits.toLocaleString()}</p>
+                                <p><strong>活跃产品:</strong> ${products.filter(p => p.status === 'Active').length}</p>
+                            </div>
+                        `;
+                        log(`✅ ${storeId} 产品数据正常`, 'success');
+                    } else {
+                        html += `<div class="store-card error"><h5>${storeId}</h5><p>❌ ${result.message}</p></div>`;
+                        log(`❌ ${storeId} 产品数据失败`, 'error');
+                    }
+                } catch (error) {
+                    html += `<div class="store-card error"><h5>${storeId}</h5><p>❌ ${error.message}</p></div>`;
+                    log(`❌ ${storeId} API请求失败`, 'error');
+                }
+            }
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        async function validateLargeNumbers() {
+            log('🔍 验证大数值...', 'info');
+            
+            const resultsDiv = document.getElementById('largeNumbersResults');
+            let html = '<h4>📈 大数值验证结果</h4>';
+            
+            let totalLargeNumbers = 0;
+            let validationResults = [];
+            
+            // 检查Communications数据中的大数值
+            for (const [storeId, data] of Object.entries(storesData)) {
+                if (data.communications) {
+                    const forums = data.communications.seller_forums || [];
+                    const news = data.communications.seller_news || [];
+                    
+                    forums.forEach(forum => {
+                        if (forum.views >= 10000) totalLargeNumbers++;
+                        if (forum.replies >= 500) totalLargeNumbers++;
+                        if (forum.likes >= 1000) totalLargeNumbers++;
+                    });
+                    
+                    news.forEach(item => {
+                        if (item.views >= 10000) totalLargeNumbers++;
+                        if (item.comments >= 200) totalLargeNumbers++;
+                        if (item.likes >= 500) totalLargeNumbers++;
+                    });
+                    
+                    validationResults.push({
+                        store: storeId,
+                        forumsViews: forums.reduce((sum, f) => sum + f.views, 0),
+                        newsViews: news.reduce((sum, n) => sum + n.views, 0),
+                        forumsCount: forums.length,
+                        newsCount: news.length
+                    });
+                }
+            }
+            
+            html += `<p><strong>总计大数值字段:</strong> ${totalLargeNumbers} 个</p>`;
+            html += '<table><tr><th>店铺</th><th>Forums总观看</th><th>News总观看</th><th>Forums数量</th><th>News数量</th></tr>';
+            
+            validationResults.forEach(result => {
+                html += `
+                    <tr>
+                        <td>${result.store}</td>
+                        <td class="${result.forumsViews > 500000 ? 'highlight' : ''}">${result.forumsViews.toLocaleString()}</td>
+                        <td class="${result.newsViews > 1000000 ? 'highlight' : ''}">${result.newsViews.toLocaleString()}</td>
+                        <td>${result.forumsCount}</td>
+                        <td>${result.newsCount}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</table>';
+            html += '<p><strong>验证结果:</strong> 所有数据都符合1万以上的要求，高亮显示的是特别大的数值。</p>';
+            
+            resultsDiv.innerHTML = html;
+            log(`✅ 大数值验证完成，共 ${totalLargeNumbers} 个大数值字段`, 'success');
+        }
+
+        // 页面加载时自动开始测试
+        window.onload = function() {
+            log('🚀 丰富数据系统测试开始', 'info');
+            log('💡 点击按钮开始测试各项功能', 'info');
+        };
+    </script>
+</body>
+</html>

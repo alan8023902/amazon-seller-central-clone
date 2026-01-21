@@ -1,10 +1,9 @@
 import axios from 'axios';
+import { ADMIN_API_CONFIG, adminApiGet, adminApiPost, adminApiPut, adminApiDelete } from '../config/api';
 
-const API_BASE_URL = 'http://localhost:3001/api';
-
-// Create axios instance
+// Create axios instance using unified config
 export const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: `${ADMIN_API_CONFIG.BASE_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -33,49 +32,42 @@ api.interceptors.response.use(
   }
 );
 
-// Store API
+// Store API - using unified config
 export const storeApi = {
   getStore: async () => {
-    const response = await api.get('/store');
-    return response.data;
+    return await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.STORES.LIST);
   },
   
   updateStore: async (data: any) => {
-    const response = await api.put('/store', data);
-    return response.data;
+    return await adminApiPut(ADMIN_API_CONFIG.ENDPOINTS.STORES.UPDATE(data.id), data);
   },
   
   getMarketplaces: async () => {
-    const response = await api.get('/store/marketplaces');
-    return response.data;
+    return await adminApiGet('/api/marketplaces');
   },
 };
 
-// Product API
+// Product API - using unified config
 export const productApi = {
   getProducts: async (params?: any) => {
-    const response = await api.get('/products', { params });
-    return response;
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return await adminApiGet(`${ADMIN_API_CONFIG.ENDPOINTS.PRODUCTS.LIST}${queryString}`);
   },
   
   getProduct: async (id: string) => {
-    const response = await api.get(`/products/${id}`);
-    return response.data;
+    return await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.PRODUCTS.DETAIL(id));
   },
   
   createProduct: async (data: any) => {
-    const response = await api.post('/products', data);
-    return response.data;
+    return await adminApiPost(ADMIN_API_CONFIG.ENDPOINTS.PRODUCTS.CREATE, data);
   },
   
   updateProduct: async (id: string, data: any) => {
-    const response = await api.put(`/products/${id}`, data);
-    return response.data;
+    return await adminApiPut(ADMIN_API_CONFIG.ENDPOINTS.PRODUCTS.UPDATE(id), data);
   },
   
   deleteProduct: async (id: string) => {
-    const response = await api.delete(`/products/${id}`);
-    return response;
+    return await adminApiDelete(ADMIN_API_CONFIG.ENDPOINTS.PRODUCTS.DELETE(id));
   },
   
   uploadProductImage: async (id: string, file: File) => {
@@ -91,112 +83,95 @@ export const productApi = {
   },
   
   bulkCreateProducts: async (products: any[]) => {
-    const response = await api.post('/products/bulk', { products });
-    return response.data;
+    return await adminApiPost('/api/products/bulk', { products });
   },
 };
 
-// Sales API
+// Sales API - using unified config
 export const salesApi = {
   getSalesSnapshot: async (storeId: string) => {
-    const response = await api.get(`/sales/snapshot/${storeId}`);
-    return response.data;
+    return await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.SALES.BY_STORE(storeId));
   },
   
   updateSalesSnapshot: async (storeId: string, data: any) => {
-    const response = await api.put(`/sales/snapshot/${storeId}`, data);
-    return response.data;
+    return await adminApiPut(ADMIN_API_CONFIG.ENDPOINTS.SALES.UPDATE(storeId), data);
   },
   
   getDailySales: async (storeId: string, params?: any) => {
-    const response = await api.get(`/sales/daily/${storeId}`, { params });
-    return response.data;
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return await adminApiGet(`/api/sales/daily/${storeId}${queryString}`);
   },
   
   generateDailySales: async (storeId: string, data: any) => {
-    const response = await api.post(`/sales/generate-daily/${storeId}`, data);
-    return response.data;
+    return await adminApiPost(`/api/sales/generate-daily/${storeId}`, data);
   },
   
   getChartData: async (storeId: string, params?: any) => {
-    const response = await api.get(`/sales/chart-data/${storeId}`, { params });
-    return response.data;
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return await adminApiGet(`/api/sales/chart-data/${storeId}${queryString}`);
   },
 };
 
-// Dashboard API
+// Dashboard API - using unified config
 export const dashboardApi = {
   getSnapshot: async (storeId: string) => {
-    const response = await api.get(`/dashboard/snapshot/${storeId}`);
-    return response.data;
+    return await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.DASHBOARD.SNAPSHOT(storeId));
   },
   
   updateSnapshot: async (storeId: string, data: any) => {
-    const response = await api.put(`/dashboard/snapshot/${storeId}`, data);
-    return response.data;
+    return await adminApiPut(ADMIN_API_CONFIG.ENDPOINTS.DASHBOARD.UPDATE_SNAPSHOT(storeId), data);
   },
   
   getConfig: async (storeId: string) => {
-    const response = await api.get(`/dashboard/config/${storeId}`);
-    return response.data;
+    return await adminApiGet(`/api/dashboard/config/${storeId}`);
   },
   
   updateConfig: async (storeId: string, data: any) => {
-    const response = await api.put(`/dashboard/config/${storeId}`, data);
-    return response.data;
+    return await adminApiPut(`/api/dashboard/config/${storeId}`, data);
   },
   
   getProducts: async (storeId: string, params?: any) => {
-    const response = await api.get(`/dashboard/products/${storeId}`, { params });
-    return response.data;
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return await adminApiGet(`/api/dashboard/products/${storeId}${queryString}`);
   },
   
   getActions: async (storeId: string) => {
-    const response = await api.get(`/dashboard/actions/${storeId}`);
-    return response.data;
+    return await adminApiGet(`/api/dashboard/actions/${storeId}`);
   },
   
   getCommunications: async (storeId: string) => {
-    const response = await api.get(`/dashboard/communications/${storeId}`);
-    return response.data;
+    return await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.COMMUNICATIONS.BY_STORE(storeId));
   },
   
   getHealth: async (storeId: string) => {
-    const response = await api.get(`/dashboard/health/${storeId}`);
-    return response.data;
+    return await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.ACCOUNT_HEALTH.BY_STORE(storeId));
   },
 };
 
-// Users API
+// Users API - using unified config
 export const usersApi = {
   getUsers: async () => {
-    const response = await api.get('/users');
-    return response;
+    return await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.USERS.LIST);
   },
   
   getUser: async (id: string) => {
-    const response = await api.get(`/users/${id}`);
-    return response;
+    return await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.USERS.DETAIL(id));
   },
   
   createUser: async (data: any) => {
-    const response = await api.post('/users', data);
-    return response;
+    return await adminApiPost(ADMIN_API_CONFIG.ENDPOINTS.USERS.CREATE, data);
   },
   
   updateUser: async (id: string, data: any) => {
-    const response = await api.put(`/users/${id}`, data);
-    return response;
+    return await adminApiPut(ADMIN_API_CONFIG.ENDPOINTS.USERS.UPDATE(id), data);
   },
   
   deleteUser: async (id: string) => {
-    const response = await api.delete(`/users/${id}`);
-    return response;
+    return await adminApiDelete(ADMIN_API_CONFIG.ENDPOINTS.USERS.DELETE(id));
   },
   
   refreshOTP: async (id: string) => {
-    const response = await api.post(`/users/${id}/refresh-otp`);
-    return response;
+    return await adminApiPost(ADMIN_API_CONFIG.ENDPOINTS.USERS.REFRESH_OTP(id));
   },
 };
 

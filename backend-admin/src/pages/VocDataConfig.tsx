@@ -14,8 +14,9 @@ import {
   InputNumber,
   Switch
 } from 'antd';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { ADMIN_API_CONFIG, adminApiGet, adminApiPost, adminApiPut, adminApiDelete } from '../config/api';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -50,8 +51,7 @@ const VocDataConfig: React.FC = () => {
   const { data: stores = [] } = useQuery({
     queryKey: ['stores'],
     queryFn: async () => {
-      const response = await fetch('http://localhost:3002/api/stores');
-      const data = await response.json();
+      const data = await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.STORES.LIST);
       return data.data || [];
     },
   });
@@ -68,8 +68,7 @@ const VocDataConfig: React.FC = () => {
     queryKey: ['vocData', selectedStoreId],
     queryFn: async () => {
       if (!selectedStoreId) return [];
-      const response = await fetch(`http://localhost:3002/api/voc/data/${selectedStoreId}`);
-      const data = await response.json();
+      const data = await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.VOC.BY_STORE(selectedStoreId));
       return data.data || [];
     },
     enabled: !!selectedStoreId,
@@ -80,8 +79,7 @@ const VocDataConfig: React.FC = () => {
     queryKey: ['vocSummary', selectedStoreId],
     queryFn: async () => {
       if (!selectedStoreId) return {};
-      const response = await fetch(`http://localhost:3002/api/voc/summary/${selectedStoreId}`);
-      const data = await response.json();
+      const data = await adminApiGet(`/api/voc/summary/${selectedStoreId}`);
       return data.data || {};
     },
     enabled: !!selectedStoreId,
@@ -113,26 +111,16 @@ const VocDataConfig: React.FC = () => {
       
       if (editingItem) {
         // Update existing item
-        const response = await fetch(`http://localhost:3002/api/voc/data/${selectedStoreId}/${editingItem.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(values),
-        });
-        
-        if (response.ok) {
+        const data = await adminApiPut(`/api/voc/data/${selectedStoreId}/${editingItem.id}`, values);
+        if (data.success) {
           message.success('VOC数据更新成功！');
         } else {
           message.error('更新失败');
         }
       } else {
         // Create new item
-        const response = await fetch(`http://localhost:3002/api/voc/data/${selectedStoreId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(values),
-        });
-        
-        if (response.ok) {
+        const data = await adminApiPost(`/api/voc/data/${selectedStoreId}`, values);
+        if (data.success) {
           message.success('VOC数据创建成功！');
         } else {
           message.error('创建失败');
@@ -144,16 +132,14 @@ const VocDataConfig: React.FC = () => {
       setIsModalVisible(false);
     } catch (error) {
       console.error('Form validation failed:', error);
+      message.error('操作失败');
     }
   };
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:3002/api/voc/data/${selectedStoreId}/${id}`, {
-        method: 'DELETE',
-      });
-      
-      if (response.ok) {
+      const data = await adminApiDelete(`/api/voc/data/${selectedStoreId}/${id}`);
+      if (data.success) {
         message.success('VOC数据删除成功！');
         queryClient.invalidateQueries({ queryKey: ['vocData'] });
         queryClient.invalidateQueries({ queryKey: ['vocSummary'] });

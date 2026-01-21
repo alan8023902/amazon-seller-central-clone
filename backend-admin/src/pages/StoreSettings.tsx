@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Form, Input, Select, Button, message, Typography } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { storeApi } from '../services/api';
+import { ADMIN_API_CONFIG, adminApiGet, adminApiPut } from '../config/api';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -18,20 +18,13 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ selectedStoreId, selected
 
   const { data: storeData, isLoading } = useQuery({
     queryKey: ['store', selectedStoreId],
-    queryFn: () => fetch(`http://localhost:3002/api/stores/${selectedStoreId}`).then(res => res.json()),
+    queryFn: () => adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.STORES.DETAIL(selectedStoreId)),
     enabled: !!selectedStoreId,
   });
 
   const updateStoreMutation = useMutation({
     mutationFn: async (values: any) => {
-      const response = await fetch(`http://localhost:3002/api/stores/${selectedStoreId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
-      });
-      return response.json();
+      return await adminApiPut(ADMIN_API_CONFIG.ENDPOINTS.STORES.UPDATE(selectedStoreId), values);
     },
     onSuccess: () => {
       message.success('店铺信息更新成功！');

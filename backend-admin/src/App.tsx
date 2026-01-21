@@ -20,6 +20,7 @@ import SalesDataConfig from './pages/SalesDataConfig';
 import CXHealthConfig from './pages/CXHealthConfig';
 import AccountHealthConfig from './pages/AccountHealthConfig';
 import DashboardConfig from './pages/DashboardConfig';
+import CommunicationsConfig from './pages/CommunicationsConfig';
 import UserManagement from './pages/UserManagement';
 
 const { Header, Sider, Content } = Layout;
@@ -40,6 +41,11 @@ const menuItems = [
     key: 'user-management',
     icon: <UserOutlined />,
     label: '用户管理',
+  },
+  {
+    key: 'communications',
+    icon: <BarChartOutlined />,
+    label: 'Communications配置',
   },
   {
     key: 'store',
@@ -135,6 +141,8 @@ function App() {
         return <DashboardConfig {...commonProps} />;
       case 'user-management':
         return <UserManagement {...commonProps} />;
+      case 'communications':
+        return <CommunicationsConfig {...commonProps} />;
       case 'store':
         return <StoreSettings {...commonProps} />;
       case 'products':

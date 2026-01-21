@@ -8,6 +8,7 @@ import { useStore } from "../store";
 import { Button, InputField, Card } from "../components/UI";
 import AuthLayout from "../layouts/AuthLayout";
 import { useI18n } from "../hooks/useI18n";
+import { API_CONFIG, apiPost } from "../config/api";
 import { useBrowserLanguage, getBrowserLanguageTexts } from "../hooks/useBrowserLanguage";
 
 export const LoginEmail = () => {
@@ -195,18 +196,10 @@ export const LoginPassword = () => {
 
     try {
       // 调用后端API进行认证
-      const response = await fetch('http://localhost:3001/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: session.email, // 使用邮箱作为用户名
-          password: data.password,
-        }),
+      const result = await apiPost(API_CONFIG.ENDPOINTS.AUTH.LOGIN, {
+        username: session.email, // 使用邮箱作为用户名
+        password: data.password,
       });
-
-      const result = await response.json();
 
       if (result.success) {
         // 登录成功，进入OTP验证步骤
@@ -314,18 +307,10 @@ export const LoginOTP = () => {
 
     try {
       // 调用后端API进行OTP验证
-      const response = await fetch('http://localhost:3001/api/auth/verify-otp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: session.email,
-          otp: data.otp,
-        }),
+      const result = await apiPost(API_CONFIG.ENDPOINTS.AUTH.VERIFY_OTP, {
+        username: session.email,
+        otp: data.otp,
       });
-
-      const result = await response.json();
 
       if (result.success) {
         // OTP验证成功，登录

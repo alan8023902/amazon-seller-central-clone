@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, Form, Input, Select, Switch, message } from 'antd';
+import { ADMIN_API_CONFIG, adminApiPost } from '../config/api';
 
 const { Option } = Select;
 
@@ -16,19 +17,11 @@ const AddStoreModal: React.FC<AddStoreModalProps> = ({ visible, onCancel, onSucc
   const handleSubmit = async (values: any) => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3002/api/stores', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...values,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }),
+      const data = await adminApiPost(ADMIN_API_CONFIG.ENDPOINTS.STORES.CREATE, {
+        ...values,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       });
-
-      const data = await response.json();
       
       if (data.success) {
         message.success('店铺创建成功！');

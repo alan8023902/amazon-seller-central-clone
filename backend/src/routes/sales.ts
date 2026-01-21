@@ -12,6 +12,39 @@ import { asyncHandler, createError } from '../middleware/errorHandler';
 
 const router = express.Router();
 
+// GET /api/sales?store_id=:storeId - Get sales data by store (for admin compatibility)
+router.get('/', asyncHandler(async (req, res) => {
+  const { store_id } = req.query;
+  
+  if (!store_id) {
+    throw createError('store_id query parameter is required', 400);
+  }
+  
+  // Redirect to snapshot endpoint for now
+  let snapshots = await dataService.findByStoreId<SalesSnapshot>('sales_snapshots', store_id as string);
+  let snapshot = snapshots[0];
+  
+  // Create default snapshot if none exists
+  if (!snapshot) {
+    snapshot = await dataService.create<SalesSnapshot>('sales_snapshots', {
+      store_id: store_id as string,
+      total_order_items: 248,
+      units_ordered: 192260,
+      ordered_product_sales: 18657478,
+      avg_units_per_order: 1.14,
+      avg_sales_per_order: 110.29,
+      snapshot_time: new Date().toISOString(),
+    });
+  }
+  
+  const response: ApiResponse<SalesSnapshot> = {
+    success: true,
+    data: snapshot,
+  };
+  
+  res.json(response);
+}));
+
 // GET /api/sales/snapshot/:storeId - Get sales snapshot
 router.get('/snapshot/:storeId', asyncHandler(async (req, res) => {
   const { storeId } = req.params;

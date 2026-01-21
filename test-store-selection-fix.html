@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Selection Fix Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Store Selection Fix Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Test Store API</h2>
+        <button onclick="testStoreAPI()">Test Store API</button>
+        <div id="storeApiResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test Dashboard with Store ID</h2>
+        <button onclick="testDashboardAPI()">Test Dashboard API</button>
+        <div id="dashboardApiResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test Communications with Store ID</h2>
+        <button onclick="testCommunicationsAPI()">Test Communications API</button>
+        <div id="communicationsApiResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Test Products with Store ID</h2>
+        <button onclick="testProductsAPI()">Test Products API</button>
+        <div id="productsApiResult"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+
+        async function testStoreAPI() {
+            const resultDiv = document.getElementById('storeApiResult');
+            resultDiv.innerHTML = '<div class="info">Testing stores API...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/stores`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ Stores API working!</div>
+                        <pre>${JSON.stringify(data.data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Stores API failed: ${JSON.stringify(data)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testDashboardAPI() {
+            const resultDiv = document.getElementById('dashboardApiResult');
+            resultDiv.innerHTML = '<div class="info">Testing dashboard API with correct store ID...</div>';
+            
+            // Test with actual store ID instead of store name
+            const storeId = 'store-de-main'; // German store ID
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/dashboard/snapshot/${storeId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ Dashboard API working with store ID: ${storeId}</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Dashboard API failed: ${response.status} - ${JSON.stringify(data)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testCommunicationsAPI() {
+            const resultDiv = document.getElementById('communicationsApiResult');
+            resultDiv.innerHTML = '<div class="info">Testing communications API with correct store ID...</div>';
+            
+            // Test with actual store ID instead of store name
+            const storeId = 'store-de-main'; // German store ID
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/communications/${storeId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ Communications API working with store ID: ${storeId}</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Communications API failed: ${response.status} - ${JSON.stringify(data)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testProductsAPI() {
+            const resultDiv = document.getElementById('productsApiResult');
+            resultDiv.innerHTML = '<div class="info">Testing products API with correct store ID...</div>';
+            
+            // Test with actual store ID instead of store name
+            const storeId = 'store-de-main'; // German store ID
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/products?store_id=${storeId}&limit=5`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ Products API working with store ID: ${storeId}</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Products API failed: ${response.status} - ${JSON.stringify(data)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        // Auto-run tests on page load
+        window.onload = function() {
+            console.log('Running store selection fix tests...');
+            setTimeout(testStoreAPI, 500);
+            setTimeout(testDashboardAPI, 1000);
+            setTimeout(testCommunicationsAPI, 1500);
+            setTimeout(testProductsAPI, 2000);
+        };
+    </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 // Backend API service for real data integration
-const API_BASE_URL = 'http://localhost:3001/api';
+import { API_CONFIG } from '../config/api';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -46,7 +46,7 @@ interface GlobalSnapshotData {
 class BackendApiService {
   private async request<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}${endpoint}`, {
         headers: {
           'Content-Type': 'application/json',
           ...options?.headers,
@@ -67,12 +67,12 @@ class BackendApiService {
 
   // Dashboard API methods
   async getDashboardSnapshot(storeId: string): Promise<GlobalSnapshotData> {
-    const response = await this.request<GlobalSnapshotData>(`/dashboard/snapshot/${storeId}`);
+    const response = await this.request<GlobalSnapshotData>(`/api/dashboard/snapshot/${storeId}`);
     return response.data;
   }
 
   async updateDashboardSnapshot(storeId: string, data: Partial<GlobalSnapshotData>): Promise<GlobalSnapshotData> {
-    const response = await this.request<GlobalSnapshotData>(`/dashboard/snapshot/${storeId}`, {
+    const response = await this.request<GlobalSnapshotData>(`/api/dashboard/snapshot/${storeId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
@@ -80,12 +80,12 @@ class BackendApiService {
   }
 
   async getDashboardConfig(storeId: string) {
-    const response = await this.request(`/dashboard/config/${storeId}`);
+    const response = await this.request(`/api/dashboard/config/${storeId}`);
     return response.data;
   }
 
   async updateDashboardConfig(storeId: string, config: any) {
-    const response = await this.request(`/dashboard/config/${storeId}`, {
+    const response = await this.request(`/api/dashboard/config/${storeId}`, {
       method: 'PUT',
       body: JSON.stringify(config),
     });
@@ -100,30 +100,31 @@ class BackendApiService {
     limit?: number;
   }) {
     const queryParams = new URLSearchParams();
+    queryParams.append('store_id', storeId);
     if (params?.search) queryParams.append('search', params.search);
     if (params?.status) queryParams.append('status', params.status);
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.limit) queryParams.append('limit', params.limit.toString());
 
-    const response = await this.request(`/products/${storeId}?${queryParams.toString()}`);
+    const response = await this.request(`/api/products?${queryParams.toString()}`);
     return response.data;
   }
 
   async getProduct(storeId: string, id: string) {
-    const response = await this.request(`/products/${storeId}/${id}`);
+    const response = await this.request(`/api/products/${id}`);
     return response.data;
   }
 
   async createProduct(storeId: string, productData: any) {
-    const response = await this.request(`/products/${storeId}`, {
+    const response = await this.request(`/api/products`, {
       method: 'POST',
-      body: JSON.stringify(productData),
+      body: JSON.stringify({ ...productData, store_id: storeId }),
     });
     return response.data;
   }
 
   async updateProduct(storeId: string, id: string, productData: any) {
-    const response = await this.request(`/products/${storeId}/${id}`, {
+    const response = await this.request(`/api/products/${id}`, {
       method: 'PUT',
       body: JSON.stringify(productData),
     });
@@ -131,7 +132,7 @@ class BackendApiService {
   }
 
   async deleteProduct(storeId: string, id: string) {
-    const response = await this.request(`/products/${storeId}/${id}`, {
+    const response = await this.request(`/api/products/${id}`, {
       method: 'DELETE',
     });
     return response.data;
@@ -139,17 +140,17 @@ class BackendApiService {
 
   // Store API methods
   async getStores() {
-    const response = await this.request('/stores');
+    const response = await this.request('/api/stores');
     return response.data;
   }
 
   async getStore(storeId: string) {
-    const response = await this.request(`/stores/${storeId}`);
+    const response = await this.request(`/api/stores/${storeId}`);
     return response.data;
   }
 
   async updateStore(storeId: string, storeData: any) {
-    const response = await this.request(`/stores/${storeId}`, {
+    const response = await this.request(`/api/stores/${storeId}`, {
       method: 'PUT',
       body: JSON.stringify(storeData),
     });
@@ -158,7 +159,7 @@ class BackendApiService {
 
   // Sales API methods
   async getSalesSnapshot(storeId: string) {
-    const response = await this.request(`/sales/snapshot/${storeId}`);
+    const response = await this.request(`/api/sales/snapshot/${storeId}`);
     return response.data;
   }
 
@@ -172,18 +173,18 @@ class BackendApiService {
     if (params?.endDate) queryParams.append('endDate', params.endDate);
     if (params?.limit) queryParams.append('limit', params.limit.toString());
 
-    const response = await this.request(`/sales/daily/${storeId}?${queryParams.toString()}`);
+    const response = await this.request(`/api/sales/daily/${storeId}?${queryParams.toString()}`);
     return response.data;
   }
 
   async getChartData(storeId: string, period: string = '30d') {
-    const response = await this.request(`/sales/chart-data/${storeId}?period=${period}`);
+    const response = await this.request(`/api/sales/chart-data/${storeId}?period=${period}`);
     return response.data;
   }
 
   // Health check
   async healthCheck() {
-    const response = await this.request('/health');
+    const response = await this.request('/api/health');
     return response.data;
   }
 }

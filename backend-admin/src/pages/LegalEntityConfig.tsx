@@ -15,6 +15,7 @@ import {
 } from 'antd';
 import { SaveOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ADMIN_API_CONFIG, adminApiGet, adminApiPut } from '../config/api';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -52,8 +53,7 @@ const LegalEntityConfig: React.FC = () => {
   const { data: stores = [] } = useQuery({
     queryKey: ['stores'],
     queryFn: async () => {
-      const response = await fetch('http://localhost:3002/api/stores');
-      const data = await response.json();
+      const data = await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.STORES.LIST);
       return data.data || [];
     },
   });
@@ -64,12 +64,8 @@ const LegalEntityConfig: React.FC = () => {
     queryFn: async () => {
       if (!selectedStoreId) return null;
       try {
-        const response = await fetch(`http://localhost:3002/api/legal-entity/${selectedStoreId}`);
-        if (response.ok) {
-          const data = await response.json();
-          return data.data;
-        }
-        return null;
+        const data = await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.LEGAL_ENTITY.BY_STORE(selectedStoreId));
+        return data.data;
       } catch (error) {
         return null;
       }
@@ -126,13 +122,9 @@ const LegalEntityConfig: React.FC = () => {
         registrationDate: values.registrationDate ? values.registrationDate.format('YYYY-MM-DD') : null,
       };
 
-      const response = await fetch(`http://localhost:3002/api/legal-entity/${selectedStoreId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(legalEntityData)
-      });
+      const result = await adminApiPut(ADMIN_API_CONFIG.ENDPOINTS.LEGAL_ENTITY.UPDATE(selectedStoreId), legalEntityData);
       
-      if (response.ok) {
+      if (result.success) {
         message.success('法律实体信息保存成功！');
         queryClient.invalidateQueries({ queryKey: ['legal-entity', selectedStoreId] });
       } else {

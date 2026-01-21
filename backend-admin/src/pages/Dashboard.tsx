@@ -40,7 +40,7 @@ const Dashboard: React.FC<DashboardProps> = ({ selectedStoreId, selectedStore })
         <Title level={2}>管理后台概览</Title>
         <Alert
           message="API连接错误"
-          description="无法连接到后端API服务器。请确保后端服务器正在运行在 http://localhost:3002"
+          description="无法连接到后端API服务器。请确保后端服务器正在运行在 http://localhost:3001"
           type="error"
           showIcon
         />
@@ -114,7 +114,7 @@ const Dashboard: React.FC<DashboardProps> = ({ selectedStoreId, selectedStore })
           </Col>
           <Col span={12}>
             <Card title="系统状态" style={{ height: 300 }}>
-              <p>✅ 后端API服务正常 (http://localhost:3002)</p>
+              <p>✅ 后端API服务正常 (http://localhost:3001)</p>
               <p>✅ 数据库连接正常 ({totalProducts} 产品已加载)</p>
               <p>✅ 销售数据正常 ({totalSales} 订单项)</p>
               <p>✅ 前端应用正常</p>

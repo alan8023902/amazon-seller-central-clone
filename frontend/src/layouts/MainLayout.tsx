@@ -2,18 +2,12 @@ import React, { useState, useRef, useEffect } from "react";
 import { Outlet, useNavigate, useLocation, Link } from "react-router-dom";
 import {
   Menu,
-  Bell,
   Settings,
-  ChevronDown,
   ChevronRight,
-  Edit2,
-  HelpCircle,
   Check,
   X,
-  Star,
   Mail,
   MoreHorizontal,
-  Sparkles,
 } from "lucide-react";
 
 import { useStore } from "../store";
@@ -29,7 +23,7 @@ type MenuItem = {
 };
 
 const MainLayout: React.FC = () => {
-  const { session, logout, setMarketplace, setStore } = useStore();
+  const { session, logout, setMarketplace, setStore, stores, refreshStoreData } = useStore();
   const { t } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
@@ -52,6 +46,13 @@ const MainLayout: React.FC = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Load stores when component mounts
+  useEffect(() => {
+    if (stores.length === 0) {
+      refreshStoreData();
+    }
+  }, [stores.length, refreshStoreData]);
 
   const menuItems: MenuItem[] = [
     { label: t('dashboard'), path: "/app/dashboard" },
@@ -216,19 +217,19 @@ const MainLayout: React.FC = () => {
                   <div className="px-4 py-2 text-[11px] font-bold text-gray-400 uppercase tracking-wide border-b bg-gray-50">
                     {t("selectStore")}
                   </div>
-                  {['TechNestGo', 'TechNest JP', 'TechNest EU'].map((storeName) => (
+                  {stores.map((store: any) => (
                     <div
-                      key={storeName}
+                      key={store.id}
                       onClick={() => {
-                        setStore({ id: storeName, name: storeName, marketplace: session.marketplace } as any);
+                        setStore(store);
                         setIsStoreOpen(false);
                       }}
                       className="px-4 py-3 hover:bg-blue-50 flex items-center justify-between cursor-pointer group border-b border-transparent hover:border-blue-100 last:mb-0"
                     >
-                      <span className={cn("text-[13px] text-amazon-text", session.store?.name === storeName ? "font-bold" : "font-normal")}>
-                        {storeName}
+                      <span className={cn("text-[13px] text-amazon-text", session.store?.id === store.id ? "font-bold" : "font-normal")}>
+                        {store.name}
                       </span>
-                      {session.store?.name === storeName && <Check size={16} className="text-amazon-teal" />}
+                      {session.store?.id === store.id && <Check size={16} className="text-amazon-teal" />}
                     </div>
                   ))}
                 </div>

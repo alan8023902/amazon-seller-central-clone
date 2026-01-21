@@ -1,0 +1,50 @@
+{
+  "store-us-main": {
+    "store_id": "store-us-main",
+    "total_revenue": 71687,
+    "total_orders": 1335,
+    "conversion_rate": 3.19,
+    "average_order_value": 75,
+    "return_rate": 2.07,
+    "customer_satisfaction": 4.83,
+    "inventory_turnover": 10.16,
+    "profit_margin": 15.75,
+    "updated_at": "2026-01-20T16:43:09.886Z"
+  },
+  "store-jp-main": {
+    "store_id": "store-jp-main",
+    "total_revenue": 52010,
+    "total_orders": 1355,
+    "conversion_rate": 2.41,
+    "average_order_value": 60,
+    "return_rate": 1.51,
+    "customer_satisfaction": 4.44,
+    "inventory_turnover": 10.47,
+    "profit_margin": 21.38,
+    "updated_at": "2026-01-20T16:43:09.887Z"
+  },
+  "store-uk-main": {
+    "store_id": "store-uk-main",
+    "total_revenue": 57536,
+    "total_orders": 869,
+    "conversion_rate": 2.63,
+    "average_order_value": 50,
+    "return_rate": 1.61,
+    "customer_satisfaction": 4.51,
+    "inventory_turnover": 10.99,
+    "profit_margin": 24.29,
+    "updated_at": "2026-01-20T16:43:09.887Z"
+  },
+  "store-de-main": {
+    "store_id": "store-de-main",
+    "total_revenue": 40881,
+    "total_orders": 773,
+    "conversion_rate": 3.28,
+    "average_order_value": 35,
+    "return_rate": 1.63,
+    "customer_satisfaction": 4.88,
+    "inventory_turnover": 8.44,
+    "profit_margin": 16.05,
+    "updated_at": "2026-01-20T16:43:09.887Z"
+  }
+}
