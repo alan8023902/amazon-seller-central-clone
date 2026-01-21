@@ -14,6 +14,7 @@ import userRoutes from './routes/users';
 import vocRoutes from './routes/voc';
 import authRoutes from './routes/auth';
 import communicationsRoutes from './routes/communications';
+import accountHealthRoutes from './routes/accountHealth';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -44,6 +45,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/voc', vocRoutes);
 app.use('/api/communications', communicationsRoutes);
+app.use('/api/account-health', accountHealthRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

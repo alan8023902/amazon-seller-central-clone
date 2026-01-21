@@ -235,4 +235,103 @@ router.get('/chart-data/:storeId', asyncHandler(async (req, res) => {
   res.json(response);
 }));
 
+// GET /api/sales/snapshot/:storeId - Get sales snapshot data
+router.get('/snapshot/:storeId', asyncHandler(async (req, res) => {
+  const { storeId } = req.params;
+  
+  try {
+    // Read sales snapshot data directly from JSON file
+    const filePath = require('path').join(__dirname, '../../data/sales_snapshots.json');
+    const salesSnapshotsData = require('fs-extra').readJsonSync(filePath);
+    
+    // Find snapshot for the specific store
+    let storeSnapshot = salesSnapshotsData.find((snapshot: any) => snapshot.store_id === storeId);
+    
+    // If store snapshot not found, create default data
+    if (!storeSnapshot) {
+      console.log(`Creating default sales snapshot data for store: ${storeId}`);
+      
+      storeSnapshot = {
+        id: require('crypto').randomUUID(),
+        store_id: storeId,
+        total_order_items: 154066,
+        units_ordered: 174714,
+        ordered_product_sales: 19701989.13,
+        avg_units_per_order_item: 1.13,
+        avg_sales_per_order_item: 127.88,
+        snapshot_time: new Date().toISOString()
+      };
+      
+      // Add to array and save
+      salesSnapshotsData.push(storeSnapshot);
+      require('fs-extra').writeJsonSync(filePath, salesSnapshotsData, { spaces: 2 });
+    }
+    
+    const response: ApiResponse<any> = {
+      success: true,
+      data: storeSnapshot,
+    };
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Sales snapshot error:', error);
+    throw createError('Failed to fetch sales snapshot data', 500);
+  }
+}));
+
+// PUT /api/sales/snapshot/:storeId - Update sales snapshot data
+router.put('/snapshot/:storeId', asyncHandler(async (req, res) => {
+  const { storeId } = req.params;
+  const { 
+    total_order_items, 
+    units_ordered, 
+    ordered_product_sales, 
+    avg_units_per_order_item, 
+    avg_sales_per_order_item,
+    snapshot_time 
+  } = req.body;
+  
+  try {
+    // Read sales snapshot data directly from JSON file
+    const filePath = require('path').join(__dirname, '../../data/sales_snapshots.json');
+    const salesSnapshotsData = require('fs-extra').readJsonSync(filePath);
+    
+    // Find existing snapshot or create new one
+    const existingIndex = salesSnapshotsData.findIndex((snapshot: any) => snapshot.store_id === storeId);
+    
+    const updatedSnapshot = {
+      id: existingIndex >= 0 ? salesSnapshotsData[existingIndex].id : require('crypto').randomUUID(),
+      store_id: storeId,
+      total_order_items: parseInt(total_order_items) || 0,
+      units_ordered: parseInt(units_ordered) || 0,
+      ordered_product_sales: parseFloat(ordered_product_sales) || 0,
+      avg_units_per_order_item: parseFloat(avg_units_per_order_item) || 0,
+      avg_sales_per_order_item: parseFloat(avg_sales_per_order_item) || 0,
+      snapshot_time: snapshot_time || new Date().toISOString()
+    };
+    
+    if (existingIndex >= 0) {
+      // Update existing
+      salesSnapshotsData[existingIndex] = updatedSnapshot;
+    } else {
+      // Add new
+      salesSnapshotsData.push(updatedSnapshot);
+    }
+    
+    // Save the updated data
+    require('fs-extra').writeJsonSync(filePath, salesSnapshotsData, { spaces: 2 });
+    
+    const response: ApiResponse<any> = {
+      success: true,
+      data: updatedSnapshot,
+      message: 'Sales snapshot data updated successfully',
+    };
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Sales snapshot update error:', error);
+    throw createError('Failed to update sales snapshot data', 500);
+  }
+}));
+
 export = router;

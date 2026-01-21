@@ -61,6 +61,7 @@ export const API_CONFIG = {
     // VOC相关
     VOC: {
       BY_STORE: (storeId: string) => `/api/voc/${storeId}`,
+      CX_HEALTH: (storeId: string) => `/api/voc/cx-health/${storeId}`,
     },
     
     // 用户相关

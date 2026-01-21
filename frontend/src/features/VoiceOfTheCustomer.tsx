@@ -1,8 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { HelpCircle, Search, Download } from 'lucide-react';
 import { Card } from '../components/UI';
 import { useI18n } from '../hooks/useI18n';
+import { useStore } from '../store';
+import { apiGet, API_CONFIG } from '../config/api';
 
 // Star Rating Component
 const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
@@ -53,14 +55,44 @@ const StatusPill: React.FC<{ status: string }> = ({ status }) => {
 
 const VoiceOfTheCustomer: React.FC = () => {
   const { t } = useI18n();
+  const { currentStore } = useStore();
+  const [cxHealthData, setCxHealthData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data for satisfaction summary
-  const satisfactionSummary = [
-    { status: t('excellent'), count: 5, color: 'bg-green-200 text-green-800' },
-    { status: t('good'), count: 8, color: 'bg-green-100 text-green-700' },
-    { status: t('fair'), count: 3, color: 'bg-yellow-100 text-yellow-700' },
-    { status: t('poor'), count: 2, color: 'bg-orange-100 text-orange-700' },
-    { status: t('veryPoor'), count: 1, color: 'bg-red-100 text-red-700' },
+  // Load CX Health data from backend
+  useEffect(() => {
+    const loadCxHealthData = async () => {
+      if (!currentStore?.id) return;
+      
+      try {
+        setLoading(true);
+        const response = await apiGet(`/api/voc/cx-health/${currentStore.id}`);
+        if (response.success) {
+          setCxHealthData(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to load CX Health data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCxHealthData();
+  }, [currentStore]);
+
+  // Dynamic satisfaction summary based on backend data
+  const satisfactionSummary = cxHealthData ? [
+    { status: t('poor'), count: cxHealthData.poor_listings, color: 'bg-red-100 text-red-700' },
+    { status: t('fair'), count: cxHealthData.fair_listings, color: 'bg-orange-100 text-orange-700' },
+    { status: t('good'), count: cxHealthData.good_listings, color: 'bg-yellow-100 text-yellow-700' },
+    { status: t('veryGood'), count: cxHealthData.very_good_listings, color: 'bg-green-100 text-green-700' },
+    { status: t('excellent'), count: cxHealthData.excellent_listings, color: 'bg-green-200 text-green-800' },
+  ] : [
+    { status: t('poor'), count: 6, color: 'bg-red-100 text-red-700' },
+    { status: t('fair'), count: 0, color: 'bg-orange-100 text-orange-700' },
+    { status: t('good'), count: 0, color: 'bg-yellow-100 text-yellow-700' },
+    { status: t('veryGood'), count: 1, color: 'bg-green-100 text-green-700' },
+    { status: t('excellent'), count: 6, color: 'bg-green-200 text-green-800' },
   ];
 
   // Mock data for offer listings (13 rows)

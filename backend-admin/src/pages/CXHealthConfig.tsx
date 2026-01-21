@@ -1,307 +1,346 @@
 import React, { useState } from 'react';
 import { 
   Card, 
-  Form, 
-  Input, 
-  InputNumber, 
   Button, 
-  Space, 
-  Typography, 
-  Divider,
+  Select, 
+  message, 
+  Typography,
+  Space,
+  Form,
+  InputNumber,
   Row,
   Col,
-  message,
-  Switch
+  Statistic
 } from 'antd';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { SaveOutlined, ReloadOutlined } from '@ant-design/icons';
+import { ADMIN_API_CONFIG, adminApiGet, adminApiPut } from '../config/api';
 
-const { Title, Text } = Typography;
-const { TextArea } = Input;
+const { Title } = Typography;
+const { Option } = Select;
 
 interface CXHealthData {
-  customerSatisfactionScore: number;
-  responseTime: number;
-  resolutionRate: number;
-  feedbackScore: number;
-  communicationQuality: number;
-  issueEscalationRate: number;
-  customerRetentionRate: number;
-  supportTicketsVolume: number;
-  averageHandlingTime: number;
-  firstContactResolution: number;
+  poor_listings: number;
+  fair_listings: number;
+  good_listings: number;
+  very_good_listings: number;
+  excellent_listings: number;
 }
 
-interface CXHealthConfigProps {
-  selectedStoreId: string;
-  selectedStore: any;
-  onStoreChange: (storeId: string, store: any) => void;
-}
-
-const CXHealthConfig: React.FC<CXHealthConfigProps> = ({ selectedStoreId, selectedStore }) => {
+const CXHealthConfig: React.FC = () => {
+  const [selectedStoreId, setSelectedStoreId] = useState<string>('');
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
-  const [autoGenerate, setAutoGenerate] = useState(true);
+  const queryClient = useQueryClient();
 
-  const defaultValues: CXHealthData = {
-    customerSatisfactionScore: 4.2,
-    responseTime: 2.5,
-    resolutionRate: 85.6,
-    feedbackScore: 4.1,
-    communicationQuality: 4.3,
-    issueEscalationRate: 12.4,
-    customerRetentionRate: 92.1,
-    supportTicketsVolume: 156,
-    averageHandlingTime: 18.5,
-    firstContactResolution: 78.9
-  };
+  // 获取所有店铺
+  const { data: stores = [] } = useQuery({
+    queryKey: ['stores'],
+    queryFn: async () => {
+      const data = await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.STORES.LIST);
+      return data.data || [];
+    },
+  });
 
-  const handleSave = async (values: CXHealthData) => {
-    setLoading(true);
+  // 设置默认店铺
+  React.useEffect(() => {
+    if (stores.length > 0 && !selectedStoreId) {
+      setSelectedStoreId(stores[0].id);
+    }
+  }, [stores, selectedStoreId]);
+
+  // 获取CX Health数据
+  const { data: cxHealthData, isLoading } = useQuery({
+    queryKey: ['cxHealthData', selectedStoreId],
+    queryFn: async () => {
+      if (!selectedStoreId) return null;
+      const data = await adminApiGet(`/api/voc/cx-health/${selectedStoreId}`);
+      return data.data || null;
+    },
+    enabled: !!selectedStoreId,
+  });
+
+  // 当数据加载完成时，更新表单
+  React.useEffect(() => {
+    if (cxHealthData) {
+      form.setFieldsValue(cxHealthData);
+    }
+  }, [cxHealthData, form]);
+
+  const handleSave = async () => {
     try {
-      // TODO: 调用API保存CX健康数据
-      console.log('Saving CX Health data:', values);
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 模拟API调用
-      message.success('CX健康数据保存成功！');
+      const values = await form.validateFields();
+      
+      const data = await adminApiPut(`/api/voc/cx-health/${selectedStoreId}`, values);
+      if (data.success) {
+        message.success('CX Health数据更新成功！');
+        queryClient.invalidateQueries({ queryKey: ['cxHealthData'] });
+      } else {
+        message.error('更新失败');
+      }
     } catch (error) {
-      message.error('保存失败，请重试');
-    } finally {
-      setLoading(false);
+      console.error('Form validation failed:', error);
+      message.error('操作失败');
     }
   };
 
-  const handleGenerate = () => {
-    const generatedData = {
-      customerSatisfactionScore: Number((Math.random() * 2 + 3).toFixed(1)),
-      responseTime: Number((Math.random() * 5 + 1).toFixed(1)),
-      resolutionRate: Number((Math.random() * 20 + 75).toFixed(1)),
-      feedbackScore: Number((Math.random() * 2 + 3).toFixed(1)),
-      communicationQuality: Number((Math.random() * 2 + 3).toFixed(1)),
-      issueEscalationRate: Number((Math.random() * 15 + 5).toFixed(1)),
-      customerRetentionRate: Number((Math.random() * 15 + 85).toFixed(1)),
-      supportTicketsVolume: Math.floor(Math.random() * 200 + 100),
-      averageHandlingTime: Number((Math.random() * 20 + 10).toFixed(1)),
-      firstContactResolution: Number((Math.random() * 25 + 65).toFixed(1))
-    };
-    
-    form.setFieldsValue(generatedData);
-    message.success('已生成新的CX健康数据');
+  const handleReset = () => {
+    if (cxHealthData) {
+      form.setFieldsValue(cxHealthData);
+      message.info('已重置为原始数据');
+    }
   };
 
-  const resetToDefault = () => {
-    form.setFieldsValue(defaultValues);
-    message.info('已重置为默认值');
+  const getTotalListings = () => {
+    if (!cxHealthData) return 0;
+    return (
+      cxHealthData.poor_listings +
+      cxHealthData.fair_listings +
+      cxHealthData.good_listings +
+      cxHealthData.very_good_listings +
+      cxHealthData.excellent_listings
+    );
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'poor': return '#ff4d4f';
+      case 'fair': return '#faad14';
+      case 'good': return '#52c41a';
+      case 'very_good': return '#1890ff';
+      case 'excellent': return '#722ed1';
+      default: return '#d9d9d9';
+    }
   };
 
   return (
     <div>
-      <Title level={2}>CX健康数据配置</Title>
-      <Text type="secondary">
-        配置客户体验健康相关的指标数据，这些数据将显示在前端的Account Health页面中。
-      </Text>
-
-      <Card style={{ marginTop: 16 }}>
-        <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Title level={4} style={{ margin: 0 }}>CX健康指标</Title>
-          <Space>
-            <Text>自动生成数据：</Text>
-            <Switch 
-              checked={autoGenerate} 
-              onChange={setAutoGenerate}
-              checkedChildren="开启"
-              unCheckedChildren="关闭"
-            />
-            <Button icon={<ReloadOutlined />} onClick={handleGenerate}>
-              生成随机数据
-            </Button>
-            <Button onClick={resetToDefault}>
-              重置默认值
-            </Button>
-          </Space>
-        </div>
-
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={defaultValues}
-          onFinish={handleSave}
+      <Title level={2}>CX Health 数据配置</Title>
+      
+      {/* 店铺选择器 */}
+      <Card title="🏪 选择店铺" style={{ marginBottom: 24 }}>
+        <Select
+          value={selectedStoreId}
+          onChange={setSelectedStoreId}
+          placeholder="请选择店铺"
+          style={{ width: '100%', maxWidth: 300 }}
+          size="large"
         >
-          <Row gutter={[16, 16]}>
-            <Col span={12}>
-              <Form.Item
-                label="客户满意度评分"
-                name="customerSatisfactionScore"
-                rules={[{ required: true, message: '请输入客户满意度评分' }]}
-              >
-                <InputNumber
-                  min={1}
-                  max={5}
-                  step={0.1}
-                  style={{ width: '100%' }}
-                  addonAfter="/ 5.0"
-                />
-              </Form.Item>
-            </Col>
-
-            <Col span={12}>
-              <Form.Item
-                label="平均响应时间"
-                name="responseTime"
-                rules={[{ required: true, message: '请输入平均响应时间' }]}
-              >
-                <InputNumber
-                  min={0}
-                  step={0.1}
-                  style={{ width: '100%' }}
-                  addonAfter="小时"
-                />
-              </Form.Item>
-            </Col>
-
-            <Col span={12}>
-              <Form.Item
-                label="问题解决率"
-                name="resolutionRate"
-                rules={[{ required: true, message: '请输入问题解决率' }]}
-              >
-                <InputNumber
-                  min={0}
-                  max={100}
-                  step={0.1}
-                  style={{ width: '100%' }}
-                  addonAfter="%"
-                />
-              </Form.Item>
-            </Col>
-
-            <Col span={12}>
-              <Form.Item
-                label="反馈评分"
-                name="feedbackScore"
-                rules={[{ required: true, message: '请输入反馈评分' }]}
-              >
-                <InputNumber
-                  min={1}
-                  max={5}
-                  step={0.1}
-                  style={{ width: '100%' }}
-                  addonAfter="/ 5.0"
-                />
-              </Form.Item>
-            </Col>
-
-            <Col span={12}>
-              <Form.Item
-                label="沟通质量评分"
-                name="communicationQuality"
-                rules={[{ required: true, message: '请输入沟通质量评分' }]}
-              >
-                <InputNumber
-                  min={1}
-                  max={5}
-                  step={0.1}
-                  style={{ width: '100%' }}
-                  addonAfter="/ 5.0"
-                />
-              </Form.Item>
-            </Col>
-
-            <Col span={12}>
-              <Form.Item
-                label="问题升级率"
-                name="issueEscalationRate"
-                rules={[{ required: true, message: '请输入问题升级率' }]}
-              >
-                <InputNumber
-                  min={0}
-                  max={100}
-                  step={0.1}
-                  style={{ width: '100%' }}
-                  addonAfter="%"
-                />
-              </Form.Item>
-            </Col>
-
-            <Col span={12}>
-              <Form.Item
-                label="客户保留率"
-                name="customerRetentionRate"
-                rules={[{ required: true, message: '请输入客户保留率' }]}
-              >
-                <InputNumber
-                  min={0}
-                  max={100}
-                  step={0.1}
-                  style={{ width: '100%' }}
-                  addonAfter="%"
-                />
-              </Form.Item>
-            </Col>
-
-            <Col span={12}>
-              <Form.Item
-                label="支持工单数量"
-                name="supportTicketsVolume"
-                rules={[{ required: true, message: '请输入支持工单数量' }]}
-              >
-                <InputNumber
-                  min={0}
-                  style={{ width: '100%' }}
-                  addonAfter="个"
-                />
-              </Form.Item>
-            </Col>
-
-            <Col span={12}>
-              <Form.Item
-                label="平均处理时间"
-                name="averageHandlingTime"
-                rules={[{ required: true, message: '请输入平均处理时间' }]}
-              >
-                <InputNumber
-                  min={0}
-                  step={0.1}
-                  style={{ width: '100%' }}
-                  addonAfter="分钟"
-                />
-              </Form.Item>
-            </Col>
-
-            <Col span={12}>
-              <Form.Item
-                label="首次联系解决率"
-                name="firstContactResolution"
-                rules={[{ required: true, message: '请输入首次联系解决率' }]}
-              >
-                <InputNumber
-                  min={0}
-                  max={100}
-                  step={0.1}
-                  style={{ width: '100%' }}
-                  addonAfter="%"
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Divider />
-
-          <Form.Item>
-            <Space>
-              <Button 
-                type="primary" 
-                htmlType="submit" 
-                icon={<SaveOutlined />}
-                loading={loading}
-              >
-                保存配置
-              </Button>
-              <Button onClick={() => form.resetFields()}>
-                重置表单
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
+          {stores.map((store: any) => (
+            <Option key={store.id} value={store.id}>
+              {store.name} ({store.marketplace})
+            </Option>
+          ))}
+        </Select>
       </Card>
+
+      {!selectedStoreId ? (
+        <Card>
+          <div className="text-center py-8">
+            <p className="text-gray-500">请先选择一个店铺</p>
+          </div>
+        </Card>
+      ) : (
+        <>
+          {/* 当前数据概览 */}
+          <Card title="📊 当前CX Health概览" style={{ marginBottom: 24 }}>
+            <Row gutter={16}>
+              <Col span={4}>
+                <Statistic
+                  title="Poor Listings"
+                  value={cxHealthData?.poor_listings || 0}
+                  valueStyle={{ color: getStatusColor('poor') }}
+                />
+              </Col>
+              <Col span={4}>
+                <Statistic
+                  title="Fair Listings"
+                  value={cxHealthData?.fair_listings || 0}
+                  valueStyle={{ color: getStatusColor('fair') }}
+                />
+              </Col>
+              <Col span={4}>
+                <Statistic
+                  title="Good Listings"
+                  value={cxHealthData?.good_listings || 0}
+                  valueStyle={{ color: getStatusColor('good') }}
+                />
+              </Col>
+              <Col span={4}>
+                <Statistic
+                  title="Very Good Listings"
+                  value={cxHealthData?.very_good_listings || 0}
+                  valueStyle={{ color: getStatusColor('very_good') }}
+                />
+              </Col>
+              <Col span={4}>
+                <Statistic
+                  title="Excellent Listings"
+                  value={cxHealthData?.excellent_listings || 0}
+                  valueStyle={{ color: getStatusColor('excellent') }}
+                />
+              </Col>
+              <Col span={4}>
+                <Statistic
+                  title="Total Listings"
+                  value={getTotalListings()}
+                  valueStyle={{ color: '#1890ff', fontWeight: 'bold' }}
+                />
+              </Col>
+            </Row>
+          </Card>
+
+          {/* 编辑表单 */}
+          <Card 
+            title="✏️ 编辑CX Health数据" 
+            extra={
+              <Space>
+                <Button 
+                  icon={<ReloadOutlined />} 
+                  onClick={handleReset}
+                >
+                  重置
+                </Button>
+                <Button 
+                  type="primary" 
+                  icon={<SaveOutlined />} 
+                  onClick={handleSave}
+                  loading={isLoading}
+                >
+                  保存更改
+                </Button>
+              </Space>
+            }
+          >
+            <Form
+              form={form}
+              layout="vertical"
+              initialValues={{
+                poor_listings: 0,
+                fair_listings: 0,
+                good_listings: 0,
+                very_good_listings: 0,
+                excellent_listings: 0,
+              }}
+            >
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    label={
+                      <span style={{ color: getStatusColor('poor') }}>
+                        🔴 Poor Listings
+                      </span>
+                    }
+                    name="poor_listings"
+                    rules={[{ required: true, message: '请输入Poor Listings数量' }]}
+                  >
+                    <InputNumber
+                      min={0}
+                      placeholder="0"
+                      style={{ width: '100%' }}
+                      size="large"
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col span={12}>
+                  <Form.Item
+                    label={
+                      <span style={{ color: getStatusColor('fair') }}>
+                        🟡 Fair Listings
+                      </span>
+                    }
+                    name="fair_listings"
+                    rules={[{ required: true, message: '请输入Fair Listings数量' }]}
+                  >
+                    <InputNumber
+                      min={0}
+                      placeholder="0"
+                      style={{ width: '100%' }}
+                      size="large"
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    label={
+                      <span style={{ color: getStatusColor('good') }}>
+                        🟢 Good Listings
+                      </span>
+                    }
+                    name="good_listings"
+                    rules={[{ required: true, message: '请输入Good Listings数量' }]}
+                  >
+                    <InputNumber
+                      min={0}
+                      placeholder="0"
+                      style={{ width: '100%' }}
+                      size="large"
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col span={12}>
+                  <Form.Item
+                    label={
+                      <span style={{ color: getStatusColor('very_good') }}>
+                        🔵 Very Good Listings
+                      </span>
+                    }
+                    name="very_good_listings"
+                    rules={[{ required: true, message: '请输入Very Good Listings数量' }]}
+                  >
+                    <InputNumber
+                      min={0}
+                      placeholder="0"
+                      style={{ width: '100%' }}
+                      size="large"
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    label={
+                      <span style={{ color: getStatusColor('excellent') }}>
+                        🟣 Excellent Listings
+                      </span>
+                    }
+                    name="excellent_listings"
+                    rules={[{ required: true, message: '请输入Excellent Listings数量' }]}
+                  >
+                    <InputNumber
+                      min={0}
+                      placeholder="0"
+                      style={{ width: '100%' }}
+                      size="large"
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Form>
+          </Card>
+
+          {/* 使用说明 */}
+          <Card title="💡 使用说明" style={{ marginTop: 24 }}>
+            <div style={{ lineHeight: '1.8' }}>
+              <p><strong>CX Health Breakdown</strong> 显示了您店铺中不同客户体验健康状态的商品数量：</p>
+              <ul style={{ paddingLeft: '20px' }}>
+                <li><span style={{ color: getStatusColor('poor') }}>🔴 Poor Listings</span>: 客户体验较差的商品</li>
+                <li><span style={{ color: getStatusColor('fair') }}>🟡 Fair Listings</span>: 客户体验一般的商品</li>
+                <li><span style={{ color: getStatusColor('good') }}>🟢 Good Listings</span>: 客户体验良好的商品</li>
+                <li><span style={{ color: getStatusColor('very_good') }}>🔵 Very Good Listings</span>: 客户体验很好的商品</li>
+                <li><span style={{ color: getStatusColor('excellent') }}>🟣 Excellent Listings</span>: 客户体验优秀的商品</li>
+              </ul>
+              <p><strong>注意：</strong>修改这些数值后，前端Voice of the Customer页面的CX Health breakdown部分会实时更新。</p>
+            </div>
+          </Card>
+        </>
+      )}
     </div>
   );
 };

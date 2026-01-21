@@ -1,27 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { getSidebarByPath } from '../nav/sidebar.config';
 import { cn } from '../utils/cn';
+import { Menu } from 'lucide-react';
 
 const WithSidebarLayout: React.FC = () => {
   const location = useLocation();
   const sidebarConfig = getSidebarByPath(location.pathname);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
-    <div className="flex">
-      {/* Sidebar - only show if config exists */}
-      {sidebarConfig && (
-        <aside className="w-[260px] min-w-[260px] bg-[#EEF0F3] border-r border-gray-200 shrink-0">
-          <Sidebar config={sidebarConfig} />
+    <div className="flex h-full">
+      {/* Sidebar - only show if config exists and not collapsed */}
+      {sidebarConfig && !isSidebarCollapsed && (
+        <aside className="w-[260px] min-w-[260px] bg-[#EEF0F3] border-r border-gray-200 shrink-0 sticky top-0 h-screen overflow-hidden">
+          <Sidebar
+            config={sidebarConfig}
+            onClose={() => setIsSidebarCollapsed(true)}
+          />
         </aside>
       )}
 
-      {/* Main content */}
+      {/* Main content - no p-6 to allow stretched look like VOC */}
       <main
         className={cn(
-          "flex-1 p-6",
-          sidebarConfig ? "" : "w-full"
+          "flex-1 transition-all duration-300",
+          (sidebarConfig && !isSidebarCollapsed) ? "" : "w-full"
         )}
       >
         <Outlet />

@@ -275,11 +275,11 @@ const MainLayout: React.FC = () => {
                         setIsMktOpen(false);
                       }}
                       className={cn(
-                        "px-4 py-2 text-[12px] cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between group",
+                        "px-4 py-2 text-[12px] text-amazon-text cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between group",
                         session.marketplace === m.name && "bg-blue-50 text-[#007185] font-medium"
                       )}
                     >
-                      <span>{m.code} {m.name}</span>
+                      <span className="flex-1">{m.code} {m.name}</span>
                       {session.marketplace === m.name && (
                         <div className="w-1.5 h-1.5 rounded-full bg-amazon-orange" />
                       )}

@@ -67,9 +67,37 @@ router.get('/:storeId', asyncHandler(async (req, res) => {
       };
     }
     
+    // Transform data to match frontend expectations
+    // Frontend expects an array with post_type field
+    const transformedData: any[] = [];
+    
+    // Add forums with post_type: 'FORUM'
+    if (storeComms.seller_forums) {
+      storeComms.seller_forums.forEach((forum: any) => {
+        transformedData.push({
+          ...forum,
+          post_type: 'FORUM',
+          post_date: forum.created_at,
+          comments: forum.replies
+        });
+      });
+    }
+    
+    // Add news with post_type: 'NEWS'
+    if (storeComms.seller_news) {
+      storeComms.seller_news.forEach((news: any) => {
+        transformedData.push({
+          ...news,
+          post_type: 'NEWS',
+          post_date: news.created_at,
+          comments: news.likes // News uses likes instead of comments
+        });
+      });
+    }
+    
     const response = {
       success: true,
-      data: storeComms,
+      data: transformedData,
     };
     
     res.json(response);

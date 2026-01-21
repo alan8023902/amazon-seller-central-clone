@@ -12,15 +12,17 @@ function startService(name, command, args, cwd, port) {
   return new Promise((resolve, reject) => {
     console.log(`📦 启动 ${name}...`);
     
-    const process = spawn(command, args, {
+    const childProcess = spawn(command, args, {
       cwd,
       stdio: 'pipe',
-      shell: true
+      shell: true,
+      detached: true, // 让子进程独立运行
+      windowsHide: true // Windows上隐藏窗口
     });
 
     let started = false;
     
-    process.stdout.on('data', (data) => {
+    childProcess.stdout.on('data', (data) => {
       const output = data.toString();
       console.log(`[${name}] ${output.trim()}`);
       
@@ -33,18 +35,21 @@ function startService(name, command, args, cwd, port) {
       )) {
         started = true;
         console.log(`✅ ${name} 启动成功 - ${URLS[name.toUpperCase().replace(' ', '_')] || `http://localhost:${port}`}`);
+        
+        // 分离子进程，让它独立运行
+        childProcess.unref();
         resolve();
       }
     });
 
-    process.stderr.on('data', (data) => {
+    childProcess.stderr.on('data', (data) => {
       const output = data.toString();
       if (!output.includes('Warning') && !output.includes('deprecated')) {
         console.error(`[${name} ERROR] ${output.trim()}`);
       }
     });
 
-    process.on('close', (code) => {
+    childProcess.on('close', (code) => {
       if (code !== 0 && !started) {
         console.error(`❌ ${name} 启动失败，退出码: ${code}`);
         reject(new Error(`${name} failed to start`));
@@ -55,8 +60,12 @@ function startService(name, command, args, cwd, port) {
     setTimeout(() => {
       if (!started) {
         console.log(`⏳ ${name} 启动中...`);
+        // 如果超时，也认为启动成功并分离进程
+        started = true;
+        childProcess.unref();
+        resolve();
       }
-    }, 5000);
+    }, 5000); // 减少超时时间到5秒
   });
 }
 
@@ -92,10 +101,13 @@ async function startAllServices() {
     console.log(`   管理后台: ${URLS.ADMIN}`);
     console.log('');
     console.log('💡 提示:');
-    console.log('   - 使用 Ctrl+C 停止所有服务');
-    console.log('   - 如果端口被占用，脚本会自动清理');
+    console.log('   - 所有服务已在后台运行');
+    console.log('   - 使用 node scripts/kill-ports.js 停止所有服务');
     console.log('   - 后端API健康检查: ' + URLS.BACKEND + '/api/health');
     console.log('');
+    
+    // 脚本完成，退出
+    process.exit(0);
 
   } catch (error) {
     console.error('❌ 启动失败:', error.message);

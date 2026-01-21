@@ -2,7 +2,8 @@ import express from 'express';
 import { dataService } from '../services/dataService';
 import { 
   type ApiResponse,
-  type VocData
+  type VocData,
+  type CXHealthBreakdown
 } from '../types/index';
 import { asyncHandler, createError } from '../middleware/errorHandler';
 
@@ -167,6 +168,81 @@ router.put('/data/:storeId/:id', asyncHandler(async (req, res) => {
   };
   
   res.json(response);
+}));
+
+// GET /api/voc/cx-health/:storeId - Get CX Health breakdown data
+router.get('/cx-health/:storeId', asyncHandler(async (req, res) => {
+  const { storeId } = req.params;
+  
+  try {
+    // Read CX Health data directly from JSON file
+    const filePath = require('path').join(__dirname, '../../data/cx_health.json');
+    const cxHealthData = require('fs-extra').readJsonSync(filePath);
+    
+    let storeCxHealth = cxHealthData[storeId];
+    
+    // If store CX Health not found, create default data
+    if (!storeCxHealth) {
+      console.log(`Creating default CX Health data for store: ${storeId}`);
+      
+      storeCxHealth = {
+        poor_listings: 6,
+        fair_listings: 0,
+        good_listings: 0,
+        very_good_listings: 1,
+        excellent_listings: 6
+      };
+      
+      // Save the new data
+      cxHealthData[storeId] = storeCxHealth;
+      require('fs-extra').writeJsonSync(filePath, cxHealthData, { spaces: 2 });
+    }
+    
+    const response: ApiResponse<any> = {
+      success: true,
+      data: storeCxHealth,
+    };
+    
+    res.json(response);
+  } catch (error) {
+    console.error('CX Health error:', error);
+    throw createError('Failed to fetch CX Health data', 500);
+  }
+}));
+
+// PUT /api/voc/cx-health/:storeId - Update CX Health breakdown data
+router.put('/cx-health/:storeId', asyncHandler(async (req, res) => {
+  const { storeId } = req.params;
+  const { poor_listings, fair_listings, good_listings, very_good_listings, excellent_listings } = req.body;
+  
+  try {
+    // Read CX Health data directly from JSON file
+    const filePath = require('path').join(__dirname, '../../data/cx_health.json');
+    const cxHealthData = require('fs-extra').readJsonSync(filePath);
+    
+    // Update the data
+    cxHealthData[storeId] = {
+      poor_listings: parseInt(poor_listings) || 0,
+      fair_listings: parseInt(fair_listings) || 0,
+      good_listings: parseInt(good_listings) || 0,
+      very_good_listings: parseInt(very_good_listings) || 0,
+      excellent_listings: parseInt(excellent_listings) || 0
+    };
+    
+    // Save the updated data
+    require('fs-extra').writeJsonSync(filePath, cxHealthData, { spaces: 2 });
+    
+    const response: ApiResponse<any> = {
+      success: true,
+      data: cxHealthData[storeId],
+      message: 'CX Health data updated successfully',
+    };
+    
+    res.json(response);
+  } catch (error) {
+    console.error('CX Health update error:', error);
+    throw createError('Failed to update CX Health data', 500);
+  }
 }));
 
 export = router;

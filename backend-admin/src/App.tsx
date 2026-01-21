@@ -18,6 +18,7 @@ import StoreSettings from './pages/StoreSettings';
 import ProductManagement from './pages/ProductManagement';
 import SalesDataConfig from './pages/SalesDataConfig';
 import CXHealthConfig from './pages/CXHealthConfig';
+import BusinessReportsConfig from './pages/BusinessReportsConfig';
 import AccountHealthConfig from './pages/AccountHealthConfig';
 import DashboardConfig from './pages/DashboardConfig';
 import CommunicationsConfig from './pages/CommunicationsConfig';
@@ -61,6 +62,11 @@ const menuItems = [
     key: 'sales',
     icon: <BarChartOutlined />,
     label: '销售数据',
+  },
+  {
+    key: 'business-reports',
+    icon: <BarChartOutlined />,
+    label: 'Business Reports',
   },
   {
     key: 'cx-health',
@@ -154,6 +160,8 @@ function AppContent() {
         return <ProductManagement {...commonProps} />;
       case 'sales':
         return <SalesDataConfig {...commonProps} />;
+      case 'business-reports':
+        return <BusinessReportsConfig {...commonProps} />;
       case 'cx-health':
         return <CXHealthConfig {...commonProps} />;
       case 'account-health':

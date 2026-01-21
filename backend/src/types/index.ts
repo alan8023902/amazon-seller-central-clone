@@ -195,6 +195,20 @@ export const VocDataSchema = z.object({
 
 export type VocData = z.infer<typeof VocDataSchema>;
 
+// CX Health Breakdown Schema
+export const CXHealthBreakdownSchema = z.object({
+  id: z.string(),
+  store_id: z.string(),
+  poor_listings: z.number().int().default(0),
+  fair_listings: z.number().int().default(0),
+  good_listings: z.number().int().default(0),
+  very_good_listings: z.number().int().default(0),
+  excellent_listings: z.number().int().default(0),
+  updated_at: z.string(),
+});
+
+export type CXHealthBreakdown = z.infer<typeof CXHealthBreakdownSchema>;
+
 // Order Schema
 export const OrderSchema = z.object({
   id: z.string(),
