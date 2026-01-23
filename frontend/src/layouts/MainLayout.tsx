@@ -117,7 +117,7 @@ const MainLayout: React.FC = () => {
           onClick={() => setIsSidebarOpen(false)}
         >
           <div
-            className="w-72 h-full bg-white shadow-2xl animate-in slide-in-from-left duration-300"
+            className="w-60 h-full bg-white shadow-2xl animate-in slide-in-from-left duration-300"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="bg-amazon-headerTeal h-12 px-3 flex items-center justify-between text-white">

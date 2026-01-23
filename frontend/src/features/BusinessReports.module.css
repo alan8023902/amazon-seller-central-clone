@@ -16,21 +16,22 @@
 
 .pageContainer {
   min-height: 100vh;
-  background-color: var(--bg-light);
+  background-color: #ffffff;
   width: 100%;
+  max-width: none;
 }
 
 .pageHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 24px;
+  padding: 12px 20px;
   background-color: #f7f8f8;
   border-bottom: 1px solid var(--border-gray);
 }
 
 .pageTitle {
-  font-size: 21px;
+  font-size: 24px;
   font-weight: 400;
   color: #0F1111;
   margin: 0;
@@ -93,10 +94,10 @@
   background-color: var(--bg-white);
   border: 1px solid #e7e7e7;
   border-radius: 2px;
-  margin: 24px 24px 16px 24px;
-  padding: 20px 20px;
+  margin: 16px 20px 6px 20px;
+  padding: 16px 20px;
   position: relative;
-  min-height: 80px;
+  min-height: 70px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -109,7 +110,6 @@
 }
 
 .sparkleIcon {
-  color: var(--primary-teal);
   margin-top: 3px;
   flex-shrink: 0;
 }
@@ -167,8 +167,8 @@
 }
 
 .filtersContainer {
-  background-color: #f3f3f3;
-  padding: 12px 24px;
+  background-color: #fcfcfc;
+  padding: 12px 20px;
   border-bottom: 1px solid var(--border-gray);
   margin-bottom: 0;
 }
@@ -220,6 +220,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
+  width: 200px;
 }
 
 .dateInputWrapper {
@@ -266,7 +267,7 @@
 .snapshotSection {
   background-color: var(--bg-white);
   border: 1px solid var(--border-gray);
-  margin: 0 24px;
+  margin: 0 20px 6px 20px;
 }
 
 .snapshotHeader {
@@ -295,10 +296,13 @@
   display: flex;
   padding: 12px 16px 20px 16px;
   background-color: #fcfcfc;
+  gap: 65px;
+  justify-content: flex-start;
 }
 
 .metricItem {
-  flex: 1;
+  flex: none;
+  width: auto;
 }
 
 .metricLabel {
@@ -314,8 +318,8 @@
 }
 
 .compareSection {
-  background-color: var(--bg-white);
-  margin: 24px 24px;
+  background-color: #DFEAF2;
+  margin: 0 20px 16px 20px;
   border: 1px solid var(--border-gray);
 }
 
@@ -324,7 +328,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 16px;
-  background-color: #f6f6f6;
+  background-color: #DFEAF2;
   border-bottom: 1px solid #e7e7e7;
 }
 
@@ -367,18 +371,38 @@
 
 .chartsContainer {
   display: flex;
-  padding: 16px;
-  gap: 16px;
-  background-color: #fff;
+  padding: 0;
+  gap: 0;
+  background-color: #e0e0e0;
+  border-top: 1px solid #e7e7e7;
+  margin-top: 0;
+}
+
+.chartDivider {
+  width: 1px;
+  background-color: #ccc;
+  margin: 0;
 }
 
 .chartWrapper {
   flex: 1;
-  height: 240px;
-  border: 1px solid #e7e7e7;
-  padding: 24px 12px 12px 32px;
+  height: 260px;
+  border: none;
+  padding: 0;
   position: relative;
-  background-color: #fff;
+  background-color: #e0e0e0;
+}
+
+.chartWrapper:last-child {
+  padding: 0;
+}
+
+.chartWrapper:first-child {
+  border-right: none;
+}
+
+.chartWrapper:last-child {
+  border-left: none;
 }
 
 .compareLegend {
@@ -417,3 +441,56 @@
   color: #0F1111;
   margin-top: 4px;
 }
+.compareLegend {
+  display: flex;
+  gap: 40px;
+  padding: 8px 16px;
+  background-color: #DFEAF2;
+  border-top: 1px solid #e7e7e7;
+  border-right: 1px solid #ddd;
+  margin-top: 10px;
+}
+
+.compareLabel {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0F1111;
+  display: block;
+}
+
+.whatsThisLink {
+  font-size: 11px;
+  color: #007185;
+  text-decoration: none;
+  display: block;
+  margin-top: 2px;
+}
+
+.whatsThisLink:hover {
+  text-decoration: underline;
+  color: #c45500;
+}
+
+.compareCheckbox {
+  display: flex;
+  gap: 12px;
+  padding-left: 20px;
+  border-left: 1px solid #ddd;
+}
+
+.checkboxLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #007185;
+  display: block;
+  margin-top: 2px;
+}
+
+.checkboxValues {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0F1111;
+  line-height: 1.5;
+  margin-top: 2px;
+}
+

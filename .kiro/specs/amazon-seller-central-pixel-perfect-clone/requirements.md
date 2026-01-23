@@ -1,87 +1,87 @@
-# Requirements Document
+# 需求文档
 
-## Introduction
+## 简介
 
-This specification defines the requirements for restructuring and expanding the existing Amazon Seller Central clone project into a comprehensive three-tier architecture. The system will reorganize the current React frontend into a `frontend/` folder, create a new Node.js + Express + TypeScript backend in a `backend/` folder, and build an administrative management interface in a `backend-admin/` folder. The goal is to achieve exact 1:1 pixel-perfect replication of Amazon Seller Central pages while providing full data management capabilities through an admin interface backed by H2 database storage.
+本规范定义了将现有Amazon卖家中心克隆项目重构和扩展为综合三层架构的需求。系统将把当前的React前端重新组织到`frontend/`文件夹中，在`backend/`文件夹中创建新的Node.js + Express + TypeScript后端，并在`backend-admin/`文件夹中构建管理界面。目标是实现Amazon卖家中心页面的精确1:1像素级复制，同时通过由H2数据库存储支持的管理界面提供完整的数据管理功能。
 
-## Glossary
+## 术语表
 
-- **Frontend**: Existing React 18 + TypeScript application moved to `frontend/` folder, modified to use real APIs
-- **Backend**: New Node.js + Express + TypeScript REST API server with H2 database for data persistence  
-- **Backend_Admin**: New React + Ant Design Pro management interface for data editing and image uploads
-- **Dashboard**: Main seller dashboard page with global snapshot and product performance
-- **Voice_of_Customer**: Customer feedback and review management page
-- **Sales_Dashboard**: Comprehensive sales analytics and reporting interface
-- **Account_Health**: Account status, performance metrics, and compliance monitoring
-- **Legal_Entity**: Business entity information and legal compliance page
-- **Global_Snapshot**: Six-column metrics display (sales, orders, messages, offers, feedback, payments)
-- **Product_Performance_Table**: Tabular product data with images, SKUs, ASINs, and metrics
-- **Editable_Data**: User-marked red areas in reference images that can be modified via admin interface
-- **H2_Database**: Embedded database storing all application data with predefined schema
-- **Image_Upload**: File upload system for product images stored in local filesystem
-- **Pixel_Perfect**: Exact 1:1 visual replication matching Amazon's spacing, colors, fonts, and layouts
+- **前端**: 现有的React 18 + TypeScript应用程序移至`frontend/`文件夹，修改为使用真实API
+- **后端**: 新的Node.js + Express + TypeScript REST API服务器，使用H2数据库进行数据持久化
+- **后端管理**: 新的React + Ant Design Pro管理界面，用于数据编辑和图片上传
+- **仪表板**: 主要卖家仪表板页面，包含全局快照和产品性能
+- **客户之声**: 客户反馈和评论管理页面
+- **销售仪表板**: 综合销售分析和报告界面
+- **账户健康**: 账户状态、性能指标和合规监控
+- **法律实体**: 业务实体信息和法律合规页面
+- **全局快照**: 六列指标显示（销售、订单、消息、优惠、反馈、付款）
+- **产品性能表**: 包含图片、SKU、ASIN和指标的表格产品数据
+- **可编辑数据**: 参考图像中用户标记的红色区域，可通过管理界面修改
+- **H2数据库**: 存储所有应用程序数据的嵌入式数据库，具有预定义架构
+- **图片上传**: 存储在本地文件系统中的产品图片文件上传系统
+- **像素完美**: 精确的1:1视觉复制，匹配Amazon的间距、颜色、字体和布局
 
-## Requirements
+## 需求
 
-### Requirement 1: Project Structure Reorganization
+### 需求1：项目结构重组
 
-**User Story:** As a developer, I want the project reorganized into frontend/admin/backend folders, so that I can maintain clear separation between display, management, and API layers.
+**用户故事：** 作为开发人员，我希望项目重新组织为前端/管理/后端文件夹，以便在显示、管理和API层之间保持清晰的分离。
 
-#### Acceptance Criteria
+#### 验收标准
 
-1. THE System SHALL create a "frontend" folder containing the current React application code
-2. THE System SHALL create an "admin" folder with React + Ant Design Pro for data management
-3. THE System SHALL create a "backend" folder with Spring Boot 3.x application and H2 database
-4. THE System SHALL maintain proper dependency management between the three components
-5. THE System SHALL provide clear documentation for each folder's purpose and setup instructions
+1. 系统应创建包含当前React应用程序代码的"frontend"文件夹
+2. 系统应创建带有React + Ant Design Pro的"admin"文件夹用于数据管理
+3. 系统应创建带有Spring Boot 3.x应用程序和H2数据库的"backend"文件夹
+4. 系统应在三个组件之间维护适当的依赖管理
+5. 系统应为每个文件夹的用途和设置说明提供清晰的文档
 
-### Requirement 2: Node.js Backend with H2 Database
+### 需求2：带H2数据库的Node.js后端
 
-**User Story:** As a system administrator, I want a robust Node.js backend API with database persistence, so that I can store and manage all application data reliably.
+**用户故事：** 作为系统管理员，我希望有一个强大的Node.js后端API和数据库持久化，以便可靠地存储和管理所有应用程序数据。
 
-#### Acceptance Criteria
+#### 验收标准
 
-1. THE Backend SHALL implement Node.js + Express + TypeScript with embedded H2 database
-2. THE Backend SHALL create database tables for store, global_snapshot, product, sales_snapshot, cx_health, account_health, and legal_entity
-3. THE Backend SHALL provide REST API endpoints for all CRUD operations on data entities
-4. THE Backend SHALL support file upload endpoints for product image management with multer middleware
-5. THE Backend SHALL include proper error handling, validation, and logging throughout all operations
+1. 后端应实现Node.js + Express + TypeScript与嵌入式H2数据库
+2. 后端应为store、global_snapshot、product、sales_snapshot、cx_health、account_health和legal_entity创建数据库表
+3. 后端应为所有数据实体的CRUD操作提供REST API端点
+4. 后端应支持使用multer中间件进行产品图片管理的文件上传端点
+5. 后端应在所有操作中包含适当的错误处理、验证和日志记录
 
-### Requirement 3: Admin Interface with Ant Design Pro
+### 需求3：带Ant Design Pro的管理界面
 
-**User Story:** As a content manager, I want a professional admin interface to manage all editable data, so that I can easily update store information, products, and metrics.
+**用户故事：** 作为内容管理员，我希望有一个专业的管理界面来管理所有可编辑数据，以便轻松更新店铺信息、产品和指标。
 
-#### Acceptance Criteria
+#### 验收标准
 
-1. THE Backend_Admin SHALL implement React with Ant Design Pro for professional UI components
-2. THE Backend_Admin SHALL provide forms for editing all data marked in red in the reference images
-3. THE Backend_Admin SHALL include image upload functionality with drag-and-drop support
-4. THE Backend_Admin SHALL display data tables with sorting, filtering, and pagination capabilities
-5. THE Backend_Admin SHALL provide real-time preview of changes before saving to database
+1. 后端管理应实现React与Ant Design Pro以获得专业UI组件
+2. 后端管理应为编辑参考图像中标记为红色的所有数据提供表单
+3. 后端管理应包含支持拖放的图片上传功能
+4. 后端管理应显示具有排序、过滤和分页功能的数据表
+5. 后端管理应在保存到数据库之前提供更改的实时预览
 
-### Requirement 4: Frontend Display with Real API Integration
+### 需求4：带真实API集成的前端显示
 
-**User Story:** As a seller, I want to see a pixel-perfect Amazon Seller Central interface powered by real data, so that I can experience an authentic seller dashboard environment.
+**用户故事：** 作为卖家，我希望看到由真实数据驱动的像素完美Amazon卖家中心界面，以便体验真实的卖家仪表板环境。
 
-#### Acceptance Criteria
+#### 验收标准
 
-1. THE Frontend SHALL move existing React 18 + TypeScript code to `frontend/` folder without changing UI components
-2. THE Frontend SHALL replace all mock data with real API calls to the Node.js backend
-3. THE Frontend SHALL consume data from Node.js backend APIs exclusively
-4. THE Frontend SHALL display real product images uploaded through the admin interface
-5. THE Frontend SHALL maintain existing responsive design and pixel-perfect accuracy
+1. 前端应将现有的React 18 + TypeScript代码移至`frontend/`文件夹，不更改UI组件
+2. 前端应用真实的API调用替换所有模拟数据到Node.js后端
+3. 前端应专门从Node.js后端API消费数据
+4. 前端应显示通过管理界面上传的真实产品图片
+5. 前端应保持现有的响应式设计和像素完美精度
 
-### Requirement 5: Database Schema Implementation
+### 需求5：数据库架构实现
 
-**User Story:** As a backend developer, I want a comprehensive database schema that stores all Amazon Seller Central data, so that the system can persist and retrieve all necessary information.
+**用户故事：** 作为后端开发人员，我希望有一个存储所有Amazon卖家中心数据的综合数据库架构，以便系统可以持久化和检索所有必要信息。
 
-#### Acceptance Criteria
+#### 验收标准
 
-1. THE Backend SHALL implement the store table with fields for store_name, country, marketplace_id, and configuration data
-2. THE Backend SHALL create global_snapshot table storing sales, orders, messages, featured_offers, feedback, and payments metrics
-3. THE Backend SHALL implement product table with image_url, title, asin, sku, price, inventory, status, and performance fields
-4. THE Backend SHALL create sales_snapshot table for historical sales data and trend analysis
-5. THE Backend SHALL implement cx_health and account_health tables for customer experience and account status metrics
+1. 后端应实现store表，包含store_name、country、marketplace_id和配置数据字段
+2. 后端应创建global_snapshot表，存储销售、订单、消息、featured_offers、反馈和付款指标
+3. 后端应实现product表，包含image_url、title、asin、sku、price、inventory、status和性能字段
+4. 后端应创建sales_snapshot表用于历史销售数据和趋势分析
+5. 后端应实现cx_health和account_health表用于客户体验和账户状态指标
 
 ### Requirement 6: Image Upload and Management System
 

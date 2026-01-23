@@ -1,129 +1,86 @@
-# Requirements Document
+# 需求文档
 
-## Introduction
+## 简介
 
-This specification defines the Development Infrastructure Enhancement system for a multi-tier Amazon Seller Central clone architecture. The system establishes reusable development patterns, comprehensive MCP testing capabilities, and parallel task execution across Frontend (React/TypeScript/Tailwind), Backend (Node.js/Express), and Admin Interface (React/Ant Design) systems.
+本规范定义了专注于MCP测试功能和Amazon卖家中心克隆架构并行任务执行的开发基础设施增强系统。该系统为MCP工具提供全面的测试基础设施，并协调前端、后端和管理系统之间的并行开发任务。
 
-## Glossary
+## 术语表
 
-- **MCP**: Model Context Protocol - tools and interfaces for AI agent interactions
-- **Subagent**: Autonomous execution unit that performs specific development tasks
-- **Common_Skills**: Reusable development patterns and utilities shared across systems
-- **Test_Framework**: Comprehensive testing infrastructure for MCP tools and API endpoints
-- **Execution_Coordinator**: System managing parallel task execution and dependencies
-- **Development_System**: One of Frontend, Backend, or Admin Interface systems
-- **Task_Pipeline**: Sequence of coordinated development tasks across multiple systems
+- **MCP**: 模型上下文协议 - AI代理交互的工具和接口
+- **子代理**: 执行特定开发任务的自主执行单元
+- **测试框架**: MCP工具和API端点的综合测试基础设施
+- **执行协调器**: 管理并行任务执行和依赖关系的系统
+- **开发系统**: 前端、后端或管理界面系统之一
+- **任务管道**: 跨多个系统的协调开发任务序列
 
-## Requirements
+## 需求
 
-### Requirement 1: Common Skills System
+### 需求1：MCP测试框架
 
-**User Story:** As a developer, I want reusable development skills and patterns, so that I can maintain consistency and efficiency across Frontend, Backend, and Admin systems.
+**用户故事：** 作为开发人员，我希望对MCP工具有全面的测试和调试功能，以便确保可靠的AI代理交互和API功能。
 
-#### Acceptance Criteria
+#### 验收标准
 
-1. WHEN a developer creates a new component in any system, THE Common_Skills SHALL provide standardized patterns for React components, TypeScript interfaces, and styling approaches
-2. WHEN implementing API endpoints, THE Common_Skills SHALL provide consistent patterns for Express route handlers, error handling, and data validation
-3. WHEN setting up forms and UI components, THE Common_Skills SHALL provide reusable patterns for React Hook Form integration, Zod validation, and Tailwind styling
-4. THE Common_Skills SHALL include standardized file organization patterns for each Development_System
-5. THE Common_Skills SHALL provide consistent naming conventions for components, files, and API endpoints across all systems
-6. WHEN a developer needs authentication patterns, THE Common_Skills SHALL provide reusable implementations for login flows, session management, and route protection
-7. THE Common_Skills SHALL include standardized error handling patterns for both client-side and server-side code
+1. 当测试MCP工具时，测试框架应验证工具输入架构、输出格式和错误处理
+2. 当测试API端点时，测试框架应验证前端、后端和管理系统之间的请求/响应周期、状态码和数据完整性
+3. 当运行集成测试时，测试框架应验证前端和后端系统之间的端到端工作流程
+4. 测试框架应为文件上传功能、JSON数据操作和CORS配置提供自动化测试
+5. 当调试MCP交互时，测试框架应提供详细的日志记录、请求跟踪和错误诊断
+6. 测试框架应包括API响应时间、内存使用和并发请求处理的性能监控
+7. 当测试失败时，测试框架应提供带有可操作调试信息的清晰错误消息
 
-### Requirement 2: MCP Testing Framework
+### 需求2：并行子代理执行系统
 
-**User Story:** As a developer, I want comprehensive testing and debugging capabilities for MCP tools, so that I can ensure reliable AI agent interactions and API functionality.
+**用户故事：** 作为项目经理，我希望跨多个系统并行执行任务，以便加速开发并保持前端、后端和管理组件之间的协调。
 
-#### Acceptance Criteria
+#### 验收标准
 
-1. WHEN testing MCP tools, THE Test_Framework SHALL validate tool input schemas, output formats, and error handling
-2. WHEN testing API endpoints, THE Test_Framework SHALL verify request/response cycles, status codes, and data integrity across Frontend, Backend, and Admin systems
-3. WHEN running integration tests, THE Test_Framework SHALL validate end-to-end workflows between Frontend and Backend systems
-4. THE Test_Framework SHALL provide automated testing for file upload functionality, JSON data operations, and CORS configurations
-5. WHEN debugging MCP interactions, THE Test_Framework SHALL provide detailed logging, request tracing, and error diagnostics
-6. THE Test_Framework SHALL include performance monitoring for API response times, memory usage, and concurrent request handling
-7. WHEN testing fails, THE Test_Framework SHALL provide clear error messages with actionable debugging information
+1. 当执行开发任务时，执行协调器应管理跨多个开发系统的并发任务执行
+2. 当任务有依赖关系时，执行协调器应强制执行适当的执行顺序并等待先决条件完成
+3. 当任何系统中的任务失败时，执行协调器应实现回滚机制并通知依赖任务
+4. 执行协调器应为所有并行任务提供实时进度跟踪，包含状态更新和完成估计
+5. 当协调任务时，执行协调器应防止资源冲突并确保系统间数据一致性
+6. 执行协调器应支持任务优先级和基于系统负载的动态资源分配
+7. 当任务完成时，执行协调器应验证集成点并触发依赖任务链
 
-### Requirement 3: Parallel Subagent Execution System
+### 需求3：测试基础设施集成
 
-**User Story:** As a project manager, I want parallel task execution across multiple systems, so that I can accelerate development and maintain coordination between Frontend, Backend, and Admin components.
+**用户故事：** 作为质量保证工程师，我希望集成的测试基础设施，以便验证整个多系统架构的功能。
 
-#### Acceptance Criteria
+#### 验收标准
 
-1. WHEN executing development tasks, THE Execution_Coordinator SHALL manage concurrent task execution across multiple Development_Systems
-2. WHEN tasks have dependencies, THE Execution_Coordinator SHALL enforce proper execution order and wait for prerequisite completion
-3. WHEN a task fails in any system, THE Execution_Coordinator SHALL implement rollback mechanisms and notify dependent tasks
-4. THE Execution_Coordinator SHALL provide real-time progress tracking for all parallel tasks with status updates and completion estimates
-5. WHEN coordinating tasks, THE Execution_Coordinator SHALL prevent resource conflicts and ensure data consistency across systems
-6. THE Execution_Coordinator SHALL support task prioritization and dynamic resource allocation based on system load
-7. WHEN tasks complete, THE Execution_Coordinator SHALL validate integration points and trigger dependent task chains
+1. 当运行测试时，测试框架应在所有开发系统中执行单元测试、集成测试和端到端测试
+2. 当测试MCP工具时，测试框架应验证工具注册、参数验证和响应处理
+3. 当测试API集成时，测试框架应验证前端Zustand存储和后端Express端点之间的数据流
+4. 测试框架应包括管理界面CRUD操作和数据同步的自动化测试
+5. 当测试文件上传时，测试框架应验证后端和管理系统中的图片处理、存储和检索
+6. 测试框架应提供测试数据管理，包括种子数据、清理和测试运行之间的隔离
+7. 当测试完成时，测试框架应生成包含覆盖率指标和性能数据的综合报告
 
-### Requirement 4: Development Pattern Standardization
+### 需求4：错误处理和恢复
 
-**User Story:** As a team lead, I want standardized development patterns, so that all developers can work efficiently within the established Amazon Seller Central architecture.
+**用户故事：** 作为系统管理员，我希望强大的错误处理和恢复机制，以便开发任务可以从故障中恢复并保持系统稳定性。
 
-#### Acceptance Criteria
+#### 验收标准
 
-1. WHEN creating React components, THE Common_Skills SHALL enforce consistent component structure with hooks, state management, and event handling patterns
-2. WHEN implementing Zustand stores, THE Common_Skills SHALL provide standardized patterns for state definition, actions, and persistence
-3. WHEN building Express routes, THE Common_Skills SHALL enforce consistent middleware usage, error handling, and response formatting
-4. THE Common_Skills SHALL provide standardized patterns for Tailwind CSS usage with Amazon-themed colors and responsive design
-5. WHEN integrating with TanStack Query, THE Common_Skills SHALL provide consistent patterns for data fetching, caching, and error handling
-6. THE Common_Skills SHALL include standardized patterns for internationalization using the existing i18n system
-7. WHEN implementing file operations, THE Common_Skills SHALL provide consistent patterns for JSON file handling and image upload processing
+1. 当子代理任务失败时，执行协调器应捕获详细的错误信息并尝试自动恢复
+2. 当系统错误发生时，测试框架应提供诊断信息，包括堆栈跟踪、系统状态和恢复建议
+3. 当API调用失败时，系统应提供标准化的重试机制，包含指数退避和断路器模式
+4. 执行协调器应在依赖服务不可用时实现优雅降级
+5. 当检测到数据损坏时，测试框架应提供回滚功能和数据完整性验证
+6. 系统应包括React组件的标准化错误边界实现
+7. 当恢复尝试失败时，执行协调器应升级到手动干预，并提供详细的故障报告
 
-### Requirement 5: Testing Infrastructure Integration
+### 需求5：性能监控和优化
 
-**User Story:** As a quality assurance engineer, I want integrated testing infrastructure, so that I can validate functionality across the entire multi-system architecture.
+**用户故事：** 作为性能工程师，我希望监控和优化功能，以便确保所有开发系统的高效运行。
 
-#### Acceptance Criteria
+#### 验收标准
 
-1. WHEN running tests, THE Test_Framework SHALL execute unit tests, integration tests, and end-to-end tests across all Development_Systems
-2. WHEN testing MCP tools, THE Test_Framework SHALL validate tool registration, parameter validation, and response handling
-3. WHEN testing API integrations, THE Test_Framework SHALL verify data flow between Frontend Zustand stores and Backend Express endpoints
-4. THE Test_Framework SHALL include automated testing for Admin Interface CRUD operations and data synchronization
-5. WHEN testing file uploads, THE Test_Framework SHALL validate image processing, storage, and retrieval across Backend and Admin systems
-6. THE Test_Framework SHALL provide test data management with seeding, cleanup, and isolation between test runs
-7. WHEN tests complete, THE Test_Framework SHALL generate comprehensive reports with coverage metrics and performance data
-
-### Requirement 6: Error Handling and Recovery
-
-**User Story:** As a system administrator, I want robust error handling and recovery mechanisms, so that development tasks can recover from failures and maintain system stability.
-
-#### Acceptance Criteria
-
-1. WHEN a subagent task fails, THE Execution_Coordinator SHALL capture detailed error information and attempt automatic recovery
-2. WHEN system errors occur, THE Test_Framework SHALL provide diagnostic information including stack traces, system state, and recovery suggestions
-3. WHEN API calls fail, THE Common_Skills SHALL provide standardized retry mechanisms with exponential backoff and circuit breaker patterns
-4. THE Execution_Coordinator SHALL implement graceful degradation when dependent services are unavailable
-5. WHEN data corruption is detected, THE Test_Framework SHALL provide rollback capabilities and data integrity validation
-6. THE Common_Skills SHALL include standardized error boundary implementations for React components
-7. WHEN recovery attempts fail, THE Execution_Coordinator SHALL escalate to manual intervention with detailed failure reports
-
-### Requirement 7: Performance Monitoring and Optimization
-
-**User Story:** As a performance engineer, I want monitoring and optimization capabilities, so that I can ensure efficient operation across all development systems.
-
-#### Acceptance Criteria
-
-1. WHEN monitoring system performance, THE Test_Framework SHALL track API response times, memory usage, and CPU utilization
-2. WHEN executing parallel tasks, THE Execution_Coordinator SHALL monitor resource usage and optimize task distribution
-3. WHEN testing MCP tools, THE Test_Framework SHALL measure tool execution time and identify performance bottlenecks
-4. THE Test_Framework SHALL provide performance benchmarking for Frontend rendering, Backend processing, and Admin operations
-5. WHEN performance issues are detected, THE Test_Framework SHALL generate alerts with specific optimization recommendations
-6. THE Execution_Coordinator SHALL implement load balancing for concurrent task execution across available resources
-7. WHEN optimizing performance, THE Common_Skills SHALL provide patterns for code splitting, lazy loading, and efficient data structures
-
-### Requirement 8: Configuration and Deployment Management
-
-**User Story:** As a DevOps engineer, I want centralized configuration and deployment management, so that I can maintain consistent environments across all development systems.
-
-#### Acceptance Criteria
-
-1. WHEN configuring development environments, THE Common_Skills SHALL provide standardized configuration patterns for each Development_System
-2. WHEN managing dependencies, THE Test_Framework SHALL validate package versions and compatibility across Frontend, Backend, and Admin systems
-3. WHEN deploying changes, THE Execution_Coordinator SHALL coordinate deployment sequences and validate system integration
-4. THE Common_Skills SHALL include environment-specific configuration management with development, staging, and production settings
-5. WHEN updating configurations, THE Test_Framework SHALL validate configuration changes and detect conflicts
-6. THE Execution_Coordinator SHALL provide rollback capabilities for failed deployments with automatic system restoration
-7. WHEN managing secrets, THE Common_Skills SHALL provide secure patterns for API keys, database connections, and authentication tokens
+1. 当监控系统性能时，测试框架应跟踪API响应时间、内存使用和CPU利用率
+2. 当执行并行任务时，执行协调器应监控资源使用并优化任务分配
+3. 当测试MCP工具时，测试框架应测量工具执行时间并识别性能瓶颈
+4. 测试框架应为前端渲染、后端处理和管理操作提供性能基准测试
+5. 当检测到性能问题时，测试框架应生成带有具体优化建议的警报
+6. 执行协调器应为可用资源上的并发任务执行实现负载均衡
+7. 当优化性能时，系统应提供代码分割、懒加载和高效数据结构的模式

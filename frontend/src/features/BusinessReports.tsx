@@ -3,12 +3,9 @@ import { useI18n } from '../hooks/useI18n';
 import { useStore } from '../store';
 import { apiGet } from '../config/api';
 import {
-  Sparkles,
   ThumbsUp,
   ThumbsDown,
   Copy,
-  ChevronDown,
-  Calendar,
   Check
 } from 'lucide-react';
 import {
@@ -18,15 +15,21 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  ReferenceLine
 } from 'recharts';
 import { cn } from '../utils/cn';
 import styles from './BusinessReports.module.css';
+import CustomDateDropdown from '../components/CustomDateDropdown';
+import DatePicker from '../components/DatePicker';
 
 const BusinessReports: React.FC = () => {
   const { t, formatCurrency, formatNumber } = useI18n();
   const { currentStore } = useStore();
   const [activeView, setActiveView] = useState<'graph' | 'table'>('graph');
+  const [startDate, setStartDate] = useState('12/31/2024');
+  const [endDate, setEndDate] = useState('12/31/2025');
+  const [chartData, setChartData] = useState<any[]>([]);
   const [snapshotData, setSnapshotData] = useState({
     totalOrderItems: "154,066",
     unitsOrdered: "174,714",
@@ -36,6 +39,131 @@ const BusinessReports: React.FC = () => {
     timestamp: "12/30/2025, 11:32:21 PM PST"
   });
   const [loading, setLoading] = useState(false);
+
+  // Load chart data from backend
+  const loadChartData = async (start?: string, end?: string) => {
+    if (!currentStore?.id) return;
+
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (start) params.append('startDate', start);
+      if (end) params.append('endDate', end);
+      
+      const response = await apiGet(`/api/sales/chart-data/${currentStore.id}?${params.toString()}`);
+      if (response.success && response.data && response.data.length > 0) {
+        // Format the data for chart display
+        const formattedData = response.data.map((item: any, index: number) => {
+          const date = new Date(item.date);
+          const monthName = date.toLocaleString('en-US', { month: 'short' });
+          const year = date.getFullYear().toString().slice(2);
+          
+          // Show month label only on the 1st of each month
+          const isFirstOfMonth = date.getDate() === 1;
+          const displayName = isFirstOfMonth ? `${monthName} '${year}` : '';
+          
+          return {
+            name: displayName,
+            date: date.toLocaleDateString(),
+            units: item.units || 0,
+            sales: item.sales || 0,
+            lastYearUnits: item.lastYearUnits || 0,
+            lastYearSales: item.lastYearSales || 0,
+          };
+        });
+        setChartData(formattedData);
+      } else {
+        // Fallback to generated data if no backend data
+        generateFallbackChartData();
+      }
+    } catch (error) {
+      console.error('Failed to load chart data:', error);
+      // Fallback to generated data
+      generateFallbackChartData();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Generate fallback chart data if API fails
+  const generateFallbackChartData = () => {
+    const data = [];
+    
+    // Generate daily data for 13 months to create dense chart like the image
+    const startDate = new Date('2025-01-01');
+    const endDate = new Date('2026-01-31');
+    
+    let currentDate = new Date(startDate);
+    
+    while (currentDate <= endDate) {
+      const monthName = currentDate.toLocaleString('en-US', { month: 'short' });
+      const year = currentDate.getFullYear().toString().slice(2);
+      
+      // Show month label only on the 1st of each month
+      const isFirstOfMonth = currentDate.getDate() === 1;
+      const displayName = isFirstOfMonth ? `${monthName} '${year}` : '';
+
+      // Random "spiky" data with more variation to match the image
+      const baseUnit = 500;
+      const baseSales = 50000;
+      const variance = 0.8; // Increased variance for more spiky appearance
+
+      data.push({
+        name: displayName,
+        date: currentDate.toLocaleDateString(),
+        units: Math.floor(baseUnit * (0.5 + Math.random() * variance * 2)),
+        sales: Math.floor(baseSales * (0.5 + Math.random() * variance * 2)),
+        lastYearUnits: Math.floor(baseUnit * 0.9 * (0.5 + Math.random() * variance * 2)),
+        lastYearSales: Math.floor(baseSales * 0.9 * (0.5 + Math.random() * variance * 2)),
+      });
+
+      // Move to next day
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    setChartData(data);
+  };
+
+  // Handle Apply button click
+  const handleApplyFilters = async () => {
+    if (!currentStore?.id) {
+      console.error('No store selected');
+      return;
+    }
+
+    // Convert date format from MM/DD/YYYY to YYYY-MM-DD for API
+    const formatDateForAPI = (dateStr: string) => {
+      const [month, day, year] = dateStr.split('/');
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    };
+
+    try {
+      setLoading(true);
+      const apiStartDate = formatDateForAPI(startDate);
+      const apiEndDate = formatDateForAPI(endDate);
+      
+      console.log('Applying filters:', { startDate, endDate, apiStartDate, apiEndDate });
+      
+      // Update chart data for the selected date range
+      await loadChartData(apiStartDate, apiEndDate);
+      
+      // Optionally update snapshot data to reflect the selected date range
+      // This would require a backend endpoint that calculates snapshot for date range
+      console.log('Filters applied successfully');
+    } catch (error) {
+      console.error('Failed to apply filters:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Format date for display in compare legend
+  const formatDateForDisplay = (dateStr: string) => {
+    const [month, day, year] = dateStr.split('/');
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${monthNames[parseInt(month) - 1]} ${parseInt(day)}, ${year}`;
+  };
 
   // Load sales snapshot data from backend
   useEffect(() => {
@@ -79,46 +207,9 @@ const BusinessReports: React.FC = () => {
     };
 
     loadSnapshotData();
+    // Load initial chart data
+    generateFallbackChartData();
   }, [currentStore]);
-
-
-  // More granular data for "spiky" look
-  const chartData = [
-    { name: "Jan '25", units: 400, sales: 35000, lastYearUnits: 350, lastYearSales: 32000 },
-    { name: "", units: 650, sales: 58000, lastYearUnits: 420, lastYearSales: 35000 },
-    { name: "", units: 300, sales: 28000, lastYearUnits: 400, lastYearSales: 38000 },
-    { name: "Feb '25", units: 450, sales: 42000, lastYearUnits: 280, lastYearSales: 25000 },
-    { name: "", units: 800, sales: 72000, lastYearUnits: 550, lastYearSales: 50000 },
-    { name: "", units: 250, sales: 22000, lastYearUnits: 300, lastYearSales: 28000 },
-    { name: "Mar '25", units: 500, sales: 45000, lastYearUnits: 450, lastYearSales: 38000 },
-    { name: "", units: 700, sales: 65000, lastYearUnits: 600, lastYearSales: 55000 },
-    { name: "", units: 400, sales: 35000, lastYearUnits: 420, lastYearSales: 40000 },
-    { name: "Apr '25", units: 450, sales: 42000, lastYearUnits: 420, lastYearSales: 35000 },
-    { name: "", units: 900, sales: 85000, lastYearUnits: 700, lastYearSales: 60000 },
-    { name: "", units: 550, sales: 50000, lastYearUnits: 600, lastYearSales: 55000 },
-    { name: "May '25", units: 600, sales: 55000, lastYearUnits: 580, lastYearSales: 52000 },
-    { name: "", units: 350, sales: 32000, lastYearUnits: 400, lastYearSales: 38000 },
-    { name: "", units: 750, sales: 68000, lastYearUnits: 650, lastYearSales: 60000 },
-    { name: "Jun '25", units: 800, sales: 72000, lastYearUnits: 750, lastYearSales: 68000 },
-    { name: "", units: 400, sales: 38000, lastYearUnits: 450, lastYearSales: 42000 },
-    { name: "", units: 600, sales: 55000, lastYearUnits: 550, lastYearSales: 50000 },
-    { name: "Jul '25", units: 700, sales: 65000, lastYearUnits: 680, lastYearSales: 62000 },
-    { name: "", units: 300, sales: 28000, lastYearUnits: 350, lastYearSales: 32000 },
-    { name: "", units: 550, sales: 52000, lastYearUnits: 600, lastYearSales: 55000 },
-    { name: "Aug '25", units: 650, sales: 58000, lastYearUnits: 600, lastYearSales: 55000 },
-    { name: "", units: 850, sales: 78000, lastYearUnits: 800, lastYearSales: 72000 },
-    { name: "", units: 450, sales: 42000, lastYearUnits: 500, lastYearSales: 45000 },
-    { name: "Sep '25", units: 750, sales: 68000, lastYearUnits: 720, lastYearSales: 65000 },
-    { name: "", units: 350, sales: 32000, lastYearUnits: 400, lastYearSales: 36000 },
-    { name: "", units: 600, sales: 55000, lastYearUnits: 580, lastYearSales: 52000 },
-    { name: "Oct '25", units: 900, sales: 82000, lastYearUnits: 850, lastYearSales: 78000 },
-    { name: "", units: 550, sales: 50000, lastYearUnits: 600, lastYearSales: 55000 },
-    { name: "", units: 750, sales: 68000, lastYearUnits: 700, lastYearSales: 62000 },
-    { name: "Nov '25", units: 850, sales: 78000, lastYearUnits: 800, lastYearSales: 72000 },
-    { name: "", units: 450, sales: 42000, lastYearUnits: 500, lastYearSales: 48000 },
-    { name: "", units: 650, sales: 58000, lastYearUnits: 600, lastYearSales: 55000 },
-    { name: "Dec '25", units: 1000, sales: 95000, lastYearUnits: 950, lastYearSales: 90000 },
-  ];
 
   return (
     <div className={cn(styles.businessReports, styles.pageContainer)}>
@@ -141,7 +232,12 @@ const BusinessReports: React.FC = () => {
       {/* BUSINESS PERFORMANCE INSIGHTS */}
       <div className={styles.insightsCard}>
         <div className={styles.insightsHeader}>
-          <Sparkles size={15} className={styles.sparkleIcon} />
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="#147C8F" xmlns="http://www.w3.org/2000/svg" className={styles.sparkleIcon}>
+            {/* Big star - left-center */}
+            <path d="M8 4L10 9.5L15.5 11L10 12.5L8 18L6 12.5L0.5 11L6 9.5L8 4Z" />
+            {/* Small star - top-right */}
+            <path d="M19 3L19.8 5.2L22 6L19.8 6.8L19 9L18.2 6.8L16 6L18.2 5.2L19 3Z" />
+          </svg>
           <div>
             <h2 className={styles.insightsTitle}>{t('businessPerformanceInsights')}</h2>
             <p className={styles.insightsText}>{t('allCaughtUp')}</p>
@@ -164,18 +260,10 @@ const BusinessReports: React.FC = () => {
           <div className={styles.filterGroup}>
             <label className={styles.filterLabel}>{t('date')}</label>
             <div className={styles.datePicker}>
-              <select className={styles.filterSelect}>
-                <option>Custom</option>
-              </select>
+              <CustomDateDropdown />
               <div className={styles.dateInputsRow}>
-                <div className={styles.dateInputWrapper}>
-                  <Calendar size={14} className={styles.calendarIconLeft} />
-                  <input type="text" className={styles.dateInputBare} defaultValue="12/31/2024" />
-                </div>
-                <div className={styles.dateInputWrapper}>
-                  <Calendar size={14} className={styles.calendarIconLeft} />
-                  <input type="text" className={styles.dateInputBare} defaultValue="12/31/2025" />
-                </div>
+                <DatePicker value={startDate} onChange={setStartDate} />
+                <DatePicker value={endDate} onChange={setEndDate} />
               </div>
             </div>
           </div>
@@ -194,7 +282,7 @@ const BusinessReports: React.FC = () => {
             </select>
           </div>
 
-          <button className={styles.btnApply}>
+          <button className={styles.btnApply} onClick={handleApplyFilters}>
             {t('apply')}
           </button>
         </div>
@@ -252,68 +340,113 @@ const BusinessReports: React.FC = () => {
         </div>
 
         {activeView === 'graph' ? (
-          <div className={styles.chartsContainer}>
-            {/* Units Ordered Chart */}
-            <div className={styles.chartWrapper}>
-              <div className="absolute left-[-30px] top-1/2 -translate-y-1/2 -rotate-90 text-[11px] text-[#565959] font-bold uppercase tracking-wider">
-                {t('unitsOrdered')}
+          <>
+            <div className={styles.chartsContainer}>
+              {/* Units Ordered Chart */}
+              <div className={styles.chartWrapper}>
+                <div className="absolute left-[-15px] top-1/2 -translate-y-1/2 -rotate-90 text-[9px] text-[#565959] font-normal uppercase tracking-wider">
+                  {t('unitsOrdered')}
+                </div>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData} margin={{ top: 25, right: 5, left: 15, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="0" vertical={false} horizontal={true} stroke="#d0d0d0" strokeWidth={1} />
+                    <XAxis
+                      dataKey="name"
+                      axisLine={true}
+                      tickLine={false}
+                      tick={{ fontSize: 10, fill: '#565959' }}
+                      interval="preserveStartEnd"
+                      stroke="#e0e0e0"
+                      angle={0}
+                      textAnchor="middle"
+                      tickFormatter={(value) => value || ''}
+                    />
+                    <YAxis
+                      axisLine={true}
+                      tickLine={true}
+                      tick={{ fontSize: 10, fill: '#565959' }}
+                      domain={[0, 'auto']}
+                      stroke="#e0e0e0"
+                      includeHidden={true}
+                    />
+                    <ReferenceLine y={0} stroke="#d0d0d0" strokeWidth={1} />
+                    <Tooltip
+                      formatter={(value: number) => [formatNumber(value), t('unitsOrdered')]}
+                      labelFormatter={(label, payload) => {
+                        if (payload && payload[0]) {
+                          return payload[0].payload.date;
+                        }
+                        return label;
+                      }}
+                    />
+                    <Line 
+                      type="linear" 
+                      dataKey="units" 
+                      stroke="#008296" 
+                      strokeWidth={0.8} 
+                      dot={false} 
+                      activeDot={{ r: 2 }}
+                      connectNulls={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#EEEEEE" />
-                  <XAxis
-                    dataKey="name"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 11, fill: '#565959' }}
-                    interval={0}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 11, fill: '#565959' }}
-                    domain={[0, 1000]}
-                  />
-                  <Tooltip
-                    formatter={(value: number) => [formatNumber(value), t('unitsOrdered')]}
-                  />
-                  <Line type="monotone" dataKey="units" stroke="#008296" strokeWidth={1.5} dot={false} activeDot={{ r: 4 }} />
-                  <Line type="monotone" dataKey="lastYearUnits" stroke="#E3E6E6" strokeWidth={1.5} dot={false} strokeDasharray="5 5" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
 
-            {/* Ordered Product Sales Chart */}
-            <div className={styles.chartWrapper}>
-              <div className="absolute left-[-30px] top-1/2 -translate-y-1/2 -rotate-90 text-[11px] text-[#565959] font-bold uppercase tracking-wider">
-                {t('orderedProductSales')}
+              {/* 中间分割线 */}
+              <div className={styles.chartDivider}></div>
+
+              {/* Ordered Product Sales Chart */}
+              <div className={styles.chartWrapper}>
+                <div className="absolute left-[-35px] top-1/2 -translate-y-1/2 -rotate-90 text-[9px] text-[#565959] font-normal uppercase tracking-wider">
+                  {t('orderedProductSales')}
+                </div>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData} margin={{ top: 25, right: 5, left: 25, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="0" vertical={false} horizontal={true} stroke="#d0d0d0" strokeWidth={1} />
+                    <XAxis
+                      dataKey="name"
+                      axisLine={true}
+                      tickLine={false}
+                      tick={{ fontSize: 10, fill: '#565959' }}
+                      interval="preserveStartEnd"
+                      stroke="#e0e0e0"
+                      angle={0}
+                      textAnchor="middle"
+                      tickFormatter={(value) => value || ''}
+                    />
+                    <YAxis
+                      axisLine={true}
+                      tickLine={true}
+                      tick={{ fontSize: 10, fill: '#565959' }}
+                      tickFormatter={(value) => `${value / 1000}k`}
+                      domain={[0, 'auto']}
+                      stroke="#e0e0e0"
+                      includeHidden={true}
+                    />
+                    <ReferenceLine y={0} stroke="#d0d0d0" strokeWidth={1} />
+                    <Tooltip
+                      formatter={(value: number) => [formatCurrency(value), t('orderedProductSales')]}
+                      labelFormatter={(label, payload) => {
+                        if (payload && payload[0]) {
+                          return payload[0].payload.date;
+                        }
+                        return label;
+                      }}
+                    />
+                    <Line 
+                      type="linear" 
+                      dataKey="sales" 
+                      stroke="#008296" 
+                      strokeWidth={0.8} 
+                      dot={false} 
+                      activeDot={{ r: 2 }}
+                      connectNulls={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#EEEEEE" />
-                  <XAxis
-                    dataKey="name"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 11, fill: '#565959' }}
-                    interval={0}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 11, fill: '#565959' }}
-                    tickFormatter={(value) => `${value / 1000}k`}
-                    domain={[0, 100000]}
-                  />
-                  <Tooltip
-                    formatter={(value: number) => [formatCurrency(value), t('orderedProductSales')]}
-                  />
-                  <Line type="monotone" dataKey="sales" stroke="#008296" strokeWidth={1.5} dot={false} activeDot={{ r: 4 }} />
-                  <Line type="monotone" dataKey="lastYearSales" stroke="#E3E6E6" strokeWidth={1.5} dot={false} strokeDasharray="5 5" />
-                </LineChart>
-              </ResponsiveContainer>
             </div>
-          </div>
+          </>
         ) : (
           <div className="p-20 text-center border rounded-[3px] text-[#565959]">
             {t('tableViewContent')}
@@ -333,7 +466,7 @@ const BusinessReports: React.FC = () => {
             <div>
               <span className={styles.checkboxLabel}>{t('selectedDateRange')}</span>
               <div className={styles.checkboxValues}>
-                Dec 1, 2024 - Dec 31, 2024<br />
+                {formatDateForDisplay(startDate)} - {formatDateForDisplay(endDate)}<br />
                 {snapshotData.unitsOrdered} Units<br />
                 {snapshotData.orderedProductSales}
               </div>

@@ -18,7 +18,7 @@ interface ApiResponseWithPagination<T> {
   };
 }
 
-// GET /api/communications/:storeId - 获取店铺的通讯数据
+// GET /api/communications/:storeId - 获取店铺的通讯数据 (前端用)
 router.get('/:storeId', asyncHandler(async (req, res) => {
   const { storeId } = req.params;
   
@@ -107,6 +107,68 @@ router.get('/:storeId', asyncHandler(async (req, res) => {
   }
 }));
 
+// GET /api/communications/:storeId/admin - 获取店铺的通讯数据 (管理后台用，返回原始数据结构)
+router.get('/:storeId/admin', asyncHandler(async (req, res) => {
+  const { storeId } = req.params;
+  
+  try {
+    // Decode URL-encoded store ID
+    const decodedStoreId = decodeURIComponent(storeId);
+    
+    // Read communications data directly as JSON object (not array)
+    const filePath = require('path').join(__dirname, '../../data/communications.json');
+    const communicationsData = require('fs-extra').readJsonSync(filePath);
+    
+    let storeComms = communicationsData[decodedStoreId] || communicationsData[storeId];
+    
+    // If store communications not found, create default data
+    if (!storeComms) {
+      console.log(`Creating default communications data for store: ${decodedStoreId}`);
+      
+      storeComms = {
+        seller_forums: [
+          {
+            id: `forum-${decodedStoreId}-1`,
+            title: "Welcome to Seller Forums",
+            author: "Amazon Team",
+            views: 1234,
+            replies: 56,
+            likes: 78,
+            category: "General",
+            created_at: new Date().toISOString(),
+            last_activity: new Date().toISOString(),
+            is_pinned: true,
+            is_solved: false
+          }
+        ],
+        seller_news: [
+          {
+            id: `news-${decodedStoreId}-1`,
+            title: "Latest Updates for Sellers",
+            author: "Amazon News",
+            views: 2345,
+            likes: 123,
+            category: "Updates",
+            created_at: new Date().toISOString(),
+            is_featured: true
+          }
+        ]
+      };
+    }
+    
+    // Return raw data structure for admin
+    const response = {
+      success: true,
+      data: storeComms,
+    };
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Communications admin error:', error);
+    throw createError('Failed to fetch communications data', 500);
+  }
+}));
+
 // GET /api/communications/:storeId/forums - 获取论坛数据
 router.get('/:storeId/forums', asyncHandler(async (req, res) => {
   const { storeId } = req.params;
@@ -188,6 +250,96 @@ router.get('/:storeId/news', asyncHandler(async (req, res) => {
     res.json(response);
   } catch (error) {
     throw createError('Failed to fetch news data', 500);
+  }
+}));
+
+// PUT /api/communications/:storeId/forums/:forumId - 更新论坛帖子
+router.put('/:storeId/forums/:forumId', asyncHandler(async (req, res) => {
+  const { storeId, forumId } = req.params;
+  const updateData = req.body;
+  
+  try {
+    const filePath = require('path').join(__dirname, '../../data/communications.json');
+    const communicationsData = require('fs-extra').readJsonSync(filePath);
+    
+    const decodedStoreId = decodeURIComponent(storeId);
+    const storeComms = communicationsData[decodedStoreId] || communicationsData[storeId];
+    
+    if (!storeComms || !storeComms.seller_forums) {
+      throw createError('Forums data not found', 404);
+    }
+    
+    const forumIndex = storeComms.seller_forums.findIndex((f: any) => f.id === forumId);
+    if (forumIndex === -1) {
+      throw createError('Forum post not found', 404);
+    }
+    
+    // 更新论坛帖子数据
+    storeComms.seller_forums[forumIndex] = {
+      ...storeComms.seller_forums[forumIndex],
+      ...updateData,
+      id: forumId, // 保持ID不变
+      last_activity: new Date().toISOString() // 更新最后活动时间
+    };
+    
+    // 保存更新的数据
+    require('fs-extra').writeJsonSync(filePath, communicationsData, { spaces: 2 });
+    
+    const response = {
+      success: true,
+      data: storeComms.seller_forums[forumIndex],
+      message: 'Forum post updated successfully'
+    };
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Update forum error:', error);
+    throw createError('Failed to update forum post', 500);
+  }
+}));
+
+// PUT /api/communications/:storeId/news/:newsId - 更新新闻
+router.put('/:storeId/news/:newsId', asyncHandler(async (req, res) => {
+  const { storeId, newsId } = req.params;
+  const updateData = req.body;
+  
+  try {
+    const filePath = require('path').join(__dirname, '../../data/communications.json');
+    const communicationsData = require('fs-extra').readJsonSync(filePath);
+    
+    const decodedStoreId = decodeURIComponent(storeId);
+    const storeComms = communicationsData[decodedStoreId] || communicationsData[storeId];
+    
+    if (!storeComms || !storeComms.seller_news) {
+      throw createError('News data not found', 404);
+    }
+    
+    const newsIndex = storeComms.seller_news.findIndex((n: any) => n.id === newsId);
+    if (newsIndex === -1) {
+      throw createError('News item not found', 404);
+    }
+    
+    // 更新新闻数据
+    storeComms.seller_news[newsIndex] = {
+      ...storeComms.seller_news[newsIndex],
+      ...updateData,
+      id: newsId, // 保持ID不变
+      published_at: storeComms.seller_news[newsIndex].published_at // 保持发布时间不变
+    };
+    
+    // 保存更新的数据
+    require('fs-extra').writeJsonSync(filePath, communicationsData, { spaces: 2 });
+    
+    const response = {
+      success: true,
+      data: storeComms.seller_news[newsIndex],
+      message: 'News item updated successfully'
+    };
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Update news error:', error);
+    throw createError('Failed to update news item', 500);
   }
 }));
 

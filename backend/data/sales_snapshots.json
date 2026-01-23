@@ -1,52 +1,42 @@
 [
   {
-    "store_id": "1",
-    "total_order_items": 248,
-    "units_ordered": 192260,
-    "ordered_product_sales": 18657478,
-    "avg_units_per_order": 1.14,
-    "avg_sales_per_order": 110.29,
-    "snapshot_time": "2026-01-19T18:18:21.123Z",
-    "id": "8557b4a8-e52d-47b2-9901-e46c20f6c4d7"
-  },
-  {
-    "store_id": "store-us-main",
+    "id": "snapshot-us-1",
+    "store_id": "store-us-1",
     "total_order_items": 154066,
     "units_ordered": 174714,
     "ordered_product_sales": 19701989.13,
-    "avg_units_per_order": 1.14,
-    "avg_sales_per_order": 110.29,
-    "snapshot_time": "2026-01-21T18:33:38.804Z",
-    "id": "697eab43-0ea8-400b-b947-e566c8b38afb"
+    "avg_units_per_order_item": 1.13,
+    "avg_sales_per_order_item": 127.88,
+    "snapshot_time": "2024-12-30T23:32:21.000Z"
   },
   {
-    "store_id": "store-jp-main",
-    "total_order_items": 248,
-    "units_ordered": 192260,
-    "ordered_product_sales": 18657478,
-    "avg_units_per_order": 1.14,
-    "avg_sales_per_order": 110.29,
-    "snapshot_time": "2026-01-20T15:54:55.433Z",
-    "id": "a985b8b2-f556-4834-91fe-1676d5c02ddb"
+    "id": "snapshot-jp-1",
+    "store_id": "store-jp-1",
+    "total_order_items": 184879,
+    "units_ordered": 209657,
+    "ordered_product_sales": 23642387.00,
+    "avg_units_per_order_item": 1.13,
+    "avg_sales_per_order_item": 153.46,
+    "snapshot_time": "2024-12-30T23:32:21.000Z"
   },
   {
-    "store_id": "store-uk-main",
-    "total_order_items": 248,
-    "units_ordered": 192260,
-    "ordered_product_sales": 18657478,
-    "avg_units_per_order": 1.14,
-    "avg_sales_per_order": 110.29,
-    "snapshot_time": "2026-01-21T15:17:25.601Z",
-    "id": "560dffc6-7b78-4b45-8635-2645379abe3c"
+    "id": "snapshot-uk-1",
+    "store_id": "store-uk-1",
+    "total_order_items": 154066,
+    "units_ordered": 174714,
+    "ordered_product_sales": 19701989.13,
+    "avg_units_per_order_item": 1.13,
+    "avg_sales_per_order_item": 127.88,
+    "snapshot_time": "2024-12-30T23:32:21.000Z"
   },
   {
-    "store_id": "store-de-main",
-    "total_order_items": 248,
-    "units_ordered": 192260,
-    "ordered_product_sales": 18657478,
-    "avg_units_per_order": 1.14,
-    "avg_sales_per_order": 110.29,
-    "snapshot_time": "2026-01-21T15:17:30.450Z",
-    "id": "43cf36bd-1b38-4d90-a6d4-03a7ff2d1444"
+    "id": "snapshot-de-1",
+    "store_id": "store-de-1",
+    "total_order_items": 107846,
+    "units_ordered": 122300,
+    "ordered_product_sales": 13791392.39,
+    "avg_units_per_order_item": 1.13,
+    "avg_sales_per_order_item": 89.52,
+    "snapshot_time": "2024-12-30T23:32:21.000Z"
   }
 ]

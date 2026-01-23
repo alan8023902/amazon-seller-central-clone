@@ -1,22 +1,12 @@
-# 代码规范和约定
+# 代码规范
 
-## 文件命名约定
+## 核心规范
 
-### 组件文件
-- **功能页面**: `PascalCase.tsx` (如 `Dashboard.tsx`, `BusinessReports.tsx`)
-- **布局组件**: `PascalCase.tsx` (如 `MainLayout.tsx`, `WithSidebarLayout.tsx`)
-- **UI组件**: `UI.tsx` 或 `PascalCase.tsx`
-- **Hook文件**: `use + PascalCase.ts` (如 `useI18n.ts`)
-
-### 配置文件
-- **路由配置**: `sidebar.config.tsx`
-- **国际化**: `i18n.ts`
-- **类型定义**: `types.ts`
-- **状态管理**: `store.ts`
-
-### 样式文件
-- **CSS模块**: `ComponentName.module.css`
-- **全局样式**: `index.css`
+### 文件命名
+- 组件: `PascalCase.tsx`
+- Hook: `usePascalCase.ts`
+- 配置: `camelCase.ts`
+- 样式: `ComponentName.module.css`
 
 ## 代码组织原则
 

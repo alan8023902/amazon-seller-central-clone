@@ -39,13 +39,16 @@ export const ADMIN_API_CONFIG = {
     // 销售数据相关
     SALES: {
       LIST: '/api/sales',
-      BY_STORE: (storeId: string) => `/api/sales?store_id=${storeId}`,
-      UPDATE: (storeId: string) => `/api/sales/${storeId}`,
+      BY_STORE: (storeId: string) => `/api/sales/snapshot/${storeId}`,
+      UPDATE: (storeId: string) => `/api/sales/snapshot/${storeId}`,
+      CHART_DATA: (storeId: string) => `/api/sales/chart-data/${storeId}`,
+      DAILY_SALES: (storeId: string) => `/api/sales/daily/${storeId}`,
+      GENERATE_DAILY: (storeId: string) => `/api/sales/generate-daily/${storeId}`,
     },
     
     // Communications相关
     COMMUNICATIONS: {
-      BY_STORE: (storeId: string) => `/api/communications/${storeId}`,
+      BY_STORE: (storeId: string) => `/api/communications/${storeId}/admin`,
       FORUMS: (storeId: string) => `/api/communications/${storeId}/forums`,
       NEWS: (storeId: string) => `/api/communications/${storeId}/news`,
       UPDATE_FORUM: (storeId: string, forumId: string) => `/api/communications/${storeId}/forums/${forumId}`,

@@ -99,29 +99,24 @@ const BusinessReportsConfig: React.FC<BusinessReportsConfigProps> = ({
 
   return (
     <div>
-      <Title level={2}>Business Reports 数据配置</Title>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <Title level={2}>Business Reports 数据配置</Title>
+        {selectedStore && (
+          <div style={{ fontSize: '14px', color: '#666' }}>
+            当前店铺: <strong>{selectedStore.name}</strong> ({selectedStore.marketplace})
+          </div>
+        )}
+      </div>
       
-      {/* 店铺选择器 */}
-      <Card title="🏪 选择店铺" style={{ marginBottom: 24 }}>
-        <Select
-          value={selectedStoreId}
-          onChange={setSelectedStoreId}
-          placeholder="请选择店铺"
-          style={{ width: '100%', maxWidth: 300 }}
-          size="large"
-        >
-          {stores.map((store: any) => (
-            <Option key={store.id} value={store.id}>
-              {store.name} ({store.marketplace})
-            </Option>
-          ))}
-        </Select>
-      </Card>
-
       {!selectedStoreId ? (
         <Card>
-          <div className="text-center py-8">
-            <p className="text-gray-500">请先选择一个店铺</p>
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '60px 0', 
+            color: '#999',
+            fontSize: '16px' 
+          }}>
+            请先在页面顶部选择一个店铺
           </div>
         </Card>
       ) : (
@@ -220,7 +215,7 @@ const BusinessReportsConfig: React.FC<BusinessReportsConfigProps> = ({
                       style={{ width: '100%' }}
                       size="large"
                       formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                      parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                      parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
                     />
                   </Form.Item>
                 </Col>
@@ -237,7 +232,7 @@ const BusinessReportsConfig: React.FC<BusinessReportsConfigProps> = ({
                       style={{ width: '100%' }}
                       size="large"
                       formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                      parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                      parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
                     />
                   </Form.Item>
                 </Col>
@@ -257,7 +252,7 @@ const BusinessReportsConfig: React.FC<BusinessReportsConfigProps> = ({
                       style={{ width: '100%' }}
                       size="large"
                       formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                      parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                      parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
                     />
                   </Form.Item>
                 </Col>
@@ -293,7 +288,7 @@ const BusinessReportsConfig: React.FC<BusinessReportsConfigProps> = ({
                       style={{ width: '100%' }}
                       size="large"
                       formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                      parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                      parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
                     />
                   </Form.Item>
                 </Col>

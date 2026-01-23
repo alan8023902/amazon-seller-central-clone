@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   Card, 
   Button, 
-  Select, 
   message, 
   Typography,
   Space,
@@ -19,68 +18,28 @@ import { SaveOutlined, ReloadOutlined } from '@ant-design/icons';
 import { ADMIN_API_CONFIG, adminApiGet, adminApiPut } from '../config/api';
 
 const { Title } = Typography;
-const { Option } = Select;
-
-interface AccountHealthData {
-  id: string;
-  store_id: string;
-  order_defect_rate: {
-    seller_fulfilled: number;
-    fulfilled_by_amazon: number;
-  };
-  policy_violations: {
-    negative_feedback: number;
-    a_to_z_claims: number;
-    chargeback_claims: number;
-  };
-  account_health_rating: number;
-  shipping_performance: {
-    late_shipment_rate: number;
-    pre_fulfillment_cancel_rate: number;
-    valid_tracking_rate: number;
-    on_time_delivery_rate: number | null;
-  };
-  policy_compliance: {
-    product_policy_violations: number;
-    listing_policy_violations: number;
-    intellectual_property_violations: number;
-    customer_product_reviews: number;
-    other_policy_violations: number;
-  };
-  updated_at: string;
-}
 
 interface AccountHealthConfigProps {
   selectedStoreId: string;
   selectedStore: any;
-  onStoreChange: (storeId: string, store: any) => void;
 }
 
-const AccountHealthConfig: React.FC<AccountHealthConfigProps> = ({ selectedStoreId }) => {
+const AccountHealthConfig: React.FC<AccountHealthConfigProps> = ({ 
+  selectedStoreId, 
+  selectedStore 
+}) => {
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
 
-  // 获取所有店铺
-  const { data: stores = [] } = useQuery({
-    queryKey: ['stores'],
-    queryFn: async () => {
-      const data = await adminApiGet(ADMIN_API_CONFIG.ENDPOINTS.STORES.LIST);
-      return data.data || [];
-    },
-  });
-
-  // 使用传入的selectedStoreId或默认第一个店铺
-  const currentStoreId = selectedStoreId || (stores.length > 0 ? stores[0].id : '');
-
   // 获取Account Health数据
   const { data: accountHealthData, isLoading } = useQuery({
-    queryKey: ['accountHealthData', currentStoreId],
+    queryKey: ['accountHealthData', selectedStoreId],
     queryFn: async () => {
-      if (!currentStoreId) return null;
-      const data = await adminApiGet(`/api/account-health/${currentStoreId}`);
+      if (!selectedStoreId) return null;
+      const data = await adminApiGet(`/api/account-health/${selectedStoreId}`);
       return data.data || null;
     },
-    enabled: !!currentStoreId,
+    enabled: !!selectedStoreId,
   });
 
   // 当数据加载完成时，更新表单
@@ -138,7 +97,7 @@ const AccountHealthConfig: React.FC<AccountHealthConfigProps> = ({ selectedStore
         }
       };
       
-      const data = await adminApiPut(`/api/account-health/${currentStoreId}`, formattedValues);
+      const data = await adminApiPut(`/api/account-health/${selectedStoreId}`, formattedValues);
       if (data.success) {
         message.success('Account Health数据更新成功！');
         queryClient.invalidateQueries({ queryKey: ['accountHealthData'] });
@@ -186,23 +145,28 @@ const AccountHealthConfig: React.FC<AccountHealthConfigProps> = ({ selectedStore
     return 'exception';
   };
 
-  const currentStore = stores.find((store: any) => store.id === currentStoreId);
+  const currentStore = selectedStore;
 
   return (
     <div>
-      <Title level={2}>Account Health 数据配置</Title>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <Title level={2}>Account Health 数据配置</Title>
+        {selectedStore && (
+          <div style={{ fontSize: '14px', color: '#666' }}>
+            当前店铺: <strong>{selectedStore.name}</strong> ({selectedStore.marketplace})
+          </div>
+        )}
+      </div>
       
-      {/* 当前店铺显示 */}
-      {currentStore && (
-        <Card title="🏪 当前店铺" style={{ marginBottom: 24 }}>
-          <p><strong>{currentStore.name}</strong> ({currentStore.marketplace})</p>
-        </Card>
-      )}
-
-      {!currentStoreId ? (
+      {!selectedStoreId ? (
         <Card>
-          <div className="text-center py-8">
-            <p className="text-gray-500">请先选择一个店铺</p>
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '60px 0', 
+            color: '#999',
+            fontSize: '16px' 
+          }}>
+            请先在页面顶部选择一个店铺
           </div>
         </Card>
       ) : (

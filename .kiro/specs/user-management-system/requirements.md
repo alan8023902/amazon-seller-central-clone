@@ -1,63 +1,63 @@
-# Requirements Document
+# 需求文档
 
-## Introduction
+## 简介
 
-The User Management System provides comprehensive user authentication, authorization, and management capabilities for the Amazon Seller Central clone project. This system integrates with the existing multi-store architecture to provide role-based access control, secure authentication flows, and administrative user management capabilities.
+用户管理系统为Amazon卖家中心克隆项目提供全面的用户认证、授权和管理功能。该系统与现有的多店铺架构集成，提供基于角色的访问控制、安全认证流程和管理用户管理功能。
 
-## Glossary
+## 术语表
 
-- **User**: An individual with access to the system, identified by unique credentials
-- **Authentication_Service**: The service responsible for verifying user identity
-- **Authorization_Service**: The service responsible for determining user permissions
-- **Session_Manager**: The component managing user sessions and tokens
-- **Role**: A defined set of permissions assigned to users (Admin, Store Manager, Viewer)
-- **JWT_Token**: JSON Web Token used for secure session management
-- **OTP_Service**: One-Time Password service for two-factor authentication
-- **User_Profile**: User account information and preferences
-- **Activity_Logger**: Service that tracks and logs user actions
-- **Password_Reset_Service**: Service handling secure password reset workflows
-- **Store_Context**: The current store scope for user operations
+- **用户**: 具有系统访问权限的个人，通过唯一凭据识别
+- **认证服务**: 负责验证用户身份的服务
+- **授权服务**: 负责确定用户权限的服务
+- **会话管理器**: 管理用户会话和令牌的组件
+- **角色**: 分配给用户的定义权限集（管理员、店铺管理员、查看者）
+- **JWT令牌**: 用于安全会话管理的JSON Web令牌
+- **OTP服务**: 双因素认证的一次性密码服务
+- **用户配置文件**: 用户账户信息和偏好设置
+- **活动记录器**: 跟踪和记录用户操作的服务
+- **密码重置服务**: 处理安全密码重置工作流程的服务
+- **店铺上下文**: 用户操作的当前店铺范围
 
-## Requirements
+## 需求
 
-### Requirement 1: User Registration and Authentication
+### 需求1：用户注册和认证
 
-**User Story:** As a system administrator, I want to manage user registration and authentication, so that only authorized users can access the system with secure credentials.
+**用户故事：** 作为系统管理员，我希望管理用户注册和认证，以便只有授权用户可以使用安全凭据访问系统。
 
-#### Acceptance Criteria
+#### 验收标准
 
-1. WHEN a new user is registered, THE Authentication_Service SHALL create a user account with encrypted password storage
-2. WHEN a user attempts to login with valid credentials, THE Authentication_Service SHALL authenticate the user and generate a JWT token
-3. WHEN a user attempts to login with invalid credentials, THE Authentication_Service SHALL reject the login and log the attempt
-4. WHEN a user completes two-factor authentication, THE OTP_Service SHALL verify the code and complete the login process
-5. THE Authentication_Service SHALL enforce password complexity requirements (minimum 8 characters, mixed case, numbers, special characters)
-6. WHEN a user account is created, THE System SHALL assign a default role of "Viewer"
+1. 当注册新用户时，认证服务应创建具有加密密码存储的用户账户
+2. 当用户尝试使用有效凭据登录时，认证服务应认证用户并生成JWT令牌
+3. 当用户尝试使用无效凭据登录时，认证服务应拒绝登录并记录尝试
+4. 当用户完成双因素认证时，OTP服务应验证代码并完成登录过程
+5. 认证服务应强制执行密码复杂性要求（最少8个字符，大小写混合，数字，特殊字符）
+6. 当创建用户账户时，系统应分配默认角色"查看者"
 
-### Requirement 2: JWT Token Management and Session Control
+### 需求2：JWT令牌管理和会话控制
 
-**User Story:** As a security administrator, I want secure session management with JWT tokens, so that user sessions are properly controlled and secured.
+**用户故事：** 作为安全管理员，我希望使用JWT令牌进行安全会话管理，以便用户会话得到适当控制和保护。
 
-#### Acceptance Criteria
+#### 验收标准
 
-1. WHEN a user successfully authenticates, THE Session_Manager SHALL generate a JWT token with user ID, role, and expiration time
-2. WHEN a JWT token is presented, THE Session_Manager SHALL validate the token signature and expiration
-3. WHEN a JWT token expires, THE Session_Manager SHALL require re-authentication
-4. THE Session_Manager SHALL support token refresh for active sessions
-5. WHEN a user logs out, THE Session_Manager SHALL invalidate the current token
-6. THE JWT_Token SHALL include store context information for multi-store operations
+1. 当用户成功认证时，会话管理器应生成包含用户ID、角色和过期时间的JWT令牌
+2. 当提供JWT令牌时，会话管理器应验证令牌签名和过期时间
+3. 当JWT令牌过期时，会话管理器应要求重新认证
+4. 会话管理器应支持活动会话的令牌刷新
+5. 当用户注销时，会话管理器应使当前令牌无效
+6. JWT令牌应包含多店铺操作的店铺上下文信息
 
-### Requirement 3: Role-Based Access Control
+### 需求3：基于角色的访问控制
 
-**User Story:** As a system administrator, I want role-based access control, so that users have appropriate permissions based on their responsibilities.
+**用户故事：** 作为系统管理员，我希望基于角色的访问控制，以便用户根据其职责拥有适当的权限。
 
-#### Acceptance Criteria
+#### 验收标准
 
-1. THE Authorization_Service SHALL support three roles: Admin, Store Manager, and Viewer
-2. WHEN a user with Admin role accesses any resource, THE Authorization_Service SHALL grant full access
-3. WHEN a user with Store Manager role accesses store resources, THE Authorization_Service SHALL grant access only to assigned stores
-4. WHEN a user with Viewer role accesses resources, THE Authorization_Service SHALL grant read-only access to assigned stores
-5. WHEN a user attempts to access unauthorized resources, THE Authorization_Service SHALL deny access and return a 403 error
-6. THE Authorization_Service SHALL validate user permissions on every protected API endpoint
+1. 授权服务应支持三种角色：管理员、店铺管理员和查看者
+2. 当具有管理员角色的用户访问任何资源时，授权服务应授予完全访问权限
+3. 当具有店铺管理员角色的用户访问店铺资源时，授权服务应仅授予对分配店铺的访问权限
+4. 当具有查看者角色的用户访问资源时，授权服务应授予对分配店铺的只读访问权限
+5. 当用户尝试访问未授权资源时，授权服务应拒绝访问并返回403错误
+6. 授权服务应在每个受保护的API端点上验证用户权限
 
 ### Requirement 4: User Profile Management
 
